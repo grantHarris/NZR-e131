@@ -7,28 +7,28 @@ strip_channel:
     brightness: 255
     strip_type: WS2811_STRIP_GRB
 mapping:
-  0:
+  1:
   - input:
       start_address: 1
       total_rgb_channels: 170
     output:
       start_address: 0
       strip_channel: 0
-  1:
+  2:
   - input:
       start_address: 1
       total_rgb_channels: 170
     output:
       start_address: 169
       strip_channel: 0
-  2:
+  3:
   - input:
       start_address: 1
       total_rgb_channels: 170
     output:
       start_address: 339
       strip_channel: 0
-  3:
+  4:
   - input:
       start_address: 1
       total_rgb_channels: 170
