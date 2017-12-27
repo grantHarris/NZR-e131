@@ -1,13 +1,21 @@
+#include <cstdio>
+#include <memory>
+#include <stdexcept>
+#include <array>
+
+#include <iostream>
+#include <unistd.h>
 #include <string>
 #include <signal.h>
 #include <thread>
 #include <mutex>
+#include <sstream>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <e131.h>
-
+#include <err.h>
 #include "lib/clk.h"
 #include "lib/gpio.h"
 #include "lib/dma.h"
@@ -28,6 +36,24 @@ int sockfd;
 e131_packet_t packet;
 e131_error_t error;
 uint8_t last_seq = 0x00;
+std::mutex m;
+
+std::string exec(const char* cmd) {
+	std::array<char, 128> buffer;
+	std::string result;
+	std::shared_ptr<FILE> pipe(popen(cmd, "r"), pclose);
+	
+	if (!pipe){
+		throw std::runtime_error("popen() failed!");
+	}
+
+	while (!feof(pipe.get())) {
+		if (fgets(buffer.data(), 128, pipe.get()) != nullptr){
+			result += buffer.data();
+		}
+	}
+	return result;
+}
 
 void setup_ouput_channels(){
 	YAML::Node strip_channel = config["strip_channel"];
@@ -61,9 +87,10 @@ static void setup_handlers(void){
 
 void receive_data() {
 	int strip_channel, start_address, total_rgb_channels, end_address, start_address_offset;
-	for (;;) {
+	while(running == true) {
 		if (e131_recv(sockfd, &packet) < 0)
 			err(EXIT_FAILURE, "e131_recv");
+
 		if ((error = e131_pkt_validate(&packet)) != E131_ERR_NONE) {
 			fprintf(stderr, "e131_pkt_validate: %s\n", e131_strerror(error));
 			continue;
@@ -73,10 +100,11 @@ void receive_data() {
 			last_seq = packet.frame.seq_number;
 			continue;
 		}
-
-		YAML::Node universe = config["mapping"][packet.frame.universe];
-		
 		m.lock();
+
+		YAML::Node universe = config["mapping"][ntohs(packet.frame.universe)];
+		
+		//std::cout << "Got data for universe: " << universe << std::endl;
 		for(YAML::const_iterator it = universe.begin(); it != universe.end(); ++it) {
 
 			const YAML::Node& entry = *it;
@@ -84,39 +112,41 @@ void receive_data() {
 			YAML::Node input_params = entry["input"];
 
 			strip_channel = output_params["strip_channel"].as<int>();
-			start_address = std::max(0, std::min(input_params["start_address"].as<int>() - 1, 511));
+			start_address = std::max(1, std::min(input_params["start_address"].as<int>(), 511));
 			total_rgb_channels = std::max(0, std::min(input_params["total_rgb_channels"].as<int>() - 1, 511));
-			end_address = std::max(0, std::min(total_rgb_channels - start_address, 511));
+			end_address = std::max(1, std::min(total_rgb_channels - start_address, 511));
 			start_address_offset = output_params["start_address"].as<int>();
-
-			for(std::size_t i = start_address; i < end_address; i++){
+			//e131_pkt_dump(stderr, &packet);
+			for(int i = start_address - 1; i < end_address; i++){
+				
+				//std::cout<< "Value: " << (int) packet.dmp.prop_val[i*3 + 1] << "for" << i*3 + 1 << std::endl;
 				output.channel[strip_channel].leds[i + start_address_offset] = 
-				(uint32_t) packet.dmp.prop_val[i * 3] << 16 |
-				(uint32_t) packet.dmp.prop_val[i * 3 + 1] << 8 |
-				(uint32_t) packet.dmp.prop_val[i * 3 + 2];
+				(uint32_t) packet.dmp.prop_val[i * 3 + 1] << 16 |
+				(uint32_t) packet.dmp.prop_val[i * 3 + 2] << 8 |
+				(uint32_t) packet.dmp.prop_val[i * 3 + 3];
 			}
 		}
-		m.unlock();
-
 		last_seq = packet.frame.seq_number;
+		m.unlock();
 	}
 }
 
 void render_ws2811() {
 	ws2811_return_t ret;
-	
-	m.lock();
-	if ((ret = ws2811_render(&output)) != WS2811_SUCCESS){
-		std::cout << "ws2811_render failed:" << ws2811_get_return_t_str(ret);
+	std::cout<<"render thread"<<std::endl;
+	while(running == true){
+		m.lock();
+		if ((ret = ws2811_render(&output)) != WS2811_SUCCESS){
+			std::cout << "ws2811_render failed:" << ws2811_get_return_t_str(ret);
+		}
+		m.unlock();
+		usleep(1000000 / 30);
 	}
-	m.unlock();
-	
 	if(running == false){
 		std::cout << "Quit" << std::endl;
 		ws2811_fini(&output);
 	}
 
-	usleep(1000000 / 30);
 }
 
 int main() {
@@ -148,6 +178,12 @@ int main() {
 	for(YAML::const_iterator it=config["mapping"].begin(); it!=config["mapping"].end(); ++it) {
 		int universe = it->first.as<int>();
 		// join multicast group for universes
+		std::cout<< "Joining as universe: " << universe<<std::endl;
+		std::stringstream ss;
+		ss << "sudo ip maddr add 239.255.0." << universe << " dev wlan0";
+		std::cout << "Executing shell command: " << ss.str() << std::endl;
+		std::cout << exec(ss.str().c_str()) << std::endl;
+
 		if (e131_multicast_join(sockfd, universe) < 0)
 			err(EXIT_FAILURE, "e131_multicast_join");
 	}
