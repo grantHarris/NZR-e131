@@ -25,7 +25,7 @@
 #include "yaml-cpp/yaml.h"
 
 #define TARGET_FREQ 	WS2811_TARGET_FREQ
-#define DMA 			5
+#define DMA 		10
 #define STRIP_TYPE      WS2811_STRIP_GRB
 
 ws2811_t output;
@@ -96,7 +96,7 @@ void receive_data() {
 			continue;
 		}
 		if (e131_pkt_discard(&packet, last_seq)) {
-			fprintf(stderr, "warning: packet out of order received\n");
+			fprintf(stderr, "Warning: e131 packet received out of order\n");
 			last_seq = packet.frame.seq_number;
 			continue;
 		}
@@ -133,17 +133,15 @@ void receive_data() {
 
 void render_ws2811() {
 	ws2811_return_t ret;
-	std::cout<<"render thread"<<std::endl;
 	while(running == true){
 		m.lock();
 		if ((ret = ws2811_render(&output)) != WS2811_SUCCESS){
 			std::cout << "ws2811_render failed:" << ws2811_get_return_t_str(ret);
 		}
 		m.unlock();
-		usleep(1000000 / 30);
+		usleep(1000000 / 60);
 	}
 	if(running == false){
-		std::cout << "Quit" << std::endl;
 		ws2811_fini(&output);
 	}
 
@@ -152,7 +150,7 @@ void render_ws2811() {
 int main() {
 
 	running = true;
-	config = YAML::LoadFile("config.yaml");
+	config = YAML::LoadFile("/home/pi/nzr-e131/config.yaml");
 	ws2811_return_t ret;
 	
 	output.freq = TARGET_FREQ;
