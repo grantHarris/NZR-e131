@@ -92,11 +92,11 @@ void receive_data() {
 			err(EXIT_FAILURE, "e131_recv");
 
 		if ((error = e131_pkt_validate(&packet)) != E131_ERR_NONE) {
-			fprintf(stderr, "e131_pkt_validate: %s\n", e131_strerror(error));
+			std::cerr << "e131 packet validation error" << e131_strerror(error) << std::endl;
 			continue;
 		}
 		if (e131_pkt_discard(&packet, last_seq)) {
-			fprintf(stderr, "Warning: e131 packet received out of order\n");
+			std::cerr << "e131 packet received out of sequence" << std::endl;
 			last_seq = packet.frame.seq_number;
 			continue;
 		}
@@ -104,7 +104,6 @@ void receive_data() {
 
 		YAML::Node universe = config["mapping"][ntohs(packet.frame.universe)];
 		
-		//std::cout << "Got data for universe: " << universe << std::endl;
 		for(YAML::const_iterator it = universe.begin(); it != universe.end(); ++it) {
 
 			const YAML::Node& entry = *it;
@@ -116,10 +115,8 @@ void receive_data() {
 			total_rgb_channels = std::max(0, std::min(input_params["total_rgb_channels"].as<int>() - 1, 511));
 			end_address = std::max(1, std::min(total_rgb_channels - start_address, 511));
 			start_address_offset = output_params["start_address"].as<int>();
-			//e131_pkt_dump(stderr, &packet);
-			for(int i = start_address - 1; i < end_address; i++){
-				
-				//std::cout<< "Value: " << (int) packet.dmp.prop_val[i*3 + 1] << "for" << i*3 + 1 << std::endl;
+			
+			for(int i = start_address - 1; i < end_address; i++){	
 				output.channel[strip_channel].leds[i + start_address_offset] = 
 				(uint32_t) packet.dmp.prop_val[i * 3 + 1] << 16 |
 				(uint32_t) packet.dmp.prop_val[i * 3 + 2] << 8 |
@@ -136,7 +133,7 @@ void render_ws2811() {
 	while(running == true){
 		m.lock();
 		if ((ret = ws2811_render(&output)) != WS2811_SUCCESS){
-			std::cout << "ws2811_render failed:" << ws2811_get_return_t_str(ret);
+			std::cerr << "ws2811_render failed:" << ws2811_get_return_t_str(ret);
 		}
 		m.unlock();
 		usleep(1000000 / 60);
@@ -159,7 +156,7 @@ int main() {
 	setup_ouput_channels();
 	
 	if ((ret = ws2811_init(&output)) != WS2811_SUCCESS){
-		std::cout << "ws2811_init failed:" << ws2811_get_return_t_str(ret);
+		std::cerr << "ws2811_init failed:" << ws2811_get_return_t_str(ret);
 		exit(1);
 	}
 
