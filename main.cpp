@@ -110,7 +110,8 @@ void receive_data() {
         }
 
         if (e131_pkt_discard(&packet, last_seq)) {
-            BOOST_LOG_TRIVIAL(warning) << "e131 packet received out of sequence";
+            BOOST_LOG_TRIVIAL(warning) << "e131 packet received out of sequence. Last: " 
+            << static_cast<int>(last_seq) << ", Seq: " << static_cast<int>(packet.frame.seq_number);
             last_seq = packet.frame.seq_number;
             continue;
         }
