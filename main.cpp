@@ -45,7 +45,8 @@ int sockfd;
 e131_packet_t packet;
 e131_error_t error;
 uint8_t last_seq = 0x00;
-std::mutex m;
+
+std::mutex outputMutex;
 
 std::string exec(const char* cmd) {
     std::array<char, 128> buffer;
@@ -117,7 +118,7 @@ void receive_data() {
         int universe = ntohs(packet.frame.universe);
         BOOST_LOG_TRIVIAL(debug) << "Packet for universe: " << universe;
 
-        m.lock();
+        outputMutex.lock();
         YAML::Node universeConfig = config["mapping"][universe];
         for(YAML::const_iterator it = universeConfig.begin(); it != universeConfig.end(); ++it) {
             const YAML::Node& entry = *it;
@@ -137,11 +138,11 @@ void receive_data() {
                 uint8_t b = packet.dmp.prop_val[index + 2];
 
                 BOOST_LOG_TRIVIAL(trace) 
-                    << "Channel: " << strip_channel 
-                    << ", LED Index: " << i + start_address_offset
-                    << ", R: " << static_cast<int>(r)
-                    << ", G: " << static_cast<int>(g)
-                    << ", B: " << static_cast<int>(b);
+                << "Channel: " << strip_channel 
+                << ", LED Index: " << i + start_address_offset
+                << ", R: " << static_cast<int>(r)
+                << ", G: " << static_cast<int>(g)
+                << ", B: " << static_cast<int>(b);
 
                 output.channel[strip_channel].leds[i + start_address_offset] = 
                 static_cast<uint32_t>(r << 16) |
@@ -150,7 +151,7 @@ void receive_data() {
             }
         }
         last_seq = packet.frame.seq_number;
-        m.unlock();
+        outputMutex.unlock();
     }
 }
 
@@ -158,22 +159,24 @@ void render_ws2811() {
     ws2811_return_t ret;
     
     while(running == true){
-        m.lock();
+        outputMutex.lock();
         if ((ret = ws2811_render(&output)) != WS2811_SUCCESS){
             BOOST_LOG_TRIVIAL(error) << "ws2811_render failed:" << ws2811_get_return_t_str(ret);
         }
-        m.unlock();
+        outputMutex.unlock();
         usleep(1000000 / 30);
     }
 
     if(running == false){
+        outputMutex.lock();
         ws2811_fini(&output);
+        outputMutex.unlock();
     }
 
 }
 
 void join_universe(int t_universe){
-    
+
     BOOST_LOG_TRIVIAL(info) << "Joining universe: " << t_universe;
 
     std::stringstream ss;
@@ -213,12 +216,12 @@ int main(int argc, char* argv[]) {
     try {
         po::options_description desc("Allowed options");
         desc.add_options()
-            ("help,h", "Produce help message")
-            ("config,c", po::value<std::string>()->default_value("./config.yaml"), "Config file path")
-            ("log,l", po::value<std::string>(),
-                  "Logging file path")
-            ("verbose,v", po::value<int>()->implicit_value(1),
-                  "Enable verbosity (optionally specify level)")
+        ("help,h", "Produce help message")
+        ("config,c", po::value<std::string>()->default_value("./config.yaml"), "Config file path")
+        ("log,l", po::value<std::string>(),
+          "Logging file path")
+        ("verbose,v", po::value<int>()->implicit_value(1),
+          "Enable verbosity (optionally specify level)")
         ;
 
         po::variables_map vm;        
@@ -238,15 +241,15 @@ int main(int argc, char* argv[]) {
         //put some code here to set verbosity from args
         logging::core::get()->set_filter(
             logging::trivial::severity >= logging::trivial::info
-        );
+            );
 
         BOOST_LOG_TRIVIAL(info) << "Using config file " << vm["config"].as<std::string>();
         config = YAML::LoadFile(vm["config"].as<std::string>());
         
         setup_handlers();
-	setup_ouput();
+        setup_ouput();
         setup_e131();
-	setup_ws2811();
+        setup_ws2811();
 
         running = true;
 
