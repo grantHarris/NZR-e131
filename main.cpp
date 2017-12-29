@@ -24,8 +24,8 @@
 #include "lib/ws2811.h"
 #include "yaml-cpp/yaml.h"
 
-#define TARGET_FREQ 	WS2811_TARGET_FREQ
-#define DMA 		10
+#define TARGET_FREQ     WS2811_TARGET_FREQ
+#define DMA             10
 #define STRIP_TYPE      WS2811_STRIP_GRB
 
 ws2811_t output;
@@ -39,157 +39,164 @@ uint8_t last_seq = 0x00;
 std::mutex m;
 
 std::string exec(const char* cmd) {
-	std::array<char, 128> buffer;
-	std::string result;
-	std::shared_ptr<FILE> pipe(popen(cmd, "r"), pclose);
-	
-	if (!pipe){
-		throw std::runtime_error("popen() failed!");
-	}
+    std::array<char, 128> buffer;
+    std::string result;
+    std::shared_ptr<FILE> pipe(popen(cmd, "r"), pclose);
+    
+    if (!pipe){
+        throw std::runtime_error("popen() failed!");
+    }
 
-	while (!feof(pipe.get())) {
-		if (fgets(buffer.data(), 128, pipe.get()) != nullptr){
-			result += buffer.data();
-		}
-	}
-	return result;
+    while (!feof(pipe.get())) {
+        if (fgets(buffer.data(), 128, pipe.get()) != nullptr){
+            result += buffer.data();
+        }
+    }
+    return result;
 }
 
 void setup_ouput_channels(){
-	YAML::Node strip_channel = config["strip_channel"];
-	for(YAML::const_iterator it=strip_channel.begin(); it!=strip_channel.end(); ++it) {
-		int ch = it->first.as<int>();
+    YAML::Node strip_channel = config["strip_channel"];
+    for(YAML::const_iterator it=strip_channel.begin(); it!=strip_channel.end(); ++it) {
+        int ch = it->first.as<int>();
 
-		int gpio_pin = it->second["gpionum"].as<int>();
-		int count = it->second["count"].as<int>();
-		int invert = it->second["invert"].as<int>();
-		int brightness = it->second["brightness"].as<int>();
+        int gpio_pin = it->second["gpionum"].as<int>();
+        int count = it->second["count"].as<int>();
+        int invert = it->second["invert"].as<int>();
+        int brightness = it->second["brightness"].as<int>();
 
-		output.channel[ch].gpionum = gpio_pin;
-		output.channel[ch].count = count;
-		output.channel[ch].invert = invert;
-		output.channel[ch].brightness = brightness;
-		output.channel[ch].strip_type = STRIP_TYPE;
-	}
+        output.channel[ch].gpionum = gpio_pin;
+        output.channel[ch].count = count;
+        output.channel[ch].invert = invert;
+        output.channel[ch].brightness = brightness;
+        output.channel[ch].strip_type = STRIP_TYPE;
+    }
 }
 
 static void sig_handler(int signum){
-	(void)(signum);
-	running = false;
+    (void)(signum);
+    running = false;
 }
 
 static void setup_handlers(void){
-	struct sigaction action;
-	action.sa_handler = &sig_handler;
-	sigaction(SIGINT, &action, NULL);
-	sigaction(SIGTERM, &action, NULL);
+    struct sigaction action;
+    action.sa_handler = &sig_handler;
+    sigaction(SIGINT, &action, NULL);
+    sigaction(SIGTERM, &action, NULL);
 }
 
 void receive_data() {
-	int strip_channel, start_address, total_rgb_channels, end_address, start_address_offset;
-	while(running == true) {
-		if (e131_recv(sockfd, &packet) < 0)
-			err(EXIT_FAILURE, "e131_recv");
+    int strip_channel, start_address, total_rgb_channels, end_address, start_address_offset;
+    
+    while(running == true) {
+        if (e131_recv(sockfd, &packet) < 0)
+            err(EXIT_FAILURE, "e131_recv");
 
-		if ((error = e131_pkt_validate(&packet)) != E131_ERR_NONE) {
-			fprintf(stderr, "e131_pkt_validate: %s\n", e131_strerror(error));
-			continue;
-		}
-		if (e131_pkt_discard(&packet, last_seq)) {
-			fprintf(stderr, "Warning: e131 packet received out of order\n");
-			last_seq = packet.frame.seq_number;
-			continue;
-		}
-		m.lock();
+        if ((error = e131_pkt_validate(&packet)) != E131_ERR_NONE) {
+            std::cerr << "e131 packet validation error" << e131_strerror(error) << std::endl;
+            continue;
+        }
 
-		YAML::Node universe = config["mapping"][ntohs(packet.frame.universe)];
-		
-		//std::cout << "Got data for universe: " << universe << std::endl;
-		for(YAML::const_iterator it = universe.begin(); it != universe.end(); ++it) {
+        if (e131_pkt_discard(&packet, last_seq)) {
+            std::cerr << "e131 packet received out of sequence" << std::endl;
+            last_seq = packet.frame.seq_number;
+            continue;
+        }
 
-			const YAML::Node& entry = *it;
-			YAML::Node output_params = entry["output"];
-			YAML::Node input_params = entry["input"];
+        m.lock();
 
-			strip_channel = output_params["strip_channel"].as<int>();
-			start_address = std::max(1, std::min(input_params["start_address"].as<int>(), 511));
-			total_rgb_channels = std::max(0, std::min(input_params["total_rgb_channels"].as<int>() - 1, 511));
-			end_address = std::max(1, std::min(total_rgb_channels - start_address, 511));
-			start_address_offset = output_params["start_address"].as<int>();
-			//e131_pkt_dump(stderr, &packet);
-			for(int i = start_address - 1; i < end_address; i++){
-				
-				//std::cout<< "Value: " << (int) packet.dmp.prop_val[i*3 + 1] << "for" << i*3 + 1 << std::endl;
-				output.channel[strip_channel].leds[i + start_address_offset] = 
-				(uint32_t) packet.dmp.prop_val[i * 3 + 1] << 16 |
-				(uint32_t) packet.dmp.prop_val[i * 3 + 2] << 8 |
-				(uint32_t) packet.dmp.prop_val[i * 3 + 3];
-			}
-		}
-		last_seq = packet.frame.seq_number;
-		m.unlock();
-	}
+        YAML::Node universe = config["mapping"][ntohs(packet.frame.universe)];
+        
+        for(YAML::const_iterator it = universe.begin(); it != universe.end(); ++it) {
+
+            const YAML::Node& entry = *it;
+            YAML::Node output_params = entry["output"];
+            YAML::Node input_params = entry["input"];
+
+            strip_channel = output_params["strip_channel"].as<int>();
+            start_address = std::max(1, std::min(input_params["start_address"].as<int>(), 511));
+            total_rgb_channels = std::max(0, std::min(input_params["total_rgb_channels"].as<int>() - 1, 511));
+            end_address = std::max(1, std::min(total_rgb_channels - start_address, 511));
+            start_address_offset = output_params["start_address"].as<int>();
+            
+            for(int i = start_address - 1; i < end_address; i++){   
+                output.channel[strip_channel].leds[i + start_address_offset] = 
+                static_cast<uint32_t>(packet.dmp.prop_val[i * 3 + 1] << 16) |
+                static_cast<uint32_t>(packet.dmp.prop_val[i * 3 + 2] << 8) |
+                static_cast<uint32_t>(packet.dmp.prop_val[i * 3 + 3]);
+            }
+        }
+        last_seq = packet.frame.seq_number;
+        m.unlock();
+    }
 }
 
 void render_ws2811() {
-	ws2811_return_t ret;
-	while(running == true){
-		m.lock();
-		if ((ret = ws2811_render(&output)) != WS2811_SUCCESS){
-			std::cout << "ws2811_render failed:" << ws2811_get_return_t_str(ret);
-		}
-		m.unlock();
-		usleep(1000000 / 60);
-	}
-	if(running == false){
-		ws2811_fini(&output);
-	}
+    ws2811_return_t ret;
+    while(running == true){
+        m.lock();
+        if ((ret = ws2811_render(&output)) != WS2811_SUCCESS){
+            std::cerr << "ws2811_render failed:" << ws2811_get_return_t_str(ret);
+        }
+        m.unlock();
+        usleep(1000000 / 60);
+    }
+    if(running == false){
+        ws2811_fini(&output);
+    }
 
 }
 
-int main() {
+void join_universe(int universe){
+    std::stringstream ss;
+    std::cout<< "Joining as universe: " << universe << std::endl;
+    ss << "sudo ip maddr add 239.255.0." << universe << " dev wlan0";
+    std::cout << "Executing shell command: " << ss.str() << std::endl;
+    std::cout << exec(ss.str().c_str()) << std::endl;
 
-	running = true;
-	config = YAML::LoadFile("/home/pi/nzr-e131/config.yaml");
-	ws2811_return_t ret;
-	
-	output.freq = TARGET_FREQ;
-	output.dmanum = DMA;
+    if (e131_multicast_join(sockfd, universe) < 0)
+        err(EXIT_FAILURE, "e131_multicast_join");   
+}
 
-	setup_ouput_channels();
-	
-	if ((ret = ws2811_init(&output)) != WS2811_SUCCESS){
-		std::cout << "ws2811_init failed:" << ws2811_get_return_t_str(ret);
-		exit(1);
-	}
+void setup_e131(){
+    // create a socket for E1.31
+    if ((sockfd = e131_socket()) < 0)
+        err(EXIT_FAILURE, "e131_socket");
 
-	setup_handlers();
+    // bind the socket to the default E1.31 port
+    if (e131_bind(sockfd, E131_DEFAULT_PORT) < 0)
+        err(EXIT_FAILURE, "e131_bind");
+}
 
-	// create a socket for E1.31
-	if ((sockfd = e131_socket()) < 0)
-		err(EXIT_FAILURE, "e131_socket");
+void setup_ws2811(){
+    if ((ret = ws2811_init(&output)) != WS2811_SUCCESS){
+        std::cerr << "ws2811_init failed:" << ws2811_get_return_t_str(ret);
+        exit(1);
+    }
+}
 
-	// bind the socket to the default E1.31 port
-	if (e131_bind(sockfd, E131_DEFAULT_PORT) < 0)
-		err(EXIT_FAILURE, "e131_bind");
+int main(int argc, char* argv[]) {
+    running = true;
+    config = YAML::LoadFile("/home/pi/nzr-e131/config.yaml");
+    ws2811_return_t ret;
+    
+    output.freq = TARGET_FREQ;
+    output.dmanum = DMA;
 
-	for(YAML::const_iterator it=config["mapping"].begin(); it!=config["mapping"].end(); ++it) {
-		int universe = it->first.as<int>();
-		// join multicast group for universes
-		std::cout<< "Joining as universe: " << universe<<std::endl;
-		std::stringstream ss;
-		ss << "sudo ip maddr add 239.255.0." << universe << " dev wlan0";
-		std::cout << "Executing shell command: " << ss.str() << std::endl;
-		std::cout << exec(ss.str().c_str()) << std::endl;
+    setup_ouput_channels();
+    setup_ws2811();
+    setup_handlers();
+    setup_e131();
 
-		if (e131_multicast_join(sockfd, universe) < 0)
-			err(EXIT_FAILURE, "e131_multicast_join");
-	}
+    for(YAML::const_iterator it=config["mapping"].begin(); it != config["mapping"].end(); ++it) {
+        int universe = it->first.as<int>();
+        join_universe(universe);
+    }
 
-	std::thread thread1(render_ws2811);
-	std::thread thread2(receive_data);
+    std::thread thread1(render_ws2811);
+    std::thread thread2(receive_data);
 
-	thread1.join();
-	thread2.join();
+    thread1.join();
+    thread2.join();
 
 }
