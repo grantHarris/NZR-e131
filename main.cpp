@@ -16,6 +16,9 @@
 #include <stdint.h>
 #include <e131.h>
 #include <err.h>
+
+#include <boost/program_options.hpp>
+
 #include "lib/clk.h"
 #include "lib/gpio.h"
 #include "lib/dma.h"
@@ -24,13 +27,15 @@
 #include "lib/ws2811.h"
 #include "yaml-cpp/yaml.h"
 
-#define TARGET_FREQ     WS2811_TARGET_FREQ
+namespace po = boost::program_options;
+
 #define DMA             10
+#define TARGET_FREQ     WS2811_TARGET_FREQ
 #define STRIP_TYPE      WS2811_STRIP_GRB
 
-ws2811_t output;
 static bool running;
 YAML::Node config;
+ws2811_t output;
 
 int sockfd;
 e131_packet_t packet;
@@ -44,7 +49,7 @@ std::string exec(const char* cmd) {
     std::shared_ptr<FILE> pipe(popen(cmd, "r"), pclose);
     
     if (!pipe){
-        throw std::runtime_error("popen() failed!");
+        throw std::runtime_error("popen() failed");
     }
 
     while (!feof(pipe.get())) {
@@ -55,7 +60,9 @@ std::string exec(const char* cmd) {
     return result;
 }
 
-void setup_ouput_channels(){
+void setup_ouput(){
+    output.freq = TARGET_FREQ;
+    output.dmanum = DMA;
     YAML::Node strip_channel = config["strip_channel"];
     for(YAML::const_iterator it=strip_channel.begin(); it!=strip_channel.end(); ++it) {
         int ch = it->first.as<int>();
@@ -73,8 +80,8 @@ void setup_ouput_channels(){
     }
 }
 
-static void sig_handler(int signum){
-    (void)(signum);
+static void sig_handler(int t_signum){
+    (void)(t_signum);
     running = false;
 }
 
@@ -90,7 +97,7 @@ void receive_data() {
     
     while(running == true) {
         if (e131_recv(sockfd, &packet) < 0)
-            err(EXIT_FAILURE, "e131_recv");
+            err(EXIT_FAILURE, "e131_recv failed");
 
         if ((error = e131_pkt_validate(&packet)) != E131_ERR_NONE) {
             std::cerr << "e131 packet validation error" << e131_strerror(error) << std::endl;
@@ -133,39 +140,41 @@ void receive_data() {
 
 void render_ws2811() {
     ws2811_return_t ret;
+    
     while(running == true){
         m.lock();
         if ((ret = ws2811_render(&output)) != WS2811_SUCCESS){
             std::cerr << "ws2811_render failed:" << ws2811_get_return_t_str(ret);
         }
         m.unlock();
-        usleep(1000000 / 60);
+        usleep(1000000 / 30);
     }
+
     if(running == false){
         ws2811_fini(&output);
     }
 
 }
 
-void join_universe(int universe){
+void join_universe(int t_universe){
     std::stringstream ss;
-    std::cout<< "Joining as universe: " << universe << std::endl;
-    ss << "sudo ip maddr add 239.255.0." << universe << " dev wlan0";
+    std::cout<< "Joining as universe: " << t_universe << std::endl;
+    ss << "sudo ip maddr add 239.255.0." << t_universe << " dev wlan0";
     std::cout << "Executing shell command: " << ss.str() << std::endl;
     std::cout << exec(ss.str().c_str()) << std::endl;
 
-    if (e131_multicast_join(sockfd, universe) < 0)
-        err(EXIT_FAILURE, "e131_multicast_join");   
+    if (e131_multicast_join(sockfd, t_universe) < 0)
+        err(EXIT_FAILURE, "e131_multicast_join failed");   
 }
 
 void setup_e131(){
     // create a socket for E1.31
     if ((sockfd = e131_socket()) < 0)
-        err(EXIT_FAILURE, "e131_socket");
+        err(EXIT_FAILURE, "e131_socket failed");
 
     // bind the socket to the default E1.31 port
     if (e131_bind(sockfd, E131_DEFAULT_PORT) < 0)
-        err(EXIT_FAILURE, "e131_bind");
+        err(EXIT_FAILURE, "e131_bind failed");
 }
 
 void setup_ws2811(){
@@ -173,30 +182,58 @@ void setup_ws2811(){
         std::cerr << "ws2811_init failed:" << ws2811_get_return_t_str(ret);
         exit(1);
     }
-}
-
-int main(int argc, char* argv[]) {
-    running = true;
-    config = YAML::LoadFile("/home/pi/nzr-e131/config.yaml");
-    ws2811_return_t ret;
-    
-    output.freq = TARGET_FREQ;
-    output.dmanum = DMA;
-
-    setup_ouput_channels();
-    setup_ws2811();
-    setup_handlers();
-    setup_e131();
 
     for(YAML::const_iterator it=config["mapping"].begin(); it != config["mapping"].end(); ++it) {
         int universe = it->first.as<int>();
         join_universe(universe);
     }
+}
 
-    std::thread thread1(render_ws2811);
-    std::thread thread2(receive_data);
+int main(int argc, char* argv[]) {
+    ws2811_return_t ret;
+    try {
+        po::options_description desc("Allowed options");
+        desc.add_options()
+            ("help,h", "Produce help message")
+            ("config,c", po::value<std::string>()->default_value("./config.yaml"), "Config file path")
+            ("verbose,v", po::value<int>()->implicit_value(1),
+                  "Enable verbosity (optionally specify level)")
+        ;
 
-    thread1.join();
-    thread2.join();
+        po::variables_map vm;        
+        po::store(po::parse_command_line(ac, av, desc), vm);
+        po::notify(vm);    
 
+        if (vm.count("help")) {
+            std::cout << desc << std::endl;
+            return 0;
+        }
+
+        std::cout << "Using config file " << vm["config"].as<std::string>() << std::endl;
+        config = YAML::LoadFile(vm["config"].as<std::string>());
+
+        setup_ouput();
+        setup_ws2811();
+        setup_handlers();
+        setup_e131();
+
+        running = true;
+
+        std::thread thread1(render_ws2811);
+        std::thread thread2(receive_data);
+
+        thread1.join();
+        thread2.join();
+    }
+
+    catch(exception& e) {
+        std::cerr << "error: " << e.what() << std::endl;
+        return 1;
+    }
+
+    catch(...) {
+        std::cerr << "Exception of unknown type!" std::endl;
+    }
+
+    return 0;
 }
