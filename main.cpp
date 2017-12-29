@@ -220,7 +220,7 @@ int main(int argc, char* argv[]) {
         ("config,c", po::value<std::string>()->default_value("./config.yaml"), "Config file path")
         ("log,l", po::value<std::string>(),
           "Logging file path")
-        ("verbose,v", po::value<int>()->implicit_value(1),
+        ("verbosity,v", po::value<std::string>()->implicit_value('info'),
           "Enable verbosity (optionally specify level)")
         ;
 
@@ -238,10 +238,32 @@ int main(int argc, char* argv[]) {
             //logging::add_file_log(vm.count("log"));
         }
 
-        //put some code here to set verbosity from args
-        logging::core::get()->set_filter(
-            logging::trivial::severity >= logging::trivial::info
-            );
+        int verbosity;
+        switch(vm.count("verbosity").as<std::string>()){
+            case 'trace':
+                verbosity = logging::trivial::trace;
+            break;
+            case 'debug':
+                verbosity = logging::trivial::debug;
+            break;
+            case 'info':
+                verbosity = logging::trivial::info;
+            break;
+            case 'warning':
+                verbosity = logging::trivial::warning;
+            break;
+            case 'error':
+                verbosity = logging::trivial::error;
+            break;
+            case 'fatal':
+                verbosity = logging::trivial::error;
+            break;
+            default:
+                verbosity = logging::trivial::info;
+            break;
+        }
+
+        logging::core::get()->set_filter(logging::trivial::severity >= verbosity);
 
         BOOST_LOG_TRIVIAL(info) << "Using config file " << vm["config"].as<std::string>();
         config = YAML::LoadFile(vm["config"].as<std::string>());
