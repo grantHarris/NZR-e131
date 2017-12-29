@@ -31,7 +31,8 @@
 #include "yaml-cpp/yaml.h"
 
 namespace po = boost::program_options;
-
+using namespace boost::log;
+namespace logging = boost::log;
 #define DMA             10
 #define TARGET_FREQ     WS2811_TARGET_FREQ
 #define STRIP_TYPE      WS2811_STRIP_GRB
@@ -103,18 +104,18 @@ void receive_data() {
             err(EXIT_FAILURE, "e131_recv failed");
 
         if ((error = e131_pkt_validate(&packet)) != E131_ERR_NONE) {
-            BOOST_LOG_TRIVIAL(error) << "e131 packet validation error" << e131_strerror(error) << std::endl;
+            BOOST_LOG_TRIVIAL(error) << "e131 packet validation error" << e131_strerror(error);
             continue;
         }
 
         if (e131_pkt_discard(&packet, last_seq)) {
-            BOOST_LOG_TRIVIAL(warning) << "e131 packet received out of sequence" << std::endl;
+            BOOST_LOG_TRIVIAL(warning) << "e131 packet received out of sequence";
             last_seq = packet.frame.seq_number;
             continue;
         }
 
         int universe = ntohs(packet.frame.universe);
-        BOOST_LOG_TRIVIAL(debug) << "Packet for universe: " << universe << std::endl;
+        BOOST_LOG_TRIVIAL(debug) << "Packet for universe: " << universe;
 
         m.lock();
         YAML::Node universeConfig = config["mapping"][universe];
@@ -133,15 +134,14 @@ void receive_data() {
                 int index = i * 3 + 1;
                 uint8_t r = packet.dmp.prop_val[index];
                 uint8_t g = packet.dmp.prop_val[index + 1];
-                uint8_t b = packet.dmp.prop_val[index + 2]
+                uint8_t b = packet.dmp.prop_val[index + 2];
 
                 BOOST_LOG_TRIVIAL(trace) 
                     << "Channel: " << strip_channel 
                     << ", LED Index: " << i + start_address_offset
-                    << ", R: " << static_cast<int>(r),
-                    << ", G: " << static_cast<int>(g),
-                    << ", B: " << static_cast<int>(b),
-                    << std::endl;
+                    << ", R: " << static_cast<int>(r)
+                    << ", G: " << static_cast<int>(g)
+                    << ", B: " << static_cast<int>(b);
 
                 output.channel[strip_channel].leds[i + start_address_offset] = 
                 static_cast<uint32_t>(r << 16) |
@@ -174,13 +174,13 @@ void render_ws2811() {
 
 void join_universe(int t_universe){
     
-    BOOST_LOG_TRIVIAL(info) << "Joining universe: " << t_universe << std::endl;
+    BOOST_LOG_TRIVIAL(info) << "Joining universe: " << t_universe;
 
     std::stringstream ss;
     ss << "sudo ip maddr add 239.255.0." << t_universe << " dev wlan0";
     
-    BOOST_LOG_TRIVIAL(debug) << "Executing shell command: " << ss.str() << std::endl;
-    std::cout << exec(ss.str().c_str()) << std::endl;
+    BOOST_LOG_TRIVIAL(debug) << "Executing shell command: " << ss.str();
+    exec(ss.str().c_str());
 
     if (e131_multicast_join(sockfd, t_universe) < 0)
         err(EXIT_FAILURE, "e131_multicast_join failed");   
@@ -197,6 +197,7 @@ void setup_e131(){
 }
 
 void setup_ws2811(){
+    ws2811_return_t ret;
     if ((ret = ws2811_init(&output)) != WS2811_SUCCESS){
         BOOST_LOG_TRIVIAL(fatal) << "ws2811_init failed:" << ws2811_get_return_t_str(ret);
         exit(1);
@@ -209,7 +210,6 @@ void setup_ws2811(){
 }
 
 int main(int argc, char* argv[]) {
-    ws2811_return_t ret;
     try {
         po::options_description desc("Allowed options");
         desc.add_options()
@@ -222,7 +222,7 @@ int main(int argc, char* argv[]) {
         ;
 
         po::variables_map vm;        
-        po::store(po::parse_command_line(ac, av, desc), vm);
+        po::store(po::parse_command_line(argc, argv, desc), vm);
         po::notify(vm);    
 
         if (vm.count("help")) {
@@ -232,7 +232,7 @@ int main(int argc, char* argv[]) {
 
         if (vm.count("log")){
             //log specified here, save to file
-            logging::add_file_log(vm.count("log"));
+            //logging::add_file_log(vm.count("log"));
         }
 
         //put some code here to set verbosity from args
@@ -240,13 +240,13 @@ int main(int argc, char* argv[]) {
             logging::trivial::severity >= logging::trivial::info
         );
 
-        BOOST_LOG_TRIVIAL(info) << "Using config file " << vm["config"].as<std::string>() << std::endl;
+        BOOST_LOG_TRIVIAL(info) << "Using config file " << vm["config"].as<std::string>();
         config = YAML::LoadFile(vm["config"].as<std::string>());
-
-        setup_ouput();
-        setup_ws2811();
+        
         setup_handlers();
+	setup_ouput();
         setup_e131();
+	setup_ws2811();
 
         running = true;
 
@@ -257,13 +257,13 @@ int main(int argc, char* argv[]) {
         thread2.join();
     }
 
-    catch(exception& e) {
+    catch(std::exception& e) {
         BOOST_LOG_TRIVIAL(fatal) << "error: " << e.what() << std::endl;
         return 1;
     }
 
     catch(...) {
-        BOOST_LOG_TRIVIAL(fatal) << "Exception of unknown type!" std::endl;
+        BOOST_LOG_TRIVIAL(fatal) << "Exception of unknown type!" << std::endl;
     }
 
     return 0;
