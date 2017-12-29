@@ -1,3 +1,5 @@
+#include "Util.h"
+
 namespace Util {
 	std::string exec(const char* cmd) {
 		std::array<char, 128> buffer;
