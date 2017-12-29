@@ -18,6 +18,9 @@
 #include <err.h>
 
 #include <boost/program_options.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/expressions.hpp>
 
 #include "lib/clk.h"
 #include "lib/gpio.h"
@@ -100,22 +103,22 @@ void receive_data() {
             err(EXIT_FAILURE, "e131_recv failed");
 
         if ((error = e131_pkt_validate(&packet)) != E131_ERR_NONE) {
-            std::cerr << "e131 packet validation error" << e131_strerror(error) << std::endl;
+            BOOST_LOG_TRIVIAL(error) << "e131 packet validation error" << e131_strerror(error) << std::endl;
             continue;
         }
 
         if (e131_pkt_discard(&packet, last_seq)) {
-            std::cerr << "e131 packet received out of sequence" << std::endl;
+            BOOST_LOG_TRIVIAL(warning) << "e131 packet received out of sequence" << std::endl;
             last_seq = packet.frame.seq_number;
             continue;
         }
 
+        int universe = ntohs(packet.frame.universe);
+        BOOST_LOG_TRIVIAL(debug) << "Packet for universe: " << universe << std::endl;
+
         m.lock();
-
-        YAML::Node universe = config["mapping"][ntohs(packet.frame.universe)];
-        
-        for(YAML::const_iterator it = universe.begin(); it != universe.end(); ++it) {
-
+        YAML::Node universeConfig = config["mapping"][universe];
+        for(YAML::const_iterator it = universeConfig.begin(); it != universeConfig.end(); ++it) {
             const YAML::Node& entry = *it;
             YAML::Node output_params = entry["output"];
             YAML::Node input_params = entry["input"];
@@ -126,11 +129,24 @@ void receive_data() {
             end_address = std::max(1, std::min(total_rgb_channels - start_address, 511));
             start_address_offset = output_params["start_address"].as<int>();
             
-            for(int i = start_address - 1; i < end_address; i++){   
+            for(int i = start_address - 1; i < end_address; i++){
+                int index = i * 3 + 1;
+                uint8_t r = packet.dmp.prop_val[index];
+                uint8_t g = packet.dmp.prop_val[index + 1];
+                uint8_t b = packet.dmp.prop_val[index + 2]
+
+                BOOST_LOG_TRIVIAL(trace) 
+                    << "Channel: " << strip_channel 
+                    << ", LED Index: " << i + start_address_offset
+                    << ", R: " << static_cast<int>(r),
+                    << ", G: " << static_cast<int>(g),
+                    << ", B: " << static_cast<int>(b),
+                    << std::endl;
+
                 output.channel[strip_channel].leds[i + start_address_offset] = 
-                static_cast<uint32_t>(packet.dmp.prop_val[i * 3 + 1] << 16) |
-                static_cast<uint32_t>(packet.dmp.prop_val[i * 3 + 2] << 8) |
-                static_cast<uint32_t>(packet.dmp.prop_val[i * 3 + 3]);
+                static_cast<uint32_t>(r << 16) |
+                static_cast<uint32_t>(g << 8) |
+                static_cast<uint32_t>(b);
             }
         }
         last_seq = packet.frame.seq_number;
@@ -144,7 +160,7 @@ void render_ws2811() {
     while(running == true){
         m.lock();
         if ((ret = ws2811_render(&output)) != WS2811_SUCCESS){
-            std::cerr << "ws2811_render failed:" << ws2811_get_return_t_str(ret);
+            BOOST_LOG_TRIVIAL(error) << "ws2811_render failed:" << ws2811_get_return_t_str(ret);
         }
         m.unlock();
         usleep(1000000 / 30);
@@ -157,10 +173,13 @@ void render_ws2811() {
 }
 
 void join_universe(int t_universe){
+    
+    BOOST_LOG_TRIVIAL(info) << "Joining universe: " << t_universe << std::endl;
+
     std::stringstream ss;
-    std::cout<< "Joining as universe: " << t_universe << std::endl;
     ss << "sudo ip maddr add 239.255.0." << t_universe << " dev wlan0";
-    std::cout << "Executing shell command: " << ss.str() << std::endl;
+    
+    BOOST_LOG_TRIVIAL(debug) << "Executing shell command: " << ss.str() << std::endl;
     std::cout << exec(ss.str().c_str()) << std::endl;
 
     if (e131_multicast_join(sockfd, t_universe) < 0)
@@ -179,7 +198,7 @@ void setup_e131(){
 
 void setup_ws2811(){
     if ((ret = ws2811_init(&output)) != WS2811_SUCCESS){
-        std::cerr << "ws2811_init failed:" << ws2811_get_return_t_str(ret);
+        BOOST_LOG_TRIVIAL(fatal) << "ws2811_init failed:" << ws2811_get_return_t_str(ret);
         exit(1);
     }
 
@@ -196,6 +215,8 @@ int main(int argc, char* argv[]) {
         desc.add_options()
             ("help,h", "Produce help message")
             ("config,c", po::value<std::string>()->default_value("./config.yaml"), "Config file path")
+            ("log,l", po::value<std::string>(),
+                  "Logging file path")
             ("verbose,v", po::value<int>()->implicit_value(1),
                   "Enable verbosity (optionally specify level)")
         ;
@@ -209,7 +230,17 @@ int main(int argc, char* argv[]) {
             return 0;
         }
 
-        std::cout << "Using config file " << vm["config"].as<std::string>() << std::endl;
+        if (vm.count("log")){
+            //log specified here, save to file
+            logging::add_file_log(vm.count("log"));
+        }
+
+        //put some code here to set verbosity from args
+        logging::core::get()->set_filter(
+            logging::trivial::severity >= logging::trivial::info
+        );
+
+        BOOST_LOG_TRIVIAL(info) << "Using config file " << vm["config"].as<std::string>() << std::endl;
         config = YAML::LoadFile(vm["config"].as<std::string>());
 
         setup_ouput();
@@ -227,12 +258,12 @@ int main(int argc, char* argv[]) {
     }
 
     catch(exception& e) {
-        std::cerr << "error: " << e.what() << std::endl;
+        BOOST_LOG_TRIVIAL(fatal) << "error: " << e.what() << std::endl;
         return 1;
     }
 
     catch(...) {
-        std::cerr << "Exception of unknown type!" std::endl;
+        BOOST_LOG_TRIVIAL(fatal) << "Exception of unknown type!" std::endl;
     }
 
     return 0;
