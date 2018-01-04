@@ -221,7 +221,7 @@ int main(int argc, char* argv[]) {
         ("config,c", po::value<std::string>()->default_value("./config.yaml"), "Config file path")
         ("log,l", po::value<std::string>(),
           "Logging file path")
-        ("verbosity,v", po::value<std::string>()->implicit_value('info'),
+        ("verbosity,v", po::value<std::string>()->implicit_value("info"),
           "Enable verbosity (optionally specify level)")
         ;
 
@@ -240,28 +240,22 @@ int main(int argc, char* argv[]) {
         }
 
         int verbosity;
-        switch(vm.count("verbosity").as<std::string>()){
-            case 'trace':
+	std::string verbosityStr = vm["verbosity"].as<std::string>();
+
+	if(verbosityStr == "trace"){
                 verbosity = logging::trivial::trace;
-            break;
-            case 'debug':
+        }else if(verbosityStr == "debug"){
                 verbosity = logging::trivial::debug;
-            break;
-            case 'info':
+        }else if(verbosityStr == "info"){
                 verbosity = logging::trivial::info;
-            break;
-            case 'warning':
-                verbosity = logging::trivial::warning;
-            break;
-            case 'error':
+        }else if(verbosityStr == "warning"){ 
+		verbosity = logging::trivial::warning;
+        }else if(verbosityStr == "error"){
                 verbosity = logging::trivial::error;
-            break;
-            case 'fatal':
+	}else if(verbosityStr == "fatal"){
                 verbosity = logging::trivial::error;
-            break;
-            default:
+        }else{
                 verbosity = logging::trivial::info;
-            break;
         }
 
         logging::core::get()->set_filter(logging::trivial::severity >= verbosity);
