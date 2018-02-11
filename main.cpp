@@ -46,7 +46,7 @@ e131_packet_t packet;
 e131_error_t error;
 uint8_t last_seq = 0x00;
 
-std::mutex outputMutex;
+std::mutex output_mutex;
 
 std::string exec(const char* cmd) {
     std::array<char, 128> buffer;
@@ -119,7 +119,7 @@ void receive_data() {
         int universe = ntohs(packet.frame.universe);
         BOOST_LOG_TRIVIAL(debug) << "Packet for universe: " << universe;
 
-        outputMutex.lock();
+        output_mutex.lock();
         YAML::Node universeConfig = config["mapping"][universe];
         for(YAML::const_iterator it = universeConfig.begin(); it != universeConfig.end(); ++it) {
             const YAML::Node& entry = *it;
@@ -152,7 +152,7 @@ void receive_data() {
             }
         }
         last_seq = packet.frame.seq_number;
-        outputMutex.unlock();
+        output_mutex.unlock();
     }
 }
 
@@ -160,18 +160,18 @@ void render_ws2811() {
     ws2811_return_t ret;
     
     while(running == true){
-        outputMutex.lock();
+        output_mutex.lock();
         if ((ret = ws2811_render(&output)) != WS2811_SUCCESS){
             BOOST_LOG_TRIVIAL(error) << "ws2811_render failed:" << ws2811_get_return_t_str(ret);
         }
-        outputMutex.unlock();
+        output_mutex.unlock();
         usleep(1000000 / 30);
     }
 
     if(running == false){
-        outputMutex.lock();
+        output_mutex.lock();
         ws2811_fini(&output);
-        outputMutex.unlock();
+        output_mutex.unlock();
     }
 
 }
@@ -240,29 +240,29 @@ int main(int argc, char* argv[]) {
         }
 
         int verbosity;
-	std::string verbosityStr = vm["verbosity"].as<std::string>();
+        std::string verbosityStr = vm["verbosity"].as<std::string>();
 
-	if(verbosityStr == "trace"){
-                verbosity = logging::trivial::trace;
+        if(verbosityStr == "trace"){
+            verbosity = logging::trivial::trace;
         }else if(verbosityStr == "debug"){
-                verbosity = logging::trivial::debug;
+            verbosity = logging::trivial::debug;
         }else if(verbosityStr == "info"){
-                verbosity = logging::trivial::info;
+            verbosity = logging::trivial::info;
         }else if(verbosityStr == "warning"){ 
-		verbosity = logging::trivial::warning;
+            verbosity = logging::trivial::warning;
         }else if(verbosityStr == "error"){
-                verbosity = logging::trivial::error;
-	}else if(verbosityStr == "fatal"){
-                verbosity = logging::trivial::error;
+            verbosity = logging::trivial::error;
+        }else if(verbosityStr == "fatal"){
+            verbosity = logging::trivial::error;
         }else{
-                verbosity = logging::trivial::info;
+            verbosity = logging::trivial::info;
         }
 
         logging::core::get()->set_filter(logging::trivial::severity >= verbosity);
 
         BOOST_LOG_TRIVIAL(info) << "Using config file " << vm["config"].as<std::string>();
         config = YAML::LoadFile(vm["config"].as<std::string>());
-        
+
         setup_handlers();
         setup_ouput();
         setup_e131();
