@@ -2,7 +2,7 @@
 strip_channel:
   0:
     gpionum: 21
-    count: 766
+    count: 680
     invert: 0
     brightness: 255
     strip_type: WS2811_STRIP_GRB
@@ -10,28 +10,28 @@ mapping:
   1:
   - input:
       start_address: 1
-      total_rgb_channels: 168
+      total_rgb_channels: 170
     output:
       start_address: 0
       strip_channel: 0
   2:
   - input:
       start_address: 1
-      total_rgb_channels: 168
+      total_rgb_channels: 170
     output:
-      start_address: 168
+      start_address: 169
       strip_channel: 0
   3:
   - input:
       start_address: 1
-      total_rgb_channels: 168
+      total_rgb_channels: 170
     output:
       start_address: 336
       strip_channel: 0
   4:
   - input:
       start_address: 1
-      total_rgb_channels: 168
+      total_rgb_channels: 170
     output:
-      start_address: 504
+      start_address: 509
       strip_channel: 0
