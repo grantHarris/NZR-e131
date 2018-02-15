@@ -1,7 +1,6 @@
 #include "GPIO.h"
 #include "pins.h"
 
-
 #include "../lib/clk.h"
 #include "../lib/gpio.h"
 #include "../lib/dma.h"

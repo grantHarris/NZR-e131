@@ -104,8 +104,8 @@ int main(int argc, char* argv[]) {
         E131 e131(config);
         WS2811 ws2811(config);
 
-        // setup_handlers();
-        // setup_ouput();
+        setup_handlers();
+        setup_ouput();
 
         running = true;
 

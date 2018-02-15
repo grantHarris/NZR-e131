@@ -1,5 +1,7 @@
 #ifndef __E131_H__
 #define __E131_H__
+#include "yaml-cpp/yaml.h"
+
 
 class E131 {
 public:
@@ -12,6 +14,7 @@ private:
     e131_packet_t packet;
     e131_error_t error;
     uint8_t last_seq = 0x00;
+    bool running;
 };
 
 #endif /* __E131_H__ */
