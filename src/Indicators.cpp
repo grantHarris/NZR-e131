@@ -29,8 +29,8 @@ Indicators::Indicators()
     m_modeGreenLedGpio->setdir_gpio("out");
 
 
-    std::thread record_playback_thread(Indicators::update_record_playback_led);
-    std::thread wifi_thread(Indicators::update_wifi_led);
+    std::thread record_playback_thread(this->update_record_playback_led);
+    std::thread wifi_thread(this->update_wifi_led);
     record_playback_thread.join();
     wifi_thread.join();
 }

@@ -1,22 +1,29 @@
 #include "GPIO.h"
 #include "pins.h"
 
+
+#include "../lib/clk.h"
+#include "../lib/gpio.h"
+#include "../lib/dma.h"
+#include "../lib/pwm.h"
+#include "../lib/version.h"
+#include "../lib/ws2811.h"
+
 #ifndef __BUTTONS_H__
 #define __BUTTONS_H__
 
-namespace e131Bridge{
 
-    class Indicators {
+class Buttons {
     public:
-        Indicators();
+        Buttons();
     private:
-        GPIOClass* m_mode_button_Gpio;
-        GPIOClass* m_rec_play_button_Gpio;
-        GPIOClass* m_next_button_Gpio;
-        GPIOClass* m_hand_trigger_1_Gpio;
-        GPIOClass* m_hand_trigger_1_Gpio;
-    };
+        GPIO* m_mode_button_Gpio;
+        GPIO* m_rec_play_button_Gpio;
+        GPIO* m_next_button_Gpio;
+        GPIO* m_hand_trigger_1_Gpio;
+        GPIO* m_hand_trigger_2_Gpio;
+ };
 
-}
+
 
 #endif /* __BUTTONS_H__ */
