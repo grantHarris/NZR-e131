@@ -59,8 +59,8 @@ void E131::receive_data()
         BOOST_LOG_TRIVIAL(debug) << "Packet for universe: " << universe;
 
         output_mutex.lock();
-        YAML::Node universeConfig = config["mapping"][universe];
-        for(YAML::const_iterator it = universeConfig.begin(); it != universeConfig.end(); ++it) {
+        YAML::Node universe_config = config["mapping"][universe];
+        for(YAML::const_iterator it = universe_config.begin(); it != universe_config.end(); ++it) {
             const YAML::Node& entry = *it;
             YAML::Node output_params = entry["output"];
             YAML::Node input_params = entry["input"];

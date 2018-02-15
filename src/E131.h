@@ -3,6 +3,7 @@
 #include "yaml-cpp/yaml.h"
 #include <e131.h>
 #include <err.h>
+#include <mutex>
 #include <boost/log/trivial.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
@@ -15,6 +16,7 @@ public:
     void receive_data();
 private:
     YAML::Node config;
+    std::mutex t_output_mutex
     void join_universe(int t_universe);
     int sockfd;
     e131_packet_t packet;

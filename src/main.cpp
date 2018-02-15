@@ -101,11 +101,10 @@ int main(int argc, char* argv[]) {
         BOOST_LOG_TRIVIAL(info) << "Using config file " << vm["config"].as<std::string>();
         config = YAML::LoadFile(vm["config"].as<std::string>());
 
-        E131 e131(config);
+        E131 e131(config, output_mutex);
         WS2811 ws2811(config);
 
         setup_handlers();
-        setup_ouput();
 
         running = true;
 
