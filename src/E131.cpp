@@ -28,7 +28,7 @@ void E131::join_universe(int t_universe)
     ss << "sudo ip maddr add 239.255.0." << t_universe << " dev wlan0";
     
     BOOST_LOG_TRIVIAL(debug) << "Executing shell command: " << ss.str();
-    exec(ss.str().c_str());
+    Util::exec(ss.str().c_str());
 
     if (e131_multicast_join(sockfd, t_universe) < 0)
         err(EXIT_FAILURE, "e131_multicast_join failed");   

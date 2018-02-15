@@ -7,6 +7,8 @@
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
 
+#include "Util.h"
+
 class E131 {
 public:
     E131(YAML::Node& t_config);
