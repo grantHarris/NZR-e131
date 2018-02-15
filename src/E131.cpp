@@ -1,6 +1,6 @@
 #include "E131.h"
 
-void E131::E131(YAML::Node& t_config)
+E131::E131(YAML::Node& t_config)
 {
     config = t_config;
 
