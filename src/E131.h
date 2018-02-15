@@ -16,7 +16,7 @@ public:
     void receive_data();
 private:
     YAML::Node config;
-    std::mutex t_output_mutex
+    std::mutex output_mutex
     void join_universe(int t_universe);
     int sockfd;
     e131_packet_t packet;

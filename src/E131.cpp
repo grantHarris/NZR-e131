@@ -1,8 +1,9 @@
 #include "E131.h"
 
-E131::E131(YAML::Node& t_config)
+E131::E131(YAML::Node& t_config, std::mutex t_output_mutex)
 {
     config = t_config;
+    output_mutex = t_output_mutex;
 
     // create a socket for E1.31
     if ((sockfd = e131_socket()) < 0)
