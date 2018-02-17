@@ -1,8 +1,12 @@
-#ifndef __Stats_H__
-#define __Stats_H__
+#ifndef __STATS_H__
+#define __STATS_H__
 
-namespace Util {
-	std::string exec(const char* cmd);
-}
+#include <mutex>
+#include <string>
+#include <err.h>
+#include <map>
+#include <boost/log/trivial.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/expressions.hpp>
 
-#endif /* __Stats_H__ */
+#endif /* __STATS_H__ */

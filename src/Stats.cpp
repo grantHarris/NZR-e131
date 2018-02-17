@@ -14,19 +14,19 @@ namespace Stats {
         OUT_OF_SEQUENCE
     };
 
-    std::std::map<unsigned int, UniverseStats> universe_stats;
+    std::map<unsigned int, UniverseStats> universe_stats;
 
     void register_universe(unsigned int t_universe){
-        universe_stats[t_universe] = new UniverseStats{0, 0};
+        universe_stats[t_universe] = UniverseStats {0, 0};
     }
 
     void log_universe_packet(unsigned int t_universe, State state){
 
         switch(state){
-            case State.GOOD;
+            case State::GOOD:
                 universe_stats[t_universe].updates++;
             break;
-            case OUT_OF_SEQUENCE:
+            case State::OUT_OF_SEQUENCE:
                 universe_stats[t_universe].out_of_sequence++;
             break;
         }
@@ -35,7 +35,7 @@ namespace Stats {
     void log_thread(){
 
         log_mutex.lock();
-        BOOST_LOG_TRIVIAL(error) << << e131_strerror(error);
+        BOOST_LOG_TRIVIAL(error) << "foo";
 
         log_mutex.unlock();
     }

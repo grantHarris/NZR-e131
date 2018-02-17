@@ -1,10 +1,7 @@
 #include "E131.h"
 
-E131::E131(YAML::Node& t_config, std::mutex t_output_mutex)
+E131::E131(YAML::Node& t_config, LEDStrip& t_led_strip) : config(t_config), led_strip(t_led_strip)
 {
-    config = t_config;
-    output_mutex = t_output_mutex;
-
     // create a socket for E1.31
     if ((sockfd = e131_socket()) < 0)
         err(EXIT_FAILURE, "e131_socket failed");
@@ -17,8 +14,10 @@ E131::E131(YAML::Node& t_config, std::mutex t_output_mutex)
         int universe = it->first.as<int>();
         this->join_universe(universe);
     }
-}
 
+    std::thread receive_data_thread(&E131::receive_data, this);
+    receive_data_thread.join();
+}
 
 void E131::join_universe(int t_universe)
 {
@@ -35,6 +34,10 @@ void E131::join_universe(int t_universe)
         err(EXIT_FAILURE, "e131_multicast_join failed");   
 }
 
+void E131::close()
+{
+    running = false;
+}
 
 void E131::receive_data()
 {
@@ -59,7 +62,7 @@ void E131::receive_data()
         int universe = ntohs(packet.frame.universe);
         BOOST_LOG_TRIVIAL(debug) << "Packet for universe: " << universe;
 
-        output_mutex.lock();
+        //output_mutex.lock();
         YAML::Node universe_config = config["mapping"][universe];
         for(YAML::const_iterator it = universe_config.begin(); it != universe_config.end(); ++it) {
             const YAML::Node& entry = *it;
@@ -74,25 +77,15 @@ void E131::receive_data()
             
             for(int i = start_address - 1; i < end_address; i++){
                 int index = i * 3 + 1;
-                uint8_t r = packet.dmp.prop_val[index];
-                uint8_t g = packet.dmp.prop_val[index + 1];
-                uint8_t b = packet.dmp.prop_val[index + 2];
-
-                BOOST_LOG_TRIVIAL(trace) 
-                << "Channel: " << strip_channel 
-                << ", LED Index: " << i + start_address_offset
-                << ", R: " << static_cast<int>(r)
-                << ", G: " << static_cast<int>(g)
-                << ", B: " << static_cast<int>(b);
-
-                output.channel[strip_channel].leds[i + start_address_offset] = 
-                static_cast<uint32_t>(r << 16) |
-                static_cast<uint32_t>(g << 8) |
-                static_cast<uint32_t>(b);
+                Pixel pixel;
+                pixel.r = packet.dmp.prop_val[index];
+                pixel.g = packet.dmp.prop_val[index + 1];
+                pixel.b = packet.dmp.prop_val[index + 2];
+                led_strip.write_to_buffer(strip_channel, i + start_address_offset, pixel);
             }
         }
         last_seq = packet.frame.seq_number;
-        output_mutex.unlock();
+        //output_mutex.unlock();
     }
 }
 

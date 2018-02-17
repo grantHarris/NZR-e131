@@ -1,7 +1,5 @@
 #include <cstdio>
-#include <memory>
 #include <stdexcept>
-#include <array>
 
 #include <iostream>
 #include <unistd.h>
@@ -14,21 +12,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <e131.h>
-#include <err.h>
 
 #include <boost/program_options.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
 
-#include "../lib/clk.h"
-#include "../lib/gpio.h"
-#include "../lib/dma.h"
-#include "../lib/pwm.h"
-#include "../lib/version.h"
-#include "../lib/ws2811.h"
 #include "yaml-cpp/yaml.h"
+
+#include "E131.h"
+#include "LEDStrip.h"
 
 namespace po = boost::program_options;
 using namespace boost::log;
@@ -36,8 +29,6 @@ namespace logging = boost::log;
 
 static bool running;
 YAML::Node config;
-
-std::mutex output_mutex;
 
 static void sig_handler(int t_signum){
     (void)(t_signum);
@@ -101,18 +92,15 @@ int main(int argc, char* argv[]) {
         BOOST_LOG_TRIVIAL(info) << "Using config file " << vm["config"].as<std::string>();
         config = YAML::LoadFile(vm["config"].as<std::string>());
 
-        E131 e131(config, output_mutex);
-        WS2811 ws2811(config);
+        LEDStrip led_strip(config);
+        E131 e131(config, led_strip);
 
         setup_handlers();
 
-        running = true;
+        // running = true;
 
-        std::thread receive_data_thread(e131.receive_data);
-        std::thread render_thread(ws2811.render);
-
-        receive_data_thread.join();
-        render_thread.join();
+        // std::thread render_thread(led_strip.render);
+        // render_thread.join();
 
     }
 
