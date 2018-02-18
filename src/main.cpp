@@ -5,13 +5,14 @@
 #include <unistd.h>
 #include <string>
 #include <signal.h>
-#include <thread>
-#include <mutex>
 #include <sstream>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
 
 #include <boost/program_options.hpp>
 #include <boost/log/trivial.hpp>
@@ -19,6 +20,7 @@
 #include <boost/log/expressions.hpp>
 
 #include "yaml-cpp/yaml.h"
+#include <boost/log/utility/setup/file.hpp>
 
 #include "E131.h"
 #include "LEDStrip.h"
@@ -27,7 +29,7 @@ namespace po = boost::program_options;
 using namespace boost::log;
 namespace logging = boost::log;
 
-static bool running;
+bool running;
 YAML::Node config;
 
 static void sig_handler(int t_signum){
@@ -47,12 +49,9 @@ int main(int argc, char* argv[]) {
         po::options_description desc("Allowed options");
         desc.add_options()
         ("help,h", "Produce help message")
-        ("config,c", po::value<std::string>()->default_value("./config.yaml"), "Config file path")
-        ("log,l", po::value<std::string>(),
-          "Logging file path")
-        ("verbosity,v", po::value<std::string>()->implicit_value("info"),
-          "Enable verbosity (optionally specify level)")
-        ;
+        ("config,h", po::value<std::string>()->default_value("./config.yaml"), "Config file path")
+        ("log,l", po::value<std::string>(), "Logging file path")
+        ("verbosity,v", po::value<std::string>()->default_value("info"), "Enable verbosity (optionally specify level)");
 
         po::variables_map vm;        
         po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -65,24 +64,28 @@ int main(int argc, char* argv[]) {
 
         if (vm.count("log")){
             //log specified here, save to file
-            //logging::add_file_log(vm.count("log"));
+            logging::add_file_log(vm["log"].as<std::string>());
         }
-
+        
         int verbosity;
-        std::string verbosityStr = vm["verbosity"].as<std::string>();
+        if (vm.count("verbosity")){
+            std::string verbosityStr = vm["verbosity"].as<std::string>();
 
-        if(verbosityStr == "trace"){
-            verbosity = logging::trivial::trace;
-        }else if(verbosityStr == "debug"){
-            verbosity = logging::trivial::debug;
-        }else if(verbosityStr == "info"){
-            verbosity = logging::trivial::info;
-        }else if(verbosityStr == "warning"){ 
-            verbosity = logging::trivial::warning;
-        }else if(verbosityStr == "error"){
-            verbosity = logging::trivial::error;
-        }else if(verbosityStr == "fatal"){
-            verbosity = logging::trivial::error;
+            if(verbosityStr == "trace"){
+                verbosity = logging::trivial::trace;
+            }else if(verbosityStr == "debug"){
+                verbosity = logging::trivial::debug;
+            }else if(verbosityStr == "info"){
+                verbosity = logging::trivial::info;
+            }else if(verbosityStr == "warning"){ 
+                verbosity = logging::trivial::warning;
+            }else if(verbosityStr == "error"){
+                verbosity = logging::trivial::error;
+            }else if(verbosityStr == "fatal"){
+                verbosity = logging::trivial::error;
+            }else{
+                verbosity = logging::trivial::info;
+            }
         }else{
             verbosity = logging::trivial::info;
         }
@@ -94,13 +97,14 @@ int main(int argc, char* argv[]) {
 
         LEDStrip led_strip(config);
         E131 e131(config, led_strip);
-
         setup_handlers();
 
-        // running = true;
+        boost::thread_group tgroup;
+        running = true;
+        tgroup.create_thread(boost::bind(&LEDStrip::render, &led_strip, &running));
+        tgroup.create_thread(boost::bind(&E131::receive_data, &e131, &running));
 
-        // std::thread render_thread(led_strip.render);
-        // render_thread.join();
+        tgroup.join_all();
 
     }
 

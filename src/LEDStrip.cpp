@@ -1,13 +1,14 @@
 #include "LEDStrip.h"
 
 LEDStrip::LEDStrip(YAML::Node& t_config) : config(t_config) {
+
+    this->setup_ouput();
+
     ws2811_return_t ret;
     if ((ret = ws2811_init(&output)) != WS2811_SUCCESS){
         BOOST_LOG_TRIVIAL(fatal) << "ws2811_init failed:" << ws2811_get_return_t_str(ret);
         exit(1);
     }
-
-    this->setup_ouput();
 }
 
 void LEDStrip::setup_ouput(){
@@ -27,22 +28,30 @@ void LEDStrip::setup_ouput(){
         output.channel[ch].invert = invert;
         output.channel[ch].brightness = brightness;
         output.channel[ch].strip_type = STRIP_TYPE;
+
+        BOOST_LOG_TRIVIAL(info) 
+        << "Output on Channel: " << ch 
+        << ", GPIO: " << gpio_pin
+        << ", Total LED's: " << count
+        << ", Invert: " << invert
+        << ", Brightness: " << brightness;
+
     }
 }
 
-void LEDStrip::render() {
+void LEDStrip::render(bool *running) {
     ws2811_return_t ret;
     
-    while(running == true){
+    while(*running == true){
         output_mutex.lock();
         if ((ret = ws2811_render(&output)) != WS2811_SUCCESS){
-            BOOST_LOG_TRIVIAL(error) << "ws2811_render failed:" << ws2811_get_return_t_str(ret);
+            BOOST_LOG_TRIVIAL(error) << "ws2811 render frame failed:" << ws2811_get_return_t_str(ret);
         }
         output_mutex.unlock();
-        usleep(1000000 / 30);
+        usleep(1000000 / 45);
     }
 
-    if(running == false){
+    if(*running == false){
         output_mutex.lock();
         ws2811_fini(&output);
         output_mutex.unlock();
@@ -59,8 +68,8 @@ void LEDStrip::write_to_buffer(int strip_channel, int index, Pixel pixel){
     output_mutex.unlock();
     
     BOOST_LOG_TRIVIAL(trace) 
-    << "Channel: " << strip_channel 
-    << ", LED Index: " << index
+    << "Ch: " << strip_channel 
+    << ", Index: " << index
     << ", R: " << static_cast<int>(pixel.r)
     << ", G: " << static_cast<int>(pixel.g)
     << ", B: " << static_cast<int>(pixel.b);

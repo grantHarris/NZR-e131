@@ -31,14 +31,13 @@ struct Pixel {
 class LEDStrip {
     public:
     	LEDStrip(YAML::Node& t_config);
-    	void render();
+    	void render(bool *running);
     	void write_to_buffer(int strip_channel, int index, Pixel pixel);
     private:
         ws2811_t output;
         YAML::Node config;
         std::mutex output_mutex;
         void setup_ouput();
-        bool running = false;
 };
 
 #endif /* __LEDSTRIP_H__ */

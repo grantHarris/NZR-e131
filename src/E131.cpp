@@ -2,21 +2,25 @@
 
 E131::E131(YAML::Node& t_config, LEDStrip& t_led_strip) : config(t_config), led_strip(t_led_strip)
 {
-    // create a socket for E1.31
-    if ((sockfd = e131_socket()) < 0)
-        err(EXIT_FAILURE, "e131_socket failed");
+    do {
+        sockfd = e131_socket();
+        if(sockfd < 0){
+            BOOST_LOG_TRIVIAL(error) << "E.131 socket creation failed.";
+            usleep(1000000);
+        }
+    }
+    while (sockfd < 0);
 
-    // bind the socket to the default E1.31 port
-    if (e131_bind(sockfd, E131_DEFAULT_PORT) < 0)
-        err(EXIT_FAILURE, "e131_bind failed");
+    while (e131_bind(sockfd, E131_DEFAULT_PORT) < 0){
+        BOOST_LOG_TRIVIAL(error) << "E.131 failed binding to port: " << E131_DEFAULT_PORT;
+        usleep(1000000);       
+    }
 
     for(YAML::const_iterator it=config["mapping"].begin(); it != config["mapping"].end(); ++it) {
         int universe = it->first.as<int>();
         this->join_universe(universe);
     }
 
-    std::thread receive_data_thread(&E131::receive_data, this);
-    receive_data_thread.join();
 }
 
 void E131::join_universe(int t_universe)
@@ -31,31 +35,25 @@ void E131::join_universe(int t_universe)
     Util::exec(ss.str().c_str());
 
     if (e131_multicast_join(sockfd, t_universe) < 0)
-        err(EXIT_FAILURE, "e131_multicast_join failed");   
+        err(EXIT_FAILURE, "E.131 Multicast join failed for universe ");   
 }
 
-void E131::close()
-{
-    running = false;
-}
-
-void E131::receive_data()
+void E131::receive_data(bool *running)
 {
     int strip_channel, start_address, total_rgb_channels, end_address, start_address_offset;
-    
-    while(running == true) {
+
+    while(*running == true) {
         if (e131_recv(sockfd, &packet) < 0)
-            err(EXIT_FAILURE, "e131_recv failed");
+            err(EXIT_FAILURE, "E.131 receivex failed");
 
         if ((error = e131_pkt_validate(&packet)) != E131_ERR_NONE) {
-            BOOST_LOG_TRIVIAL(error) << "e131 packet validation error" << e131_strerror(error);
+            BOOST_LOG_TRIVIAL(error) << "E.131 packet validation error" << e131_strerror(error);
             continue;
         }
 
         if (e131_pkt_discard(&packet, last_seq)) {
-            BOOST_LOG_TRIVIAL(warning) << "e131 packet received out of sequence. Last: " 
+            BOOST_LOG_TRIVIAL(warning) << "E.131 packet received out of sequence. Last: " 
             << static_cast<int>(last_seq) << ", Seq: " << static_cast<int>(packet.frame.seq_number);
-            last_seq = packet.frame.seq_number;
             continue;
         }
 
