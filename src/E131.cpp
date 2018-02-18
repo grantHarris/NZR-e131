@@ -5,20 +5,25 @@ E131::E131(YAML::Node& t_config, LEDStrip& t_led_strip) : config(t_config), led_
     do {
         sockfd = e131_socket();
         if(sockfd < 0){
-            BOOST_LOG_TRIVIAL(error) << "E.131 socket creation failed.";
+            BOOST_LOG_TRIVIAL(error) << "E1.31 socket creation failed.";
             usleep(1000000);
         }
     }
     while (sockfd < 0);
 
+    BOOST_LOG_TRIVIAL(info) << "E1.31 socket created.";
+
     while (e131_bind(sockfd, E131_DEFAULT_PORT) < 0){
-        BOOST_LOG_TRIVIAL(error) << "E.131 failed binding to port: " << E131_DEFAULT_PORT;
+        BOOST_LOG_TRIVIAL(error) << "E1.31 failed binding to port: " << E131_DEFAULT_PORT;
         usleep(1000000);       
     }
+
+    BOOST_LOG_TRIVIAL(info) << "E1.31 client bound to port: " << E131_DEFAULT_PORT;
 
     for(YAML::const_iterator it=config["mapping"].begin(); it != config["mapping"].end(); ++it) {
         int universe = it->first.as<int>();
         this->join_universe(universe);
+        this->register_universe_for_stats(universe);
     }
 
 }
@@ -35,7 +40,7 @@ void E131::join_universe(int t_universe)
     Util::exec(ss.str().c_str());
 
     if (e131_multicast_join(sockfd, t_universe) < 0)
-        err(EXIT_FAILURE, "E.131 Multicast join failed for universe ");   
+        err(EXIT_FAILURE, "E1.31 Multicast join failed for universe ");   
 }
 
 void E131::receive_data(bool *running)
@@ -44,23 +49,26 @@ void E131::receive_data(bool *running)
 
     while(*running == true) {
         if (e131_recv(sockfd, &packet) < 0)
-            err(EXIT_FAILURE, "E.131 receivex failed");
+            err(EXIT_FAILURE, "E1.31 receivex failed");
 
         if ((error = e131_pkt_validate(&packet)) != E131_ERR_NONE) {
-            BOOST_LOG_TRIVIAL(error) << "E.131 packet validation error" << e131_strerror(error);
+            BOOST_LOG_TRIVIAL(error) << "E1.31 packet validation error" << e131_strerror(error);
             continue;
         }
+        
+        int universe = ntohs(packet.frame.universe);
 
         if (e131_pkt_discard(&packet, last_seq)) {
-            BOOST_LOG_TRIVIAL(warning) << "E.131 packet received out of sequence. Last: " 
+            BOOST_LOG_TRIVIAL(warning) << "E1.31 packet received out of sequence. Last: " 
             << static_cast<int>(last_seq) << ", Seq: " << static_cast<int>(packet.frame.seq_number);
+            this->log_universe_packet(universe, State::OUT_OF_SEQUENCE);
+            last_seq = packet.frame.seq_number;
             continue;
         }
 
-        int universe = ntohs(packet.frame.universe);
+        this->log_universe_packet(universe, State::GOOD);
         BOOST_LOG_TRIVIAL(debug) << "Packet for universe: " << universe;
 
-        //output_mutex.lock();
         YAML::Node universe_config = config["mapping"][universe];
         for(YAML::const_iterator it = universe_config.begin(); it != universe_config.end(); ++it) {
             const YAML::Node& entry = *it;
@@ -83,7 +91,41 @@ void E131::receive_data(bool *running)
             }
         }
         last_seq = packet.frame.seq_number;
-        //output_mutex.unlock();
+    }
+}
+
+void E131::register_universe_for_stats(unsigned int t_universe){
+    UniverseStats universe {0, 0};
+    universe_stats[t_universe] = universe;
+}
+
+void E131::log_universe_packet(unsigned int t_universe, State state){
+    log_mutex.lock();
+    switch(state){
+            case State::GOOD:
+                universe_stats[t_universe].updates++;
+            break;
+            case State::OUT_OF_SEQUENCE:
+                universe_stats[t_universe].out_of_sequence++;
+            break;
+        }
+    log_mutex.unlock();
+}
+
+void E131::stats_thread(bool *running){
+    while(*running == true){
+        log_mutex.lock();
+        for(std::map<unsigned int, UniverseStats>::iterator iter = universe_stats.begin(); iter != universe_stats.end(); ++iter)
+        {
+            unsigned int universe_number =  iter->first;
+            UniverseStats stats = iter->second;
+            BOOST_LOG_TRIVIAL(info) << "Universe: " << universe_number << ", Good: " << stats.updates << "FPS, Dropped: " << stats.out_of_sequence << "FPS";
+            UniverseStats universe {0, 0};
+            iter->second = universe;
+        }
+
+        log_mutex.unlock();
+        usleep(1000000);
     }
 }
 

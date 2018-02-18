@@ -6,6 +6,7 @@
 #define STRIP_TYPE      WS2811_STRIP_GRB
 
 #include <stdint.h>
+#include <unistd.h>
 #include <mutex>
 #include <err.h>
 #include <boost/log/trivial.hpp>

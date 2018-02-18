@@ -1,12 +1,10 @@
 #include "LEDStrip.h"
 
 LEDStrip::LEDStrip(YAML::Node& t_config) : config(t_config) {
-
     this->setup_ouput();
-
     ws2811_return_t ret;
     if ((ret = ws2811_init(&output)) != WS2811_SUCCESS){
-        BOOST_LOG_TRIVIAL(fatal) << "ws2811_init failed:" << ws2811_get_return_t_str(ret);
+        BOOST_LOG_TRIVIAL(fatal) << "ws2811 init failed:" << ws2811_get_return_t_str(ret);
         exit(1);
     }
 }
