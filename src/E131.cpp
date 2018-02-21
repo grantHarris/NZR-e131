@@ -23,6 +23,7 @@ E131::E131(YAML::Node& t_config, LEDStrip& t_led_strip) : config(t_config), led_
     for(YAML::const_iterator it=config["mapping"].begin(); it != config["mapping"].end(); ++it) {
         int universe = it->first.as<int>();
         this->join_universe(universe);
+        sequence_numbers[universe] = 0;
         this->register_universe_for_stats(universe);
     }
 
@@ -58,11 +59,11 @@ void E131::receive_data(bool *running)
         
         int universe = ntohs(packet.frame.universe);
 
-        if (e131_pkt_discard(&packet, last_seq)) {
+        if (e131_pkt_discard(&packet, sequence_numbers[universe])) {
             BOOST_LOG_TRIVIAL(warning) << "E1.31 packet received out of sequence. Last: " 
-            << static_cast<int>(last_seq) << ", Seq: " << static_cast<int>(packet.frame.seq_number);
+            << static_cast<int>(sequence_numbers[universe] ) << ", Seq: " << static_cast<int>(packet.frame.seq_number);
             this->log_universe_packet(universe, State::OUT_OF_SEQUENCE);
-            last_seq = packet.frame.seq_number;
+            sequence_numbers[universe] = packet.frame.seq_number;
             continue;
         }
 
@@ -90,13 +91,14 @@ void E131::receive_data(bool *running)
                 led_strip.write_to_buffer(strip_channel, i + start_address_offset, pixel);
             }
         }
-        last_seq = packet.frame.seq_number;
+        sequence_numbers[universe] = packet.frame.seq_number;
     }
 }
 
 void E131::register_universe_for_stats(unsigned int t_universe){
     UniverseStats universe {0, 0};
     universe_stats[t_universe] = universe;
+
 }
 
 void E131::log_universe_packet(unsigned int t_universe, State state){
