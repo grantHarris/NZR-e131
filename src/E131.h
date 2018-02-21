@@ -31,6 +31,7 @@ public:
     void stats_thread(bool *running);
 private:
     std::map<unsigned int, UniverseStats> universe_stats;
+    std::map<unsigned int, unsigned int> sequence_numbers;
     YAML::Node config;
     LEDStrip& led_strip;
     std::mutex log_mutex;
