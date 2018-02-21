@@ -67,7 +67,7 @@ void E131::receive_data(bool *running)
         }
 
         this->log_universe_packet(universe, State::GOOD);
-        BOOST_LOG_TRIVIAL(debug) << "Packet for universe: " << universe;
+        BOOST_LOG_TRIVIAL(debug) << "Packet for universe: " << universe << "Seq: " << static_cast<int>(packet.frame.seq_number);
 
         YAML::Node universe_config = config["mapping"][universe];
         for(YAML::const_iterator it = universe_config.begin(); it != universe_config.end(); ++it) {

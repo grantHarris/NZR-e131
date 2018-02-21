@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
         ("config,h", po::value<std::string>()->default_value("./config.yaml"), "Config file path")
         ("log,l", po::value<std::string>(), "Logging file path")
         ("stats,s", po::value<std::string>(), "Output update stats for E1.31 updates")
-        ("verbosity,v", po::value<std::string>()->default_value("info"), "Enable verbosity (optionally specify level)");
+        ("verbosity,v", po::value<std::string>(), "Enable verbosity (optionally specify level)");
 
         po::variables_map vm;        
         po::store(po::parse_command_line(argc, argv, desc), vm);
