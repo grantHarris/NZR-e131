@@ -2,15 +2,28 @@
 
 RPi e1.31 bridge to WS2811 LED's
 
-## Build
+## Basic Usage
 ```
-	./configure
+	sudo ./e131bridge
+```
+
+## Build Debug 
+```
+	mkdir Debug
+	cd Debug
+	cmake -DCMAKE_BUILD_TYPE=Debug ..
 	make
-	make install
 ```
 
+## Build Release 
+```
+	mkdir Release
+	cd Release
+	cmake -DCMAKE_BUILD_TYPE=Release ..
+	make
+```
 
-sudo apt-get update; sudo apt-get upgrade; sudo apt-get install git cmake
-
-git clone https://github.com/jgarff/rpi_ws281x.git 
-git clone https://github.com/jbeder/yaml-cpp.git
+## Libraries
+https://github.com/jgarff/rpi_ws281x.git
+https://github.com/jbeder/yaml-cpp.git
+Boost
