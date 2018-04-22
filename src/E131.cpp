@@ -1,7 +1,9 @@
 #include "E131.h"
 
-E131::E131(YAML::Node& t_config, LEDStrip& t_led_strip) : config(t_config), led_strip(t_led_strip)
+E131::E131(YAML::Node& t_config) : config(t_config)
 {
+    pixels.reserve(t_config["led_count"].as<int>());
+
     do {
         sockfd = e131_socket();
         if(sockfd < 0){
@@ -46,7 +48,7 @@ void E131::join_universe(int t_universe)
 
 void E131::receive_data(bool *running)
 {
-    int strip_channel, start_address, total_rgb_channels, end_address, start_address_offset;
+    int start_address, total_rgb_channels, end_address, start_address_offset;
 
     while(*running == true) {
         if (e131_recv(sockfd, &packet) < 0)
@@ -70,35 +72,52 @@ void E131::receive_data(bool *running)
         this->log_universe_packet(universe, State::GOOD);
         BOOST_LOG_TRIVIAL(debug) << "Packet for universe: " << universe;
 
-        YAML::Node universe_config = config["mapping"][universe];
-        for(YAML::const_iterator it = universe_config.begin(); it != universe_config.end(); ++it) {
-            const YAML::Node& entry = *it;
-            YAML::Node output_params = entry["output"];
-            YAML::Node input_params = entry["input"];
-
-            strip_channel = output_params["strip_channel"].as<int>();
-            start_address = std::max(1, std::min(input_params["start_address"].as<int>(), 511));
-            total_rgb_channels = std::max(0, std::min(input_params["total_rgb_channels"].as<int>() - 1, 511));
-            end_address = std::max(1, std::min(total_rgb_channels - start_address, 511));
-            start_address_offset = output_params["start_address"].as<int>();
-            
-            for(int i = start_address - 1; i < end_address; i++){
-                int index = i * 3 + 1;
-                Pixel pixel;
-                pixel.r = packet.dmp.prop_val[index];
-                pixel.g = packet.dmp.prop_val[index + 1];
-                pixel.b = packet.dmp.prop_val[index + 2];
-                led_strip.write_to_buffer(strip_channel, i + start_address_offset, pixel);
-            }
+        this->map_to_buffer(&packet);
+        if(recording == true){
+            this->save_to_file(&packet);
         }
+
         sequence_numbers[universe] = packet.frame.seq_number;
     }
+}
+
+void E131::map_to_buffer(e131_packet_t *packet){
+    YAML::Node universe_config = config["mapping"][ntohs(packet.frame.universe)];
+    for(YAML::const_iterator it = universe_config.begin(); it != universe_config.end(); ++it) {
+        const YAML::Node& entry = *it;
+        YAML::Node output_params = entry["output"];
+        YAML::Node input_params = entry["input"];
+
+        start_address = std::max(1, std::min(input_params["start_address"].as<int>(), 511));
+        total_rgb_channels = std::max(0, std::min(input_params["total_rgb_channels"].as<int>() - 1, 511));
+        end_address = std::max(1, std::min(total_rgb_channels - start_address, 511));
+        start_address_offset = output_params["start_address"].as<int>();
+        
+        for(int i = start_address - 1; i < end_address; i++){
+            int index = i * 3 + 1;
+            Pixel pixel;
+            pixel.r = packet.dmp.prop_val[index];
+            pixel.g = packet.dmp.prop_val[index + 1];
+            pixel.b = packet.dmp.prop_val[index + 2];
+            pixels[i + start_address_offset] = pixel;
+        }
+    }
+}
+
+void E131::save_to_file(e131_packet_t *packet){
+    //get current timestamp
+    //get current cue index. We can skip between cues
+    //key should be the cue index and then the time
+}
+
+void E131::read_from_file(){
+    //iterator loading up the packet stream.
+    //Use cue index as first key, read the time difference, wait for that period of time before placing it on the buffer
 }
 
 void E131::register_universe_for_stats(unsigned int t_universe){
     UniverseStats universe {0, 0};
     universe_stats[t_universe] = universe;
-
 }
 
 void E131::log_universe_packet(unsigned int t_universe, State state){

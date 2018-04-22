@@ -4,9 +4,12 @@
 #include <e131.h>
 #include <err.h>
 #include <mutex>
+#include <vector>
 #include <boost/log/trivial.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
+
+//#include "leveldb/db.h"
 
 #include "Util.h"
 #include "LEDStrip.h"
@@ -29,6 +32,7 @@ public:
     E131(YAML::Node& t_config, LEDStrip& t_led_strip);
     void receive_data(bool *running);
     void stats_thread(bool *running);
+    std::vector<Pixel> pixels;
 private:
     std::map<unsigned int, UniverseStats> universe_stats;
     std::map<unsigned int, unsigned int> sequence_numbers;

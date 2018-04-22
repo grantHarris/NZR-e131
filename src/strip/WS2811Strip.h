@@ -1,5 +1,5 @@
-#ifndef __LEDSTRIP_H__
-#define __LEDSTRIP_H__
+#ifndef __WS2811STRIP_H__
+#define __WS2811STRIP_H__
 
 #define DMA             10
 #define TARGET_FREQ     WS2811_TARGET_FREQ
@@ -12,26 +12,21 @@
 #include <boost/log/trivial.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
-#include "../lib/ws2811.h"
-#include "../lib/clk.h"
-#include "../lib/gpio.h"
-#include "../lib/dma.h"
-#include "../lib/pwm.h"
-#include "../lib/version.h"
+#include "LEDStrip.h"
+#include "../../lib/ws2811.h"
+#include "../../lib/clk.h"
+#include "../../lib/gpio.h"
+#include "../../lib/dma.h"
+#include "../../lib/pwm.h"
+#include "../../lib/version.h"
 #include "yaml-cpp/yaml.h"
 
 using namespace boost::log;
 namespace logging = boost::log;
 
-struct Pixel {
-	uint32_t r;
-	uint32_t g;
-	uint32_t b;
-};
-
-class LEDStrip {
+class WS2811Strip: public LEDStrip {
     public:
-    	LEDStrip(YAML::Node& t_config);
+    	WS2811Strip(YAML::Node& t_config);
     	void render(bool *running);
     	void write_to_buffer(int strip_channel, int index, Pixel pixel);
     private:
@@ -41,4 +36,4 @@ class LEDStrip {
         void setup_ouput();
 };
 
-#endif /* __LEDSTRIP_H__ */
+#endif /* __WS2811STRIP_H__ */

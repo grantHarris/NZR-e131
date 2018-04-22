@@ -1,0 +1,20 @@
+namespace e131bridge;
+
+enum PlayMode:byte {LoopAll, LoopOne, PlayThrough, PlayOne}
+enum PlayState:byte { Stopped, Playing, Paused }
+
+table State {
+	mode:PlayMode
+	state:PlayState
+	track:int
+	frame:int
+}
+
+table Metadata {
+	tracks:[int]
+}
+
+table Track {
+	name:string
+	frames:int
+}

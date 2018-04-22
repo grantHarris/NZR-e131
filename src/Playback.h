@@ -6,7 +6,8 @@ enum State {
     STOPPED,
     PAUSED,
     PLAYING,
-    RECORDING
+    CUE_RECORD
+    RECORD_WAIT
 };
 
 class Playback {
@@ -22,6 +23,7 @@ class Playback {
         double get_size(unsigned int index);
     private:
         State current_state;
+        leveldb::DB* db;
 };
 
 #endif /* __Playback_H__ */

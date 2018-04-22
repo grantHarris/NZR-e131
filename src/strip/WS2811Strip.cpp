@@ -1,6 +1,6 @@
-#include "LEDStrip.h"
+#include "WS2811Strip.h"
 
-LEDStrip::LEDStrip(YAML::Node& t_config) : config(t_config) {
+WS2811Strip::WS2811Strip(YAML::Node& t_config) : config(t_config) {
     this->setup_ouput();
     ws2811_return_t ret;
     if ((ret = ws2811_init(&output)) != WS2811_SUCCESS){
@@ -9,7 +9,7 @@ LEDStrip::LEDStrip(YAML::Node& t_config) : config(t_config) {
     }
 }
 
-void LEDStrip::setup_ouput(){
+void WS2811Strip::setup_ouput(){
     output.freq = TARGET_FREQ;
     output.dmanum = DMA;
     YAML::Node strip_channel = config["strip_channel"];
@@ -37,7 +37,7 @@ void LEDStrip::setup_ouput(){
     }
 }
 
-void LEDStrip::render(bool *running) {
+void WS2811Strip::render(bool *running) {
     ws2811_return_t ret;
     
     while(*running == true){
@@ -57,7 +57,13 @@ void LEDStrip::render(bool *running) {
 
 }
 
-void LEDStrip::write_to_buffer(int strip_channel, int index, Pixel pixel){
+void WS2811Strip::pixel_buffer_to_output_buffer(Pixel * pixels, int len){
+    for(int i = 0; i < len; i++){
+        this->write_to_output_buffer(0, i, pixels[i]);
+    }
+}
+
+void WS2811Strip::write_to_output_buffer(int strip_channel, int index, Pixel pixel){
     output_mutex.lock();
     output.channel[strip_channel].leds[index] = 
     static_cast<uint32_t>(pixel.r << 16) |
@@ -71,5 +77,4 @@ void LEDStrip::write_to_buffer(int strip_channel, int index, Pixel pixel){
     << ", R: " << static_cast<int>(pixel.r)
     << ", G: " << static_cast<int>(pixel.g)
     << ", B: " << static_cast<int>(pixel.b);
-
 }

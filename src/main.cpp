@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
         config = YAML::LoadFile(vm["config"].as<std::string>());
 
         LEDStrip led_strip(config);
-        E131 e131(config, led_strip);
+        E131 e131(config);
 
         boost::thread_group threads;
 
