@@ -18,6 +18,7 @@ private:
 	static void send_end_frame(uint16_t count);
 	uint8_t brightness;
 	uint16_t count;
+	std::mutex output_mutex;
 };
 
 #endif /* __APA102_H__ */
