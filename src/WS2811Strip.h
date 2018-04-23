@@ -13,22 +13,23 @@
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
 #include "LEDStrip.h"
-#include "../../lib/ws2811.h"
-#include "../../lib/clk.h"
-#include "../../lib/gpio.h"
-#include "../../lib/dma.h"
-#include "../../lib/pwm.h"
-#include "../../lib/version.h"
+#include "../lib/ws2811.h"
+#include "../lib/clk.h"
+#include "../lib/gpio.h"
+#include "../lib/dma.h"
+#include "../lib/pwm.h"
+#include "../lib/version.h"
 #include "yaml-cpp/yaml.h"
 
 using namespace boost::log;
 namespace logging = boost::log;
 
-class WS2811Strip: public LEDStrip {
+class WS2811Strip {
     public:
     	WS2811Strip(YAML::Node& t_config);
     	void render(bool *running);
-    	void write_to_buffer(int strip_channel, int index, Pixel pixel);
+    	void write_to_output_buffer(int strip_channel, int index, Pixel pixel);
+        void pixel_buffer_to_output_buffer(Pixel * pixels, int len);
     private:
         ws2811_t output;
         YAML::Node config;

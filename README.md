@@ -43,3 +43,4 @@ make
 * https://github.com/jgarff/rpi_ws281x.git
 * https://github.com/jbeder/yaml-cpp.git
 * Boost 1.66
+* http://www.airspayce.com/mikem/bcm2835/

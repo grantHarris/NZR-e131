@@ -14,15 +14,15 @@ using namespace boost::log;
 namespace logging = boost::log;
 
 struct Pixel {
-    uint32_t r;
-    uint32_t g;
-    uint32_t b;
-};
+     uint32_t r;
+     uint32_t g;
+     uint32_t b;
+ };
 
-class LEDStrip {
-    public:
-        virtual void LEDStrip::render(bool *running);
-        virtual void LEDStrip::write_pixels_to_buffer(Pixel * pixels, int len);
-};
+ class LEDStrip {
+     public:
+         virtual void render(bool *running) = 0;
+         virtual void write_pixels_to_buffer(Pixel * pixels, int len) = 0 ;
+ };
 
-#endif /* __LEDSTRIP_H__ */
+ #endif /* __LEDSTRIP_H__ */

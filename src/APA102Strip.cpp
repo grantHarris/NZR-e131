@@ -1,5 +1,7 @@
+#include "APA102Strip.h"
+
 void Apa102Strip::set_brightness(uint8_t t_brightness = 31){
-  brightness = t_brightness
+  brightness = t_brightness;
 }
 
 void Apa102Strip::write_pixels_to_buffer(std::vector<Pixel> &t_pixels){
@@ -11,16 +13,16 @@ void Apa102Strip::write_pixels_to_buffer(std::vector<Pixel> &t_pixels){
 
 void Apa102Strip::render(bool *running){
   output_mutex.lock();
-  Apa102Strip::write(&buffer, count, brightness);
+  Apa102Strip::write(buffer, brightness);
   output_mutex.unlock();
 }
 
-void Apa102Strip::write(std::vector<Pixel> &t_pixels, uint8_t t_brightness = 31){
-    Apa102::start_frame();
+void Apa102Strip::write(std::vector<Pixel>& t_pixels, uint8_t t_brightness){
+    Apa102Strip::send_start_frame();
     for(uint16_t i = 0; i < t_pixels.size(); i++){
-        Apa102::send_color(t_pixels[i], t_brightness);
+        Apa102Strip::send_color(t_pixels[i], t_brightness);
     }
-    Apa102::end_frame(t_pixels.size());
+    Apa102Strip::send_end_frame(t_pixels.size());
 }
 
 void Apa102Strip::send_start_frame(){
@@ -37,27 +39,25 @@ void Apa102Strip::send_end_frame(uint16_t count){
   }
 }
 
-void Apa102Strip::send_color(uint8_t red, uint8_t green, uint8_t blue, uint8_t brightness = 31){
+void Apa102Strip::send_color(uint8_t red, uint8_t green, uint8_t blue, uint8_t brightness){
   bcm2835_spi_transfer(0b11100000 | brightness);
   bcm2835_spi_transfer(blue);
   bcm2835_spi_transfer(green);
   bcm2835_spi_transfer(red);
 }
 
-void Apa102Strip::send_color(Pixel pixel, uint8_t brightness = 31){
-  Apa102::send_color(pixel.r, pixel.g, pixel.b, brightness);
+void Apa102Strip::send_color(Pixel t_pixel, uint8_t t_brightness){
+  Apa102Strip::send_color(t_pixel.r, t_pixel.g, t_pixel.b, t_brightness);
 }
 
 Apa102Strip::Apa102Strip(){
     //Initiate the SPI Data Frame
     if (!bcm2835_init()){
-      BOOST_LOG_TRIVIAL(error) << "bcm2835_init failed" << E131_DEFAULT_PORT;
-      return 1;
+      BOOST_LOG_TRIVIAL(error) << "bcm2835_init failed";
     }
 
     if (!bcm2835_spi_begin()){
-      BOOST_LOG_TRIVIAL(error) << "bcm2835_spi_begin failed" << E131_DEFAULT_PORT;
-      return 1;
+      BOOST_LOG_TRIVIAL(error) << "bcm2835_spi_begin failed";
     }
 
     bcm2835_spi_setBitOrder(BCM2835_SPI_BIT_ORDER_MSBFIRST);      // The default
@@ -92,7 +92,6 @@ Apa102Strip::Apa102Strip(){
     */
     bcm2835_spi_chipSelect(BCM2835_SPI_CS0);
     bcm2835_spi_setChipSelectPolarity(BCM2835_SPI_CS0, LOW);
-    return 0;
 }
 
  Apa102Strip::~Apa102Strip(){

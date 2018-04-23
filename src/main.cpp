@@ -24,6 +24,8 @@
 
 #include "E131.h"
 #include "LEDStrip.h"
+#include "APA102Strip.h"
+#include "WS2811Strip.h"
 
 namespace po = boost::program_options;
 using namespace boost::log;
@@ -77,7 +79,7 @@ void setup_logging(po::variables_map& vm){
 }
 
 int main(int argc, char* argv[]) {
-    
+    boost::thread_group threads;
     try {
         
         setup_handlers();
@@ -104,13 +106,18 @@ int main(int argc, char* argv[]) {
         BOOST_LOG_TRIVIAL(info) << "Using config file " << vm["config"].as<std::string>();
         config = YAML::LoadFile(vm["config"].as<std::string>());
 
-        LEDStrip led_strip(config);
         E131 e131(config);
 
-        boost::thread_group threads;
-
         running = true;
-        threads.create_thread(boost::bind(&LEDStrip::render, &led_strip, &running));
+
+        if(config["strip_type"].as<std::string>() == "APA102"){
+            Apa102Strip apa102_strip;
+            threads.create_thread(boost::bind(&Apa102Strip::render, &apa102_strip, &running)); 
+        }else{
+           WS2811Strip ws2811_strip(config);
+           threads.create_thread(boost::bind(&WS2811Strip::render, &ws2811_strip, &running));
+        }
+
         threads.create_thread(boost::bind(&E131::receive_data, &e131, &running));
         
         if(vm.count("stats")){
