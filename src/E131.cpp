@@ -48,8 +48,6 @@ void E131::join_universe(int t_universe)
 
 void E131::receive_data(bool *running)
 {
-    int start_address, total_rgb_channels, end_address, start_address_offset;
-
     while(*running == true) {
         if (e131_recv(sockfd, &packet) < 0)
             err(EXIT_FAILURE, "E1.31 receivex failed");
@@ -72,16 +70,17 @@ void E131::receive_data(bool *running)
         this->log_universe_packet(universe, State::GOOD);
         BOOST_LOG_TRIVIAL(debug) << "Packet for universe: " << universe;
 
-        this->map_to_buffer(&packet);
+        this->map_to_buffer(packet);
         if(recording == true){
-            this->save_to_file(&packet);
+            this->save_to_file(packet);
         }
 
         sequence_numbers[universe] = packet.frame.seq_number;
     }
 }
 
-void E131::map_to_buffer(e131_packet_t *packet){
+void E131::map_to_buffer(e131_packet_t &packet){
+    int start_address, total_rgb_channels, end_address, start_address_offset;
     YAML::Node universe_config = config["mapping"][ntohs(packet.frame.universe)];
     for(YAML::const_iterator it = universe_config.begin(); it != universe_config.end(); ++it) {
         const YAML::Node& entry = *it;
@@ -104,7 +103,7 @@ void E131::map_to_buffer(e131_packet_t *packet){
     }
 }
 
-void E131::save_to_file(e131_packet_t *packet){
+void E131::save_to_file(e131_packet_t &packet){
     //get current timestamp
     //get current cue index. We can skip between cues
     //key should be the cue index and then the time
