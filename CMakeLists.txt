@@ -8,7 +8,7 @@ file(GLOB SOURCES "src/*.cpp")
 file(GLOB SOURCES "src/strip/*.cpp")
 
 link_directories("lib/")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -DBOOST_LOG_DYN_LINK")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -shared -std=c++11 -pthread -DBOOST_LOG_DYN_LINK")
 
 find_package(Boost 1.66.0 COMPONENTS thread log program_options REQUIRED)
 find_library(E131 e131)

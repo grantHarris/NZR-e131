@@ -28,7 +28,8 @@ class WS2811Strip: public LEDStrip {
     public:
     	WS2811Strip(YAML::Node& t_config);
     	void render(bool *running);
-    	void write_to_buffer(int strip_channel, int index, Pixel pixel);
+    	void write_to_output_buffer(int strip_channel, int index, Pixel pixel);
+        void pixel_buffer_to_output_buffer(Pixel * pixels, int len);
     private:
         ws2811_t output;
         YAML::Node config;

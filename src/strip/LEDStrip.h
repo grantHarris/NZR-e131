@@ -21,8 +21,8 @@ struct Pixel {
 
 class LEDStrip {
     public:
-        virtual void LEDStrip::render(bool *running);
-        virtual void LEDStrip::write_pixels_to_buffer(Pixel * pixels, int len);
+        virtual void render(bool *running) = 0;
+        virtual void write_pixels_to_buffer(Pixel * pixels, int len) = 0 ;
 };
 
 #endif /* __LEDSTRIP_H__ */
