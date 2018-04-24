@@ -1,34 +1,34 @@
-#ifndef __APA102_H__
-#define __APA102_H__
-#include <bcm2835.h>
-#include <stdio.h>
-#include <boost/log/trivial.hpp>
-#include <boost/log/core.hpp>
-#include <boost/log/expressions.hpp>
+// #ifndef __APA102_H__
+// #define __APA102_H__
+// #include <bcm2835.h>
+// #include <stdio.h>
+// #include <boost/log/trivial.hpp>
+// #include <boost/log/core.hpp>
+// #include <boost/log/expressions.hpp>
 
-#include "LEDStrip.h"
+// #include "LEDStrip.h"
 
-using namespace boost::log;
-namespace logging = boost::log;
+// using namespace boost::log;
+// namespace logging = boost::log;
 
-class Apa102Strip {
-public:
-	Apa102Strip();
-	~Apa102Strip();
-	void render(bool *running);
-	void set_brightness(uint8_t brightness);
-	void write_pixels_to_buffer(std::vector<Pixel> &t_pixels);
-	static void write(std::vector<Pixel> &t_pixels, uint8_t t_brightness);
-	static void send_color(uint8_t red, uint8_t green, uint8_t blue, uint8_t t_brightness = 31);
-	static void send_color(Pixel t_pixel, uint8_t t_brightness = 31);
-private:
+// class Apa102Strip {
+// public:
+// 	Apa102Strip();
+// 	~Apa102Strip();
+// 	void render(bool *running);
+// 	void set_brightness(uint8_t brightness);
+// 	void write_pixels_to_buffer(std::vector<Pixel> &t_pixels);
+// 	static void write(std::vector<Pixel> &t_pixels, uint8_t t_brightness);
+// 	static void send_color(uint8_t red, uint8_t green, uint8_t blue, uint8_t t_brightness = 31);
+// 	static void send_color(Pixel t_pixel, uint8_t t_brightness = 31);
+// private:
 	
-	static void send_start_frame();
-	static void send_end_frame(uint16_t count);
-	uint8_t brightness;
-	uint16_t count;
-	std::vector<Pixel> buffer;
-	std::mutex output_mutex;
-};
+// 	static void send_start_frame();
+// 	static void send_end_frame(uint16_t count);
+// 	uint8_t brightness;
+// 	uint16_t count;
+// 	std::vector<Pixel> buffer;
+// 	std::mutex output_mutex;
+// };
 
-#endif /* __APA102_H__ */
+// #endif /* __APA102_H__ */

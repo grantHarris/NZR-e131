@@ -23,8 +23,8 @@
 #include <boost/log/utility/setup/file.hpp>
 
 #include "E131.h"
-#include "strip/APA102Strip.h"
-#include "strip/WS2811Strip.h"
+// #include "strip/APA102Strip.h"
+// #include "strip/WS2811Strip.h"
 
 namespace po = boost::program_options;
 using namespace boost::log;
@@ -109,15 +109,15 @@ int main(int argc, char* argv[]) {
 
         running = true;
 
-        if(config["strip_type"] == 'APA102'){
-            Apa102Strip apa102_strip(config);
-            threads.create_thread(boost::bind(&Apa102Strip::render, &apa102_strip, &running)); 
-        }else{
-            WS2811Strip ws2811_strip(config);
-            threads.create_thread(boost::bind(&WS2811Strip::render, &ws2811_strip, &running));
-        }
+        // if(config["strip_type"] == 'APA102'){
+        //     Apa102Strip apa102_strip(config);
+        //     threads.create_thread(boost::bind(&Apa102Strip::render, &apa102_strip, &running)); 
+        // }else{
+        //     WS2811Strip ws2811_strip(config);
+        //     threads.create_thread(boost::bind(&WS2811Strip::render, &ws2811_strip, &running));
+        // }
 
-        threads.create_thread(boost::bind(&E131::receive_data, &e131, &running));
+        // threads.create_thread(boost::bind(&E131::receive_data, &e131, &running));
         
         if(vm.count("stats")){
             threads.create_thread(boost::bind(&E131::stats_thread, &e131, &running));
