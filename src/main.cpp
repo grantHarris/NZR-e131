@@ -23,7 +23,7 @@
 #include <boost/log/utility/setup/file.hpp>
 
 #include "E131.h"
-// #include "strip/APA102Strip.h"
+#include "APA102Strip.h"
 // #include "strip/WS2811Strip.h"
 
 namespace po = boost::program_options;
