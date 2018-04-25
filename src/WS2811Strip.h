@@ -13,12 +13,12 @@
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
 #include "LEDStrip.h"
-#include "../../lib/ws2811.h"
-#include "../../lib/clk.h"
-#include "../../lib/gpio.h"
-#include "../../lib/dma.h"
-#include "../../lib/pwm.h"
-#include "../../lib/version.h"
+#include "../lib/ws2811.h"
+#include "../lib/clk.h"
+#include "../lib/gpio.h"
+#include "../lib/dma.h"
+#include "../lib/pwm.h"
+#include "../lib/version.h"
 #include "yaml-cpp/yaml.h"
 
 using namespace boost::log;
