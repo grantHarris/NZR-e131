@@ -5,7 +5,6 @@ set(MY_TARGET_NAME "e131bridge")
 project(${MY_TARGET_NAME})
 
 file(GLOB SOURCES "src/*.cpp")
-file(GLOB SOURCES "src/strip/*.cpp")
 
 link_directories("lib/")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -shared -std=c++11 -pthread -DBOOST_LOG_DYN_LINK")
