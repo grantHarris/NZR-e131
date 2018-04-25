@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
 
         if(config["strip_type"].as<std::string>() == "APA102"){
             Apa102Strip apa102_strip();
-            threads.create_thread(boost::bind(&Apa102Strip::render, &apa102_strip, &running)); 
+            //threads.create_thread(boost::bind(&Apa102Strip::render, &apa102_strip, &running)); 
         }else{
             WS2811Strip ws2811_strip(config);
             threads.create_thread(boost::bind(&WS2811Strip::render, &ws2811_strip, &running));
