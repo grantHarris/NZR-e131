@@ -12,24 +12,27 @@ void Apa102Strip::write_pixels_to_buffer(std::vector<Pixel> &t_pixels){
 }
 
 void Apa102Strip::render(bool *running){
-  output_mutex.lock();
-  Apa102Strip::write(buffer, brightness);
-  output_mutex.unlock();
+  while(*running == true)
+  {
+	  output_mutex.lock();
+	  //BOOST_LOG_TRIVIAL(info) << "Write to buffer";
+	  Apa102Strip::write(buffer, brightness);
+	  output_mutex.unlock();
+	  usleep(8000);
+  }
 }
 
 void Apa102Strip::write(std::vector<Pixel>& t_pixels, uint8_t t_brightness){
-    Apa102Strip::send_start_frame();
-    for(uint16_t i = 0; i < t_pixels.size(); i++){
-        Apa102Strip::send_color(t_pixels[i], t_brightness);
-    }
-    Apa102Strip::send_end_frame(t_pixels.size());
+  Apa102Strip::send_start_frame();
+  for(uint16_t i = 0; i < t_pixels.size(); i++){
+      Apa102Strip::send_color(t_pixels[i], t_brightness);
+  }
+  Apa102Strip::send_end_frame(t_pixels.size());
 }
 
 void Apa102Strip::send_start_frame(){
-  bcm2835_spi_transfer(0);
-  bcm2835_spi_transfer(0);
-  bcm2835_spi_transfer(0);
-  bcm2835_spi_transfer(0);
+ char ledDataBlock[4] = {0};
+ bcm2835_spi_writenb(ledDataBlock, 4);
 }
 
 void Apa102Strip::send_end_frame(uint16_t count){
@@ -51,7 +54,19 @@ void Apa102Strip::send_color(Pixel t_pixel, uint8_t t_brightness){
 }
 
 Apa102Strip::Apa102Strip(){
-    //Initiate the SPI Data Frame
+	BOOST_LOG_TRIVIAL(info) << "Setup";
+  
+    //buffer.resize(125);
+    //for (auto i = 0; i < buffer.size(); ++i)
+    //{
+//	auto& pixel = buffer[i];
+//        pixel.r = buffer.size() - i;
+//        pixel.g = 0;
+//        pixel.b = i;
+//    }
+
+    //bcm2835_set_debug(1);
+    	//Initiate the SPI Data Frame
     if (!bcm2835_init()){
       BOOST_LOG_TRIVIAL(error) << "bcm2835_init failed";
     }
@@ -69,7 +84,8 @@ Apa102Strip::Apa102Strip(){
     BCM2835_SPI_MODE2       CPOL = 1, CPHA = 0
     BCM2835_SPI_MODE3       CPOL = 1, CPHA = 1  
     */
-    bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_16); // The default
+    //bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_16); // The default
+    bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_128); // The default
     /*
 
         BCM2835_SPI_CLOCK_DIVIDER_65536     65536 = 262.144us = 3.814697260kHz

@@ -23,10 +23,7 @@
 #include <boost/log/utility/setup/file.hpp>
 
 #include "E131.h"
-<<<<<<< HEAD
-=======
 #include "LEDStrip.h"
->>>>>>> b7fc4d191e35d09446051d8e8f6d6768fdca8e20
 #include "APA102Strip.h"
 #include "WS2811Strip.h"
 
@@ -112,11 +109,11 @@ int main(int argc, char* argv[]) {
         E131 e131(config);
 
         running = true;
+        Apa102Strip apa102_strip;
 
         if(config["strip_type"].as<std::string>() == "APA102"){
-            BOOST_LOG_TRIVIAL(info) << "Using APA101 strip";
-            Apa102Strip apa102_strip;
-            threads.create_thread(boost::bind(&Apa102Strip::render, &apa102_strip, &running)); 
+           BOOST_LOG_TRIVIAL(info) << "Using APA102 strip";
+           threads.create_thread(boost::bind(&Apa102Strip::render, &apa102_strip, &running)); 
         }else{
            BOOST_LOG_TRIVIAL(info) << "Using WS2811 strip";
            WS2811Strip ws2811_strip(config);
