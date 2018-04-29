@@ -1,6 +1,6 @@
 #include "E131.h"
 
-E131::E131(YAML::Node& t_config) : config(t_config)
+E131::E131(YAML::Node& t_config, LEDStrip& t_led_strip) : config(t_config), led_strip(t_led_strip)
 {
     pixels.reserve(t_config["led_count"].as<int>());
 
@@ -100,7 +100,9 @@ void E131::map_to_buffer(e131_packet_t &packet){
             pixel.b = packet.dmp.prop_val[index + 2];
             pixels[i + start_address_offset] = pixel;
         }
+
     }
+    callback(pixels);
 }
 
 void E131::save_to_file(e131_packet_t &packet){

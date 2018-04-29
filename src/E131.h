@@ -31,22 +31,23 @@ public:
     E131(YAML::Node& t_config);
     void receive_data(bool *running);
     void stats_thread(bool *running);
-    std::vector<Pixel> pixels;
     void map_to_buffer(e131_packet_t &packet);
     void read_from_file();
     void save_to_file(e131_packet_t &packet);
+    void register_update_fn(std::function<void()> t_callback) : callback(t_callback) = 0;
 private:
+    std::function<void()> callback;
     std::map<unsigned int, UniverseStats> universe_stats;
     std::map<unsigned int, unsigned int> sequence_numbers;
     YAML::Node config;
+    LEDStrip led_strip;
     std::mutex log_mutex;
-    std::mutex output_mutex;
     int sockfd;
     e131_packet_t packet;
     e131_error_t error;
     uint8_t last_seq = 0x00;
     bool recording = false;
-
+    std::vector<Pixel> pixels;
     void register_universe_for_stats(unsigned int t_universe);
     void join_universe(int t_universe);
     void log_universe_packet(unsigned int t_universe, State state);

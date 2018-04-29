@@ -107,17 +107,16 @@ int main(int argc, char* argv[]) {
         config = YAML::LoadFile(vm["config"].as<std::string>());
 
         E131 e131(config);
-
         running = true;
-        Apa102Strip apa102_strip;
 
         if(config["strip_type"].as<std::string>() == "APA102"){
            BOOST_LOG_TRIVIAL(info) << "Using APA102 strip";
-           threads.create_thread(boost::bind(&Apa102Strip::render, &apa102_strip, &running)); 
+           Apa102Strip apa102_strip;
+           e131.register_update_fn(boost::bind(&Apa102Strip::push, &apa102_strip));
         }else{
            BOOST_LOG_TRIVIAL(info) << "Using WS2811 strip";
            WS2811Strip ws2811_strip(config);
-           threads.create_thread(boost::bind(&WS2811Strip::render, &ws2811_strip, &running));
+           e131.register_update_fn(boost::bind(&WS2811Strip::push, &ws2811_strip));
         }
 
         threads.create_thread(boost::bind(&E131::receive_data, &e131, &running));

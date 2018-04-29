@@ -4,22 +4,8 @@ void Apa102Strip::set_brightness(uint8_t t_brightness = 31){
   brightness = t_brightness;
 }
 
-void Apa102Strip::write_pixels_to_buffer(std::vector<Pixel> &t_pixels){
-  std::vector<Pixel> copied(t_pixels);
-  output_mutex.lock();
-  buffer = copied;
-  output_mutex.unlock();
-}
-
-void Apa102Strip::render(bool *running){
-  while(*running == true)
-  {
-	  output_mutex.lock();
-	  //BOOST_LOG_TRIVIAL(info) << "Write to buffer";
-	  Apa102Strip::write(buffer, brightness);
-	  output_mutex.unlock();
-	  usleep(8000);
-  }
+void Apa102Strip::write_pixels_to_strip(std::vector<Pixel> t_pixels){
+  Apa102Strip::write(t_pixels, brightness);
 }
 
 void Apa102Strip::write(std::vector<Pixel>& t_pixels, uint8_t t_brightness){
@@ -31,8 +17,8 @@ void Apa102Strip::write(std::vector<Pixel>& t_pixels, uint8_t t_brightness){
 }
 
 void Apa102Strip::send_start_frame(){
- char ledDataBlock[4] = {0};
- bcm2835_spi_writenb(ledDataBlock, 4);
+  char ledDataBlock[4] = {0};
+  bcm2835_spi_writenb(ledDataBlock, 4);
 }
 
 void Apa102Strip::send_end_frame(uint16_t count){
@@ -84,7 +70,6 @@ Apa102Strip::Apa102Strip(){
     BCM2835_SPI_MODE2       CPOL = 1, CPHA = 0
     BCM2835_SPI_MODE3       CPOL = 1, CPHA = 1  
     */
-    //bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_16); // The default
     bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_128); // The default
     /*
 
