@@ -4,7 +4,7 @@ void Apa102Strip::set_brightness(uint8_t t_brightness = 31){
   brightness = t_brightness;
 }
 
-void Apa102Strip::write_pixels_to_strip(std::vector<Pixel> t_pixels){
+void Apa102Strip::write_pixels_to_strip(std::vector<Pixel>& t_pixels){
   Apa102Strip::write(t_pixels, brightness);
 }
 

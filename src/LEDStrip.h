@@ -1,6 +1,6 @@
 #ifndef __LEDSTRIP_H__
 #define __LEDSTRIP_H__
-
+#include <queue>
 #include <stdint.h>
 #include <unistd.h>
 #include <mutex>
@@ -8,6 +8,8 @@
 #include <boost/log/trivial.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
+#include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
 #include "yaml-cpp/yaml.h"
 
 using namespace boost::log;
@@ -21,15 +23,15 @@ struct Pixel {
 
  class LEDStrip {
  	public:
- 		LEDStrip(bool *running) : running(t_running){
- 			thread = new boost::thread([=] { this->wait_and_pop(); });
+ 		LEDStrip(bool *t_running) : running(t_running){
+ 			thread = new boost::thread(&LEDStrip::wait_and_pop, this);
  		}
 
  		~LEDStrip(){
- 			thread.join();
+ 			thread->join();
  		}
 
-        virtual void write_pixels_to_strip(std::vector<Pixel> t_pixels) = 0;
+        virtual void write_pixels_to_strip(std::vector<Pixel>& t_pixels) = 0;
          
         void push(std::vector<Pixel> const& t_pixels)
         {
@@ -59,10 +61,11 @@ struct Pixel {
 	    	}
 	    }
     private:
+	bool *running;
     	std::queue<std::vector<Pixel>> the_queue;
     	mutable boost::mutex the_mutex;
     	boost::condition_variable the_condition_variable;
-    	boost::thread thread;
+    	boost::thread* thread;
  };
 
  #endif /* __LEDSTRIP_H__ */

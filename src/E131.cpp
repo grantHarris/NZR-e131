@@ -1,6 +1,6 @@
 #include "E131.h"
 
-E131::E131(YAML::Node& t_config, LEDStrip& t_led_strip) : config(t_config), led_strip(t_led_strip)
+E131::E131(YAML::Node& t_config) : config(t_config)
 {
     pixels.reserve(t_config["led_count"].as<int>());
 
@@ -29,6 +29,10 @@ E131::E131(YAML::Node& t_config, LEDStrip& t_led_strip) : config(t_config), led_
         this->register_universe_for_stats(universe);
     }
 
+}
+
+void E131::register_update_fn(std::function<void()> t_callback){
+	callback = t_callback;
 }
 
 void E131::join_universe(int t_universe)

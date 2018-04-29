@@ -34,13 +34,12 @@ public:
     void map_to_buffer(e131_packet_t &packet);
     void read_from_file();
     void save_to_file(e131_packet_t &packet);
-    void register_update_fn(std::function<void()> t_callback) : callback(t_callback) = 0;
+    void register_update_fn(std::function<void()> t_callback);
 private:
     std::function<void()> callback;
     std::map<unsigned int, UniverseStats> universe_stats;
     std::map<unsigned int, unsigned int> sequence_numbers;
     YAML::Node config;
-    LEDStrip led_strip;
     std::mutex log_mutex;
     int sockfd;
     e131_packet_t packet;
