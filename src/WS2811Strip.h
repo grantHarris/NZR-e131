@@ -24,10 +24,9 @@
 using namespace boost::log;
 namespace logging = boost::log;
 
-class WS2811Strip {
+class WS2811Strip : public LEDStrip {
     public:
-    	WS2811Strip(YAML::Node& t_config);
-    	void render(bool *running);
+    	WS2811Strip(YAML::Node& t_config, bool* running);
     	void write_to_output_buffer(int strip_channel, int index, Pixel pixel);
         void pixel_buffer_to_output_buffer(Pixel * pixels, int len);
     private:

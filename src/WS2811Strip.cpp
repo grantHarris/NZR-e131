@@ -1,6 +1,6 @@
 #include "WS2811Strip.h"
 
-WS2811Strip::WS2811Strip(YAML::Node& t_config) : config(t_config) {
+WS2811Strip::WS2811Strip(YAML::Node& t_config, bool* t_running) : config(t_config), LEDStrip(t_running) {
     this->setup_ouput();
     ws2811_return_t ret;
     if ((ret = ws2811_init(&output)) != WS2811_SUCCESS){
@@ -37,25 +37,25 @@ void WS2811Strip::setup_ouput(){
     }
 }
 
-void WS2811Strip::render(bool *running) {
-    ws2811_return_t ret;
-    
-    while(*running == true){
-        output_mutex.lock();
-        if ((ret = ws2811_render(&output)) != WS2811_SUCCESS){
-            BOOST_LOG_TRIVIAL(error) << "ws2811 render frame failed:" << ws2811_get_return_t_str(ret);
-        }
-        output_mutex.unlock();
-        usleep(1000000 / 45);
-    }
-
-    if(*running == false){
-        output_mutex.lock();
-        ws2811_fini(&output);
-        output_mutex.unlock();
-    }
-
-}
+//void WS2811Strip::render(bool *running) {
+//    ws2811_return_t ret;
+//    
+//    while(*running == true){
+//       output_mutex.lock();
+//        if ((ret = ws2811_render(&output)) != WS2811_SUCCESS){
+//            BOOST_LOG_TRIVIAL(error) << "ws2811 render frame failed:" << ws2811_get_return_t_str(ret);
+//        }
+//        output_mutex.unlock();
+//        usleep(1000000 / 45);
+//    }
+//
+//    if(*running == false){
+//        output_mutex.lock();
+//        ws2811_fini(&output);
+//        output_mutex.unlock();
+//    }
+//
+//}
 
 void WS2811Strip::pixel_buffer_to_output_buffer(Pixel * pixels, int len){
     for(int i = 0; i < len; i++){

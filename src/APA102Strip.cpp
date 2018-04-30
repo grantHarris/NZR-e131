@@ -39,7 +39,7 @@ void Apa102Strip::send_color(Pixel t_pixel, uint8_t t_brightness){
   Apa102Strip::send_color(t_pixel.r, t_pixel.g, t_pixel.b, t_brightness);
 }
 
-Apa102Strip::Apa102Strip(){
+Apa102Strip::Apa102Strip(bool* t_running) : LEDStrip(t_running){
 	BOOST_LOG_TRIVIAL(info) << "Setup";
   
     //buffer.resize(125);

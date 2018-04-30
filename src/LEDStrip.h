@@ -1,6 +1,7 @@
 #ifndef __LEDSTRIP_H__
 #define __LEDSTRIP_H__
 #include <queue>
+#include <vector>
 #include <stdint.h>
 #include <unistd.h>
 #include <mutex>
@@ -31,21 +32,21 @@ struct Pixel {
  			thread->join();
  		}
 
-        virtual void write_pixels_to_strip(std::vector<Pixel>& t_pixels) = 0;
+        	virtual void write_pixels_to_strip(std::vector<Pixel>& t_pixels) = 0;
          
-        void push(std::vector<Pixel> const& t_pixels)
-        {
-        	boost::mutex::scoped_lock lock(the_mutex);
-	        the_queue.push(t_pixels);
-	        lock.unlock();
-	        the_condition_variable.notify_one();
-	    }
+        	void push(std::vector<Pixel> const& t_pixels)
+       	 	{
+        		boost::mutex::scoped_lock lock(the_mutex);
+	        	the_queue.push(t_pixels);
+	       	 	lock.unlock();
+	       	 	the_condition_variable.notify_one();
+	    	}
 
-	    bool empty() const
-	    {
-	        boost::mutex::scoped_lock lock(the_mutex);
-	        return the_queue.empty();
-	    }
+	    	bool empty() const
+	   	{
+	        	boost::mutex::scoped_lock lock(the_mutex);
+	        	return the_queue.empty();
+	    	}
 
 	    void wait_and_pop()
 	    {

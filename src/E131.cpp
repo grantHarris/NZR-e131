@@ -31,7 +31,7 @@ E131::E131(YAML::Node& t_config) : config(t_config)
 
 }
 
-void E131::register_update_fn(std::function<void()> t_callback){
+void E131::register_update_fn(std::function<void(std::vector<Pixel>&)> t_callback){
 	callback = t_callback;
 }
 

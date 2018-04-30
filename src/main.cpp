@@ -111,12 +111,12 @@ int main(int argc, char* argv[]) {
 
         if(config["strip_type"].as<std::string>() == "APA102"){
            BOOST_LOG_TRIVIAL(info) << "Using APA102 strip";
-           Apa102Strip apa102_strip;
-           e131.register_update_fn(boost::bind(&Apa102Strip::push, &apa102_strip));
+           Apa102Strip apa102_strip(&running);
+           e131.register_update_fn(boost::bind(&Apa102Strip::push, &apa102_strip, _1));
         }else{
            BOOST_LOG_TRIVIAL(info) << "Using WS2811 strip";
-           WS2811Strip ws2811_strip(config);
-           e131.register_update_fn(boost::bind(&WS2811Strip::push, &ws2811_strip));
+           //WS2811Strip ws2811_strip(config);
+           //e131.register_update_fn(boost::bind(&WS2811Strip::push, &ws2811_strip));
         }
 
         threads.create_thread(boost::bind(&E131::receive_data, &e131, &running));
