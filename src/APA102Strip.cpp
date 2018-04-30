@@ -5,13 +5,13 @@ void Apa102Strip::set_brightness(uint8_t t_brightness = 31){
 }
 
 void Apa102Strip::write_pixels_to_strip(std::vector<Pixel>& t_pixels){
-  Apa102Strip::write(t_pixels, brightness);
+	Apa102Strip::write(t_pixels, brightness);
 }
 
 void Apa102Strip::write(std::vector<Pixel>& t_pixels, uint8_t t_brightness){
   Apa102Strip::send_start_frame();
   for(uint16_t i = 0; i < t_pixels.size(); i++){
-      Apa102Strip::send_color(t_pixels[i], t_brightness);
+       	  Apa102Strip::send_color(t_pixels[i], t_brightness);
   }
   Apa102Strip::send_end_frame(t_pixels.size());
 }

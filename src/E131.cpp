@@ -2,7 +2,7 @@
 
 E131::E131(YAML::Node& t_config) : config(t_config)
 {
-    pixels.reserve(t_config["led_count"].as<int>());
+    pixels.resize(t_config["led_count"].as<int>());
 
     do {
         sockfd = e131_socket();
@@ -104,7 +104,7 @@ void E131::map_to_buffer(e131_packet_t &packet){
             pixel.g = packet.dmp.prop_val[index + 1];
             pixel.b = packet.dmp.prop_val[index + 2];
             pixels[i + start_address_offset] = pixel;
-        }
+	}
 
     }
     callback(pixels);
