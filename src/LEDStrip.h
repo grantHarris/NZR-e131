@@ -23,53 +23,54 @@ struct Pixel {
  };
 
  class LEDStrip {
- 	public:
- 		LEDStrip(bool *t_running) : running(t_running){
- 			BOOST_LOG_TRIVIAL(info) << "Led strip constructor";
- 			thread = new boost::thread(&LEDStrip::wait_and_pop, this);
- 			BOOST_LOG_TRIVIAL(info) << "Led strip thread created";
- 		}
+    public:
+        LEDStrip(bool *t_running) : running(t_running){
+            BOOST_LOG_TRIVIAL(info) << "Led strip constructor";
+            thread = new boost::thread(&LEDStrip::wait_and_pop, this);
+            BOOST_LOG_TRIVIAL(info) << "Led strip thread created";
+        }
 
- 		~LEDStrip(){
- 			thread->join();
- 		}
+        ~LEDStrip(){
+            thread->join();
+        }
 
-        	virtual void write_pixels_to_strip(std::vector<Pixel>& t_pixels) = 0;
+        virtual void write_pixels_to_strip(std::vector<Pixel>& t_pixels) = 0;
          
-        	void push(std::vector<Pixel> const& t_pixels)
-       	 	{
-       	 		BOOST_LOG_TRIVIAL(info) << "Push executed";
-        		boost::mutex::scoped_lock lock(the_mutex);
-	        	the_queue.push(t_pixels);
-	       	 	lock.unlock();
-	       	 	the_condition_variable.notify_one();
-	    	}
+        void push(std::vector<Pixel> const& t_pixels)
+        {
+            BOOST_LOG_TRIVIAL(info) << "Push executed";
+            boost::mutex::scoped_lock lock(the_mutex);
+            the_queue.push(t_pixels);
+            lock.unlock();
+            the_condition_variable.notify_one();
+        }
 
-	    	bool empty() const
-	   	{
-	        	boost::mutex::scoped_lock lock(the_mutex);
-	        	return the_queue.empty();
-	    	}
+        bool empty() const
+        {
+                boost::mutex::scoped_lock lock(the_mutex);
+                return the_queue.empty();
+        }
 
-	    void wait_and_pop()
-	    {
-	    	while(*running == true){
-		        boost::mutex::scoped_lock lock(the_mutex);
-		        while(the_queue.empty())
-		        {
-		            the_condition_variable.wait(lock);
-		        }
-		        
-		        this->write_pixels_to_strip(the_queue.front());
-		        the_queue.pop();
-	    	}
-	    }
+        void wait_and_pop()
+        {
+            BOOST_LOG_TRIVIAL(info) << "wait and pop";
+            while(*running == true){
+                boost::mutex::scoped_lock lock(the_mutex);
+                while(the_queue.empty())
+                {
+                    the_condition_variable.wait(lock);
+                }
+                
+                this->write_pixels_to_strip(the_queue.front());
+                the_queue.pop();
+            }
+        }
     private:
-	bool *running;
-    	std::queue<std::vector<Pixel>> the_queue;
-    	mutable boost::mutex the_mutex;
-    	boost::condition_variable the_condition_variable;
-    	boost::thread* thread;
+        bool *running;
+        std::queue<std::vector<Pixel>> the_queue;
+        mutable boost::mutex the_mutex;
+        boost::condition_variable the_condition_variable;
+        boost::thread* thread;
  };
 
  #endif /* __LEDSTRIP_H__ */
