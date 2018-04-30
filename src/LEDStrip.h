@@ -23,6 +23,12 @@ struct Pixel {
  };
 
  class LEDStrip {
+    protected:
+        bool *running;
+        std::queue<std::vector<Pixel>> the_queue;
+        mutable boost::mutex the_mutex;
+        boost::condition_variable the_condition_variable;
+        boost::thread* thread;
     public:
         LEDStrip(bool *t_running) : running(t_running){
             BOOST_LOG_TRIVIAL(info) << "Led strip constructor";
@@ -65,12 +71,6 @@ struct Pixel {
                 the_queue.pop();
             }
         }
-    private:
-        bool *running;
-        std::queue<std::vector<Pixel>> the_queue;
-        mutable boost::mutex the_mutex;
-        boost::condition_variable the_condition_variable;
-        boost::thread* thread;
  };
 
  #endif /* __LEDSTRIP_H__ */
