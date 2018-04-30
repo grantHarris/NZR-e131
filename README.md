@@ -3,8 +3,13 @@
 RPi e1.31 bridge to WS2811 LED's
 
 ## Basic Usage
-```
+```bash
 sudo ./e131bridge
+```
+
+### Logginf for poi 
+```bash
+sudo ./e131bridge --config=../config/config-poi.yml --verbosity=info --stats=true
 ```
 
 ### Flags
@@ -24,7 +29,7 @@ Path to logging file
 
 
 ## Build Debug 
-```
+```bash
 mkdir Debug
 cd Debug
 cmake -DCMAKE_BUILD_TYPE=Debug ..
@@ -32,7 +37,7 @@ make
 ```
 
 ## Build Release 
-```
+```bash
 mkdir Release
 cd Release
 cmake -DCMAKE_BUILD_TYPE=Release ..
