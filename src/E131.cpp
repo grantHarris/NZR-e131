@@ -52,6 +52,7 @@ void E131::join_universe(int t_universe)
 
 void E131::receive_data(bool *running)
 {
+    BOOST_LOG_TRIVIAL(info) << "receive_data"
     while(*running == true) {
         if (e131_recv(sockfd, &packet) < 0)
             err(EXIT_FAILURE, "E1.31 receivex failed");

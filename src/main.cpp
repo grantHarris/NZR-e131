@@ -112,7 +112,10 @@ int main(int argc, char* argv[]) {
         if(config["strip_type"].as<std::string>() == "APA102"){
            BOOST_LOG_TRIVIAL(info) << "Using APA102 strip";
            Apa102Strip apa102_strip(&running);
+           BOOST_LOG_TRIVIAL(info) << "Strip set up"
+
            e131.register_update_fn(boost::bind(&Apa102Strip::push, &apa102_strip, _1));
+           BOOST_LOG_TRIVIAL(info) << "Bound to aoa102 push"
         }else{
            BOOST_LOG_TRIVIAL(info) << "Using WS2811 strip";
            //WS2811Strip ws2811_strip(config);

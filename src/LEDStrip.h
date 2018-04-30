@@ -25,7 +25,9 @@ struct Pixel {
  class LEDStrip {
  	public:
  		LEDStrip(bool *t_running) : running(t_running){
+ 			BOOST_LOG_TRIVIAL(info) << "Led strip constructor"
  			thread = new boost::thread(&LEDStrip::wait_and_pop, this);
+ 			BOOST_LOG_TRIVIAL(info) << "Led strip thread created"
  		}
 
  		~LEDStrip(){
@@ -36,6 +38,7 @@ struct Pixel {
          
         	void push(std::vector<Pixel> const& t_pixels)
        	 	{
+       	 		BOOST_LOG_TRIVIAL(info) << "Push executed"
         		boost::mutex::scoped_lock lock(the_mutex);
 	        	the_queue.push(t_pixels);
 	       	 	lock.unlock();
