@@ -32,7 +32,8 @@ struct Pixel {
         boost::condition_variable the_condition_variable;
         boost::thread* thread;
         
-        LEDStrip(bool *t_running) : running(t_running){
+        LEDStrip(bool *t_running) : running(t_running)
+        {
             BOOST_LOG_TRIVIAL(info) << "Led strip constructor";
             thread = new boost::thread(boost::bind(&LEDStrip::wait_and_pop, this));
             BOOST_LOG_TRIVIAL(info) << "Led strip thread created";
@@ -59,15 +60,21 @@ struct Pixel {
         {
             boost::unique_lock<boost::mutex> lock(the_mutex);
             BOOST_LOG_TRIVIAL(info) << "wait and pop";
-            while(*running == true){
+            while(*running == true)
+            {
                 BOOST_LOG_TRIVIAL(info) << "foo";
                 while(the_queue.empty())
                 {
-                    the_condition_variable.wait(lock);
+                    if(*running == true){
+                        the_condition_variable.wait(lock);
+                    }else{
+                        lock.unlock();
+                        break;
+                    }
                 }
                 
-                //this->write_pixels_to_strip(the_queue.front());
-                //the_queue.pop();
+                this->write_pixels_to_strip(the_queue.front());
+                the_queue.pop();
             }
         }
  };

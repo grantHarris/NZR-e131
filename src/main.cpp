@@ -118,7 +118,7 @@ int main(int argc, char* argv[]) {
             threads.add_thread(apa102_strip->thread);
             // BOOST_LOG_TRIVIAL(info) << "Strip set up";
 
-           //e131.register_update_fn(boost::bind(&Apa102Strip::push, &apa102_strip, _1));
+           e131.register_update_fn(boost::bind(&Apa102Strip::push, apa102_strip, _1));
            BOOST_LOG_TRIVIAL(info) << "Bound to apa102 push";
         }else{
            BOOST_LOG_TRIVIAL(info) << "Using WS2811 strip";
@@ -126,7 +126,6 @@ int main(int argc, char* argv[]) {
            //e131.register_update_fn(boost::bind(&WS2811Strip::push, &ws2811_strip));
         }
 
-        
         if(vm.count("stats")){
             threads.create_thread(boost::bind(&E131::stats_thread, &e131, &running));
         }
