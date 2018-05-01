@@ -107,7 +107,7 @@ void E131::map_to_buffer(e131_packet_t &packet){
         }
 
     }
-    callback(pixels);
+    //callback(pixels);
 }
 
 void E131::save_to_file(e131_packet_t &packet){

@@ -109,20 +109,22 @@ int main(int argc, char* argv[]) {
         E131 e131(config);
         running = true;
 
-        if(config["strip_type"].as<std::string>() == "APA102"){
-           BOOST_LOG_TRIVIAL(info) << "Using APA102 strip";
+        threads.create_thread(boost::bind(&E131::receive_data, &e131, &running));
+        
+	if(config["strip_type"].as<std::string>() == "APA102"){
+           //BOOST_LOG_TRIVIAL(info) << "Using APA102 strip";
            Apa102Strip apa102_strip(&running);
-           BOOST_LOG_TRIVIAL(info) << "Strip set up";
+	   threads.add_thread(apa102_strip.thread);
+           // BOOST_LOG_TRIVIAL(info) << "Strip set up";
 
-           e131.register_update_fn(boost::bind(&Apa102Strip::push, &apa102_strip, _1));
-           BOOST_LOG_TRIVIAL(info) << "Bound to apa102 push"
+           //e131.register_update_fn(boost::bind(&Apa102Strip::push, &apa102_strip, _1));
+           BOOST_LOG_TRIVIAL(info) << "Bound to apa102 push";
         }else{
            BOOST_LOG_TRIVIAL(info) << "Using WS2811 strip";
            //WS2811Strip ws2811_strip(config);
            //e131.register_update_fn(boost::bind(&WS2811Strip::push, &ws2811_strip));
         }
 
-        threads.create_thread(boost::bind(&E131::receive_data, &e131, &running));
         
         if(vm.count("stats")){
             threads.create_thread(boost::bind(&E131::stats_thread, &e131, &running));
