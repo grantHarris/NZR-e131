@@ -43,7 +43,6 @@ struct Pixel {
          
         void push(std::vector<Pixel> const& t_pixels)
         {
-            BOOST_LOG_TRIVIAL(info) << "Push executed";
             boost::unique_lock<boost::mutex> lock(the_mutex);
             the_queue.push(t_pixels);
             lock.unlock();
@@ -62,7 +61,6 @@ struct Pixel {
             BOOST_LOG_TRIVIAL(info) << "wait and pop";
             while(*running == true)
             {
-                BOOST_LOG_TRIVIAL(info) << "foo";
                 while(the_queue.empty())
                 {
                     if(*running == true){
@@ -72,7 +70,6 @@ struct Pixel {
                         break;
                     }
                 }
-                
                 this->write_pixels_to_strip(the_queue.front());
                 the_queue.pop();
             }
