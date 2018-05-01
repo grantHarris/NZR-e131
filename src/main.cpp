@@ -33,7 +33,7 @@ namespace logging = boost::log;
 
 bool running;
 YAML::Node config;
-Apa102Strip apa102_strip;
+Apa102Strip* apa102_strip;
 
 static void sig_handler(int t_signum){
     (void)(t_signum);
@@ -114,8 +114,8 @@ int main(int argc, char* argv[]) {
         
         if(config["strip_type"].as<std::string>() == "APA102"){
             //BOOST_LOG_TRIVIAL(info) << "Using APA102 strip";
-            apa102_strip(&running);
-            threads.add_thread(apa102_strip.thread);
+            apa102_strip = new Apa102Strip(&running);
+            threads.add_thread(apa102_strip->thread);
             // BOOST_LOG_TRIVIAL(info) << "Strip set up";
 
            //e131.register_update_fn(boost::bind(&Apa102Strip::push, &apa102_strip, _1));
