@@ -12,6 +12,7 @@
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include "yaml-cpp/yaml.h"
+#include <boost/thread/condition_variable.hpp>
 
 using namespace boost::log;
 namespace logging = boost::log;
@@ -42,7 +43,7 @@ struct Pixel {
         void push(std::vector<Pixel> const& t_pixels)
         {
             BOOST_LOG_TRIVIAL(info) << "Push executed";
-            boost::mutex::scoped_lock lock(the_mutex);
+            boost::unique_lock<boost::mutex> lock(the_mutex);
             the_queue.push(t_pixels);
             lock.unlock();
             the_condition_variable.notify_one();
@@ -56,7 +57,7 @@ struct Pixel {
 
         void wait_and_pop()
         {
-            boost::mutex::scoped_lock lock(the_mutex);
+            boost::unique_lock<boost::mutex> lock(the_mutex);
             BOOST_LOG_TRIVIAL(info) << "wait and pop";
             while(*running == true){
                 BOOST_LOG_TRIVIAL(info) << "foo";
