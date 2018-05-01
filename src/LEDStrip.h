@@ -26,11 +26,11 @@ struct Pixel {
     protected:
         bool *running;
         std::queue<std::vector<Pixel>> the_queue;
+    public:
         mutable boost::mutex the_mutex;
         boost::condition_variable the_condition_variable;
-    public:
-     
         boost::thread* thread;
+        
         LEDStrip(bool *t_running) : running(t_running){
             BOOST_LOG_TRIVIAL(info) << "Led strip constructor";
             thread = new boost::thread(boost::bind(&LEDStrip::wait_and_pop, this));
