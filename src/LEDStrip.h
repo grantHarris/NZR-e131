@@ -26,52 +26,45 @@ struct Pixel {
  class LEDStrip {
     protected:
         bool *running;
-        std::queue<std::vector<Pixel>> the_queue;
+        std::queue<std::vector<Pixel>> frame_queue;
     public:
-        mutable boost::mutex the_mutex;
-        boost::condition_variable the_condition_variable;
+        mutable boost::mutex frame_mutex;
+        boost::condition_variable wait_for_frame;
         boost::thread* thread;
         
         LEDStrip(bool *t_running) : running(t_running)
         {
-            BOOST_LOG_TRIVIAL(info) << "Led strip constructor";
-            thread = new boost::thread(boost::bind(&LEDStrip::wait_and_pop, this));
-            BOOST_LOG_TRIVIAL(info) << "Led strip thread created";
+            BOOST_LOG_TRIVIAL(debug) << "Led strip constructor";
+            thread = new boost::thread(boost::bind(&LEDStrip::pop_and_display_frame, this));
         }
 
         virtual void write_pixels_to_strip(std::vector<Pixel>& t_pixels) = 0;
          
-        void push(std::vector<Pixel> const& t_pixels)
+        void push_frame(std::vector<Pixel> const& t_pixels)
         {
-            boost::unique_lock<boost::mutex> lock(the_mutex);
-            the_queue.push(t_pixels);
+            boost::unique_lock<boost::mutex> lock(frame_mutex);
+            frame_queue.push(t_pixels);
             lock.unlock();
-            the_condition_variable.notify_one();
+            wait_for_frame.notify_one();
         }
 
-        // bool empty() const
-        // {
-        //     boost::mutex::scoped_lock lock(the_mutex);
-        //     return the_queue.empty();
-        // }
-
-        void wait_and_pop()
+        void pop_and_display_frame()
         {
-            boost::unique_lock<boost::mutex> lock(the_mutex);
+            boost::unique_lock<boost::mutex> lock(frame_mutex);
             BOOST_LOG_TRIVIAL(info) << "wait and pop";
             while(*running == true)
             {
-                while(the_queue.empty())
+                while(frame_queue.empty())
                 {
                     if(*running == true){
-                        the_condition_variable.wait(lock);
+                        wait_for_frame.wait(lock);
                     }else{
                         lock.unlock();
                         break;
                     }
                 }
-                this->write_pixels_to_strip(the_queue.front());
-                the_queue.pop();
+                this->write_pixels_to_strip(frame_queue.front());
+                frame_queue.pop();
             }
         }
  };
