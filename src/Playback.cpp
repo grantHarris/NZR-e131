@@ -15,7 +15,7 @@ Playback::Playback(std::string file_name){
 
     //eventually load from config/saved state
     playhead = 0;
-    current_state = State.STOPPED;
+    current_state = State::STOPPED;
 }
 
 /**
@@ -23,17 +23,17 @@ Playback::Playback(std::string file_name){
  * @details [long description]
  */
 void Playback::record(){
-    if (current_state == State.RECORDING){
+    if (current_state == State::RECORDING){
         return;
     }
     
-    if(current_state == State.STOPPED){
+    if(current_state == State::STOPPED){
         //start new playback thread
         record_thread = new boost::thread(boost::bind(&Playback::record_loop, this));
         start_time = std::chrono::steady_clock::now();
     }
 
-    this->set_state(State.RECORDING);
+    this->set_state(State::RECORDING);
 }
 
 /**
@@ -51,16 +51,16 @@ void Playback::toggle_loop(bool t_loop){
  * @details [long description]
  */
 void Playback::play(){
-    if (current_state == State.PLAYING){
+    if (current_state == State::PLAYING){
         return;
     }
 
-    if(current_state == State.STOPPED){
+    if(current_state == State::STOPPED){
         //start new playback thread
         playback_thread = new boost::thread(boost::bind(&Playback::play_loop, this));
     }
 
-    this->set_state(State.PLAYING);
+    this->set_state(State::PLAYING);
 }
 
 /**
@@ -68,7 +68,7 @@ void Playback::play(){
  * @details [long description]
  */
 void Playback::pause(){
-    this->set_state(State.PAUSED);
+    this->set_state(State::PAUSED);
 }
 
 /**
@@ -76,13 +76,13 @@ void Playback::pause(){
  * @details [long description]
  */
 void Playback::stop(){
-    if (current_state == State.RECORDING){
+    if (current_state == State::RECORDING){
         record_thread->join();
     }
-    if (current_state == State.PLAYING){
+    if (current_state == State::PLAYING){
         playback_thread->join();
     }
-    this->set_state(State.STOPPED);
+    this->set_state(State::STOPPED);
     index.playhead = 0;
 }
 
@@ -109,11 +109,11 @@ void Playback::register_update_fn(std::function<void(std::vector<Pixel>&)> t_cal
  */
 void Playback::record_loop(){
     boost::unique_lock<boost::mutex> lock(frame_mutex);
-    while(current_state == State.RECORDING)
+    while(current_state == State::RECORDING)
     {
         while(frame_queue.empty())
         {
-            if(current_state == State.RECORDING){
+            if(current_state == State::RECORDING){
                 wait_for_frame.wait(lock);
             }else{
                 lock.unlock();
@@ -136,8 +136,8 @@ void Playback::record_loop(){
 void Playback::play_loop(){
     boost::unique_lock<boost::mutex> lock(the_mutex);
     leveldb::Iterator* it = db->NewIterator(leveldb::ReadOptions());
-    while((loop && current_state == State.PLAYING)){
-        for (it->Seek(index.playhead); current_state == State.PLAYING, it->Valid(); it->Next()) {
+    while((loop && current_state == State::PLAYING)){
+        for (it->Seek(index.playhead); current_state == State::PLAYING, it->Valid(); it->Next()) {
             callback(it->value());
             index.playhead = it->key();
             BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
