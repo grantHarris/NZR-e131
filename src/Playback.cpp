@@ -42,7 +42,7 @@ void Playback::record(){
  * 
  * @param t_loop boolean
  */
-void Playback::loop(bool t_loop){
+void Playback::toggle_loop(bool t_loop){
     loop = t_loop
 }
 
@@ -138,7 +138,6 @@ void Playback::play_loop(){
     leveldb::Iterator* it = db->NewIterator(leveldb::ReadOptions());
     while((loop && current_state == State.PLAYING)){
         for (it->Seek(index.playhead); current_state == State.PLAYING, it->Valid(); it->Next()) {
-            pause_condition_variable.wait(lock);
             callback(it->value());
             index.playhead = it->key();
             BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
