@@ -5,6 +5,11 @@
 #include <vector>
 #include <queue>
 #include <string>
+#include <algorithm>
+#include <sstream>
+#include <iterator>
+#include <iostream>
+
 #include "LEDStrip.h"
 #include "leveldb/db.h"
 
@@ -32,7 +37,7 @@ class Playback {
         void set_state(PlaybackState state);
     private:
     	mutable boost::mutex frame_mutex;
-	mutable boost::mutex state_mutex;
+        mutable boost::mutex state_mutex;
     	void play_loop();
         void record_loop();
         bool loop;
