@@ -1,0 +1,13 @@
+namespace Frame;
+
+struct RGBPixel {
+  r:byte;
+  g:byte;
+  b:byte;
+}
+
+table Frame {
+  pixels:[RGBPixel];
+}
+
+root_type Frame;
