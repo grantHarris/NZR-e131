@@ -1,6 +1,7 @@
 #ifndef __Playback_H__
 #define __Playback_H__
 #include <fstream>
+#include <chrono>
 
 enum State {
     STOPPED,
@@ -10,24 +11,27 @@ enum State {
     RECORD_WAIT
 };
 
+struct Index{
+    unsigned int chapter;
+    unsigned int playhead;
+}
+
 class Playback {
     public:
         Playback(void) {}
         void record();
         void play();
         void pause();
-        void next();
         void loop(bool t_loop);
-        State get_state();
-        unsigned int get_index();
-        unsigned int get_total();
-        double get_size(unsigned int index);
+        std::queue<std::vector<Pixel>> frame_queue;
     private:
+        bool loop;
+        Index index;
+        auto start_time;
+        int playhead;
         std::function<void(std::vector<Pixel>&)> callback;
         State current_state;
         leveldb::DB* db;
-        int framerate
-        bool loop;
 };
 
 #endif /* __Playback_H__ */
