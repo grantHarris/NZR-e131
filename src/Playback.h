@@ -6,13 +6,13 @@
 #include <queue>
 #include <string>
 #include "LEDStrip.h"
+#include "leveldb/db.h"
 
-enum class State {
+enum class PlaybackState {
     STOPPED,
     PAUSED,
     PLAYING,
-    CUE_RECORD,
-    RECORD_WAIT
+    RECORDING
 };
 
 struct Index{
@@ -29,16 +29,18 @@ class Playback {
         void pause();
         void toggle_loop(bool t_loop);
         std::queue<std::vector<Pixel>> frame_queue;
-        void set_state(State state);
+        void set_state(PlaybackState state);
     private:
-        void play_loop();
+    	mutable boost::mutex frame_mutex;
+	mutable boost::mutex state_mutex;
+    	void play_loop();
         void record_loop();
         bool loop;
         Index index;
         auto start_time;
         int playhead;
         std::function<void(std::vector<Pixel>&)> callback;
-        State current_state;
+        PlaybackState current_state;
         leveldb::DB* db;
         boost::thread* record_thread;
         boost::thread* playback_thread;

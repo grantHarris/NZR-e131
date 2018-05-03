@@ -43,7 +43,7 @@ void Playback::record(){
  * @param t_loop boolean
  */
 void Playback::toggle_loop(bool t_loop){
-    loop = t_loop
+    loop = t_loop;
 }
 
 /**
@@ -93,8 +93,8 @@ void Playback::stop(){
  * @param state [description]
  */
 void Playback::set_state(PlaybackState state){
-    boost::unique_lock<boost::mutex> lock(the_mutex);
-    current_state = state
+    boost::unique_lock<boost::mutex> lock(state_mutex);
+    current_state = state;
     lock.unlock();
 }
 
@@ -134,7 +134,7 @@ void Playback::record_loop(){
  * @details Loops through the leveldb file with an iterator
  */
 void Playback::play_loop(){
-    boost::unique_lock<boost::mutex> lock(the_mutex);
+    boost::unique_lock<boost::mutex> lock(frame_mutex);
     leveldb::Iterator* it = db->NewIterator(leveldb::ReadOptions());
     while((loop && current_state == PlaybackState::PLAYING)){
         for (it->Seek(index.playhead); current_state == PlaybackState::PLAYING, it->Valid(); it->Next()) {
