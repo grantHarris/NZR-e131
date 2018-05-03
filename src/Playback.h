@@ -6,7 +6,8 @@ enum State {
     STOPPED,
     PAUSED,
     PLAYING,
-    RECORDING
+    CUE_RECORD
+    RECORD_WAIT
 };
 
 class Playback {
@@ -16,12 +17,17 @@ class Playback {
         void play();
         void pause();
         void next();
+        void loop(bool t_loop);
         State get_state();
         unsigned int get_index();
         unsigned int get_total();
         double get_size(unsigned int index);
     private:
+        std::function<void(std::vector<Pixel>&)> callback;
         State current_state;
+        leveldb::DB* db;
+        int framerate
+        bool loop;
 };
 
 #endif /* __Playback_H__ */
