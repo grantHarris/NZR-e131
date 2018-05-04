@@ -1,0 +1,13 @@
+namespace Frame
+
+struct Pixel {
+  r:byte;
+  g:byte;
+  b:byte;
+}
+
+table Frame {
+  pixels:[Pixel];
+}
+
+root_type Frame;
