@@ -1,4 +1,4 @@
-namespace Frame
+namespace Frame;
 
 struct Pixel {
   r:byte;
