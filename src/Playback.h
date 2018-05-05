@@ -30,7 +30,8 @@ struct Index{
 
 class Playback {
     public:
-        Playback(void) {}
+        Playback(std::string file_name);
+        ~Playback();
         void record();
         void play();
         void stop();
