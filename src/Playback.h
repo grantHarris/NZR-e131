@@ -56,6 +56,7 @@ class Playback {
         leveldb::DB* db;
         boost::thread* record_thread;
         boost::thread* playback_thread;
+        boost::condition_variable wait_for_frame;
 };
 
 #endif /* __Playback_H__ */
