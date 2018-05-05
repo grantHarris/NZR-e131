@@ -1,13 +1,13 @@
 namespace Frame;
 
-struct Pixel {
+struct RGBPixel {
   r:byte;
   g:byte;
   b:byte;
 }
 
 table Frame {
-  pixels:[Pixel];
+  pixels:[RGBPixel];
 }
 
 root_type Frame;
