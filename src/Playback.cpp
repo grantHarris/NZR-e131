@@ -144,7 +144,7 @@ void Playback::play_loop(){
         for (it->Seek(index.playhead); current_state == PlaybackState::PLAYING, it->Valid(); it->Next()) {
             
             auto frame = GetFrame(it->value());
-            callback(fame->pixels());
+            callback(frame->pixels());
             index.playhead = it->key();
             BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
         }
