@@ -11,7 +11,7 @@ Playback::Playback(std::string file_name){
     leveldb::Options options;
     options.create_if_missing = true;
     leveldb::Status status = leveldb::DB::Open(options, file_name, &db);
-    if (!s.ok()) BOSST_LOG_TRVIAL(error) << s.ToString();
+    if (!status.ok()) BOSST_LOG_TRVIAL(error) << status.ToString();
 
     //eventually load from config/saved state
     playhead = 0;
