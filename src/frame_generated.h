@@ -8,21 +8,21 @@
 
 namespace Frame {
 
-struct Pixel;
+struct RGBPixel;
 
 struct Frame;
 
-FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(1) Pixel FLATBUFFERS_FINAL_CLASS {
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(1) RGBPixel FLATBUFFERS_FINAL_CLASS {
  private:
   int8_t r_;
   int8_t g_;
   int8_t b_;
 
  public:
-  Pixel() {
-    memset(this, 0, sizeof(Pixel));
+  RGBPixel() {
+    memset(this, 0, sizeof(RGBPixel));
   }
-  Pixel(int8_t _r, int8_t _g, int8_t _b)
+  RGBPixel(int8_t _r, int8_t _g, int8_t _b)
       : r_(flatbuffers::EndianScalar(_r)),
         g_(flatbuffers::EndianScalar(_g)),
         b_(flatbuffers::EndianScalar(_b)) {
@@ -37,14 +37,14 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(1) Pixel FLATBUFFERS_FINAL_CLASS {
     return flatbuffers::EndianScalar(b_);
   }
 };
-FLATBUFFERS_STRUCT_END(Pixel, 3);
+FLATBUFFERS_STRUCT_END(RGBPixel, 3);
 
 struct Frame FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   enum {
     VT_PIXELS = 4
   };
-  const flatbuffers::Vector<const Pixel *> *pixels() const {
-    return GetPointer<const flatbuffers::Vector<const Pixel *> *>(VT_PIXELS);
+  const flatbuffers::Vector<const RGBPixel *> *pixels() const {
+    return GetPointer<const flatbuffers::Vector<const RGBPixel *> *>(VT_PIXELS);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -57,7 +57,7 @@ struct Frame FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
 struct FrameBuilder {
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_pixels(flatbuffers::Offset<flatbuffers::Vector<const Pixel *>> pixels) {
+  void add_pixels(flatbuffers::Offset<flatbuffers::Vector<const RGBPixel *>> pixels) {
     fbb_.AddOffset(Frame::VT_PIXELS, pixels);
   }
   explicit FrameBuilder(flatbuffers::FlatBufferBuilder &_fbb)
@@ -74,7 +74,7 @@ struct FrameBuilder {
 
 inline flatbuffers::Offset<Frame> CreateFrame(
     flatbuffers::FlatBufferBuilder &_fbb,
-    flatbuffers::Offset<flatbuffers::Vector<const Pixel *>> pixels = 0) {
+    flatbuffers::Offset<flatbuffers::Vector<const RGBPixel *>> pixels = 0) {
   FrameBuilder builder_(_fbb);
   builder_.add_pixels(pixels);
   return builder_.Finish();
@@ -82,10 +82,10 @@ inline flatbuffers::Offset<Frame> CreateFrame(
 
 inline flatbuffers::Offset<Frame> CreateFrameDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<Pixel> *pixels = nullptr) {
+    const std::vector<RGBPixel> *pixels = nullptr) {
   return Frame::CreateFrame(
       _fbb,
-      pixels ? _fbb.CreateVectorOfStructs<Pixel>(*pixels) : 0);
+      pixels ? _fbb.CreateVectorOfStructs<RGBPixel>(*pixels) : 0);
 }
 
 inline const Frame::Frame *GetFrame(const void *buf) {

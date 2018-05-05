@@ -13,7 +13,7 @@ Playback::Playback(std::string file_name){
     if (!status.ok()) BOSST_LOG_TRVIAL(error) << status.ToString();
 
     //eventually load from config/saved state
-    playhead = 0;
+    playhead = "0";
     current_state = PlaybackState::STOPPED;
 }
 
