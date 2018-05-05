@@ -6,10 +6,6 @@
 #include <vector>
 #include <queue>
 #include <string>
-#include <algorithm>
-#include <sstream>
-#include <iterator>
-#include <iostream>
 
 #include <boost/log/trivial.hpp>
 #include <boost/log/core.hpp>

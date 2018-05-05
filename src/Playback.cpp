@@ -127,7 +127,7 @@ void Playback::record_loop(){
         // auto frame = CreateFrame(builder, &frame_vector);
         // builder.Finish(frame);
 
-        db->Put(leveldb::WriteOptions(), index.playhead.str(), builder.GetBufferPointer());
+        db->Put(leveldb::WriteOptions(), std::to_string(index.playhead), builder.GetBufferPointer());
         frame_queue.pop();
         BOOST_LOG_TRIVIAL(debug) << "Record frame at: " << index.playhead;
     }
@@ -142,7 +142,7 @@ void Playback::play_loop(){
     boost::unique_lock<boost::mutex> lock(frame_mutex);
     leveldb::Iterator* it = db->NewIterator(leveldb::ReadOptions());
     while((loop && current_state == PlaybackState::PLAYING)){
-        for (it->Seek(index.playhead); current_state == PlaybackState::PLAYING, it->Valid(); it->Next()) {
+        for (it->Seek(std::to_string(index.playhead)); current_state == PlaybackState::PLAYING, it->Valid(); it->Next()) {
             
             auto frame = GetFrame(it->value());
             callback(frame->pixels());
