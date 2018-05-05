@@ -40,7 +40,6 @@ class Playback {
         std::queue<std::vector<Pixel>> frame_queue;
         void set_state(PlaybackState state);
     private:
-       flatbuffers::FlatBufferBuilder builder(1024);
         mutable boost::mutex frame_mutex;
         mutable boost::mutex state_mutex;
         void play_loop();

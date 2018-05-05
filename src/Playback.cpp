@@ -111,6 +111,7 @@ void Playback::record_loop(){
     boost::unique_lock<boost::mutex> lock(frame_mutex);
     while(current_state == PlaybackState::RECORDING)
     {
+
         while(frame_queue.empty())
         {
             if(current_state == PlaybackState::RECORDING){
@@ -122,10 +123,11 @@ void Playback::record_loop(){
         }
 
         index.playhead = std::chrono::duration_cast<std::chrono::milliseconds> (std::chrono::steady_clock::now() - start_time);
+        flatbuffers::FlatBufferBuilder builder(1024);
+        auto frame_vector = builder.CreateVector(frame_queue.front());
+        auto frame = CreateFrame(builder, &frame_vector);
+        builder.Finish(frame);
 
-	auto frame_vector = builder.CreateVector(frame_queue.front());
-	auto frame = CreateFrame(builder, &frame_vector);
-	builder.Finish(frame);
         db->Put(leveldb::WriteOptions(), index.playhead.str(), builder.GetBufferPointer());
         frame_queue.pop();
         BOOST_LOG_TRIVIAL(debug) << "Record frame at: " << index.playhead;
