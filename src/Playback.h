@@ -28,7 +28,7 @@ enum class PlaybackState {
 
 struct Index{
     unsigned int chapter;
-    unsigned int playhead;
+    std::string playhead;
 };
 
 class Playback {
