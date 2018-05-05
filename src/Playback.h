@@ -20,6 +20,8 @@
 #include "frame_generated.h"
 
 using namespace Frame;
+using namespace boost::log;
+namespace logging = boost::log;
 
 enum class PlaybackState {
     STOPPED,
