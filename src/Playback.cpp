@@ -122,14 +122,11 @@ void Playback::record_loop(){
         }
 
         index.playhead = std::chrono::duration_cast<std::chrono::milliseconds> (std::chrono::steady_clock::now() - start_time);
-        std::ostringstream oss;
-        if (!frame_queue.front().empty())
-        {
-            std::copy(frame_queue.front().begin(), frame_queue.front().end()-1, std::ostream_iterator<Pixel>(oss, ","));
-            oss << frame_queue.front().back();
-        }
 
-        db->Put(leveldb::WriteOptions(), index.playhead.str(), oss.str());
+	auto frame_vector = builder.CreateVector(frame_queue.front());
+	auto frame = CreateFrame(frame_vector)
+	builder.Finish(frame);
+        db->Put(leveldb::WriteOptions(), index.playhead.str(), builder.GetBufferPointer());
         frame_queue.pop();
         BOOST_LOG_TRIVIAL(debug) << "Record frame at: " << index.playhead;
     }
