@@ -127,7 +127,7 @@ void Playback::record_loop(){
         // auto frame = CreateFrame(builder, &frame_vector);
         // builder.Finish(frame);
 
-        db->Put(leveldb::WriteOptions(), index.playhead, builder.GetBufferPointer());
+        db->Put(leveldb::WriteOptions(), index.playhead, (const uint8_t*) builder.GetBufferPointer());
         frame_queue.pop();
         BOOST_LOG_TRIVIAL(debug) << "Record frame at: " << index.playhead;
     }
