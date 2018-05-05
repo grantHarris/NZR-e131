@@ -14,7 +14,7 @@
 #include "leveldb/db.h"
 #include "frame_generated.h"
 
-using namespace MyGame::Sample;
+using namespace Frame;
 
 enum class PlaybackState {
     STOPPED,
@@ -39,14 +39,14 @@ class Playback {
         std::queue<std::vector<Pixel>> frame_queue;
         void set_state(PlaybackState state);
     private:
-	flatbuffers::FlatBufferBuilder builder(1024);
-    	mutable boost::mutex frame_mutex;
+       flatbuffers::FlatBufferBuilder builder(1024);
+        mutable boost::mutex frame_mutex;
         mutable boost::mutex state_mutex;
-    	void play_loop();
+        void play_loop();
         void record_loop();
         bool loop;
         Index index;
-        auto start_time;
+        int start_time;
         int playhead;
         std::function<void(std::vector<Pixel>&)> callback;
         PlaybackState current_state;
