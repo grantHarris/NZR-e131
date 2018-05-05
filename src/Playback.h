@@ -10,6 +10,10 @@
 #include <iterator>
 #include <iostream>
 
+#include <boost/log/trivial.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/expressions.hpp>
+
 #include "LEDStrip.h"
 #include "leveldb/db.h"
 #include "frame_generated.h"
