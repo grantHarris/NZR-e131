@@ -14,7 +14,7 @@
 #include "leveldb/db.h"
 #include "frame_generated.h"
 
-using namespace Frame;
+using namespace Frame::Frame;
 
 enum class PlaybackState {
     STOPPED,
