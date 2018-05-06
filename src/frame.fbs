@@ -1,4 +1,4 @@
-namespace Frame;
+namespace PixelFrame;
 
 struct RGBPixel {
   r:byte;

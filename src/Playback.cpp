@@ -1,5 +1,5 @@
 #include "Playback.h"
-
+#include <boost/log/trivial.hpp>
 /**
  * @brief [brief description]
  * @details [long description]
@@ -10,10 +10,10 @@ Playback::Playback(std::string file_name){
     leveldb::Options options;
     options.create_if_missing = true;
     leveldb::Status status = leveldb::DB::Open(options, file_name, &db);
-    if (!status.ok()) BOSST_LOG_TRVIAL(error) << status.ToString();
+    //if (!status.ok()) BOSST_LOG_TRVIAL(error) << status.ToString();
 
     //eventually load from config/saved state
-    playhead = "0";
+    playhead = new std::string("0");
     current_state = PlaybackState::STOPPED;
 }
 
@@ -82,7 +82,7 @@ void Playback::stop(){
         playback_thread->join();
     }
     this->set_state(PlaybackState::STOPPED);
-    index.playhead = 0;
+    index.playhead.assign("0");
 }
 
 /**
@@ -129,7 +129,7 @@ void Playback::record_loop(){
 
         db->Put(leveldb::WriteOptions(), index.playhead, (const char*) builder.GetBufferPointer());
         frame_queue.pop();
-        BOOST_LOG_TRIVIAL(debug) << "Record frame at: " << index.playhead;
+      //  BOOST_LOG_TRIVIAL(debug) << "Record frame at: " << index.playhead;
     }
 
 }
@@ -147,7 +147,7 @@ void Playback::play_loop(){
             auto frame = GetFrame(it->value().ToString());
             callback(frame->pixels());
             index.playhead = it->key().ToString();
-            BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
+        //    BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
         }
     }
     delete it;
