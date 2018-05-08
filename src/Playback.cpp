@@ -146,8 +146,8 @@ void Playback::play_loop(){
     leveldb::Iterator* it = db->NewIterator(leveldb::ReadOptions());
     while((loop && current_state == PlaybackState::PLAYING)){
         for (it->Seek(index.playhead); current_state == PlaybackState::PLAYING, it->Valid(); it->Next()) {
-            
-            auto frame = GetFrame(it->value().ToString());
+            auto data = it->value().ToString();
+            auto frame = GetFrame(it->value().ToString(), &data.c_str());
             callback(frame->pixels());
             index.playhead = it->key().ToString();
         //    BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
