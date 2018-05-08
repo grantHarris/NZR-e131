@@ -98,10 +98,6 @@ void Playback::set_state(PlaybackState state){
 }
 
 
-void Playback::register_update_fn(std::function<void(flatbuffers::Vector<PixelFrame::RGBPixel*>*)> t_callback){
-    callback = t_callback;
-}
-
 /**
  * @brief Record loop function
  * @details [long description]
@@ -149,9 +145,13 @@ void Playback::play_loop(){
             auto data = it->value().ToString();
             char * writable = new char[data.size() + 1];
             std::copy(data.begin(), data.end(), writable);
-
             auto frame = GetFrame(writable);
-            callback(frame->pixels());
+            
+            boost::unique_lock<boost::mutex> lock(frame_mutex);
+            frame_queue.push(frame->pixels());
+            lock.unlock();
+            wait_for_frame.notify_one();
+
             index.playhead = it->key().ToString();
             delete[] writable;
         //    BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
