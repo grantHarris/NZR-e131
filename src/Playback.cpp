@@ -150,7 +150,7 @@ void Playback::play_loop(){
             char * writable = new char[data.size() + 1];
             std::copy(data.begin(), data.end(), writable);
 
-            auto frame = GetFrame(it->value().ToString(), writable);
+            auto frame = GetFrame(writable);
             callback(frame->pixels());
             index.playhead = it->key().ToString();
             delete[] writable;
