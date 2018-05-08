@@ -146,14 +146,14 @@ void Playback::play_loop(){
     leveldb::Iterator* it = db->NewIterator(leveldb::ReadOptions());
     while((loop && current_state == PlaybackState::PLAYING)){
         for (it->Seek(index.playhead); current_state == PlaybackState::PLAYING, it->Valid(); it->Next()) {
-            // auto data = it->value().ToString();
-            // char * writable = new char[data.size() + 1];
-            // std::copy(data.begin(), data.end(), writable);
+            auto data = it->value().ToString();
+            char * writable = new char[data.size() + 1];
+            std::copy(data.begin(), data.end(), writable);
 
-            // auto frame = GetFrame(writable);
-            // callback(frame->pixels());
-            // index.playhead = it->key().ToString();
-            // delete[] writable;
+            auto frame = GetFrame(writable);
+            callback(frame->pixels());
+            index.playhead = it->key().ToString();
+            delete[] writable;
         //    BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
         }
     }
