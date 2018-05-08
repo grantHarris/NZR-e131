@@ -151,7 +151,7 @@ void Playback::play_loop(){
             std::copy(data.begin(), data.end(), writable);
 
             auto frame = GetFrame(writable);
-            callback(frame->pixels());
+            callback(&frame->pixels());
             index.playhead = it->key().ToString();
             delete[] writable;
         //    BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
