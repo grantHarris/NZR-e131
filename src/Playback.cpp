@@ -147,9 +147,13 @@ void Playback::play_loop(){
     while((loop && current_state == PlaybackState::PLAYING)){
         for (it->Seek(index.playhead); current_state == PlaybackState::PLAYING, it->Valid(); it->Next()) {
             auto data = it->value().ToString();
-            auto frame = GetFrame(it->value().ToString(), data.c_str());
+            char * writable = new char[data.size() + 1];
+            std::copy(data.begin(), data.end(), writable);
+
+            auto frame = GetFrame(it->value().ToString(), writable);
             callback(frame->pixels());
             index.playhead = it->key().ToString();
+            delete[] writable;
         //    BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
         }
     }
