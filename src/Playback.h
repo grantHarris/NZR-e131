@@ -49,8 +49,8 @@ class Playback {
         void record_loop();
         bool loop;
         Index index;
-	std::chrono::time_point<std::chrono::steady_clock> start_time;
-	std::string* playhead;
+        std::chrono::time_point<std::chrono::steady_clock> start_time;
+        std::string* playhead;
         std::function<void(std::vector<Pixel>&)> callback;
         PlaybackState current_state;
         leveldb::DB* db;

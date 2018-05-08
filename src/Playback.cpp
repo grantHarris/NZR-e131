@@ -121,7 +121,10 @@ void Playback::record_loop(){
             }
         }
 
-        index.playhead = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds> (std::chrono::steady_clock::now() - start_time));
+        auto end_time = std::chrono::steady_clock::now();
+        std::chrono::duration<double> position = start_time - end_time;
+
+        index.playhead = std::to_string(position.count());
         flatbuffers::FlatBufferBuilder builder(1024);
         // auto frame_vector = builder.CreateVector(frame_queue.front());
         // auto frame = CreateFrame(builder, &frame_vector);
