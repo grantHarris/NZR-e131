@@ -98,7 +98,7 @@ void Playback::set_state(PlaybackState state){
 }
 
 
-void Playback::register_update_fn(std::function<void(std::vector<Pixel>&)> t_callback){
+void Playback::register_update_fn(std::function<void(std::vector<PixelFrame::RGBPixel>&)> t_callback){
     callback = t_callback;
 }
 
