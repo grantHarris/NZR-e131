@@ -127,7 +127,7 @@ void Playback::record_loop(){
         index.playhead = std::to_string(position.count());
         flatbuffers::FlatBufferBuilder builder(1024);
         auto frame_vector = builder.CreateVectorOfStructs(frame_queue.front());
-        auto frame = CreateFrame(builder, &frame_vector);
+        auto frame = CreateFrame(builder, frame_vector);
         builder.Finish(frame);
 
         db->Put(leveldb::WriteOptions(), index.playhead, (const char*) builder.GetBufferPointer());
