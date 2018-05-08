@@ -148,7 +148,7 @@ void Playback::play_loop(){
             auto frame = GetFrame(writable);
             
             boost::unique_lock<boost::mutex> lock(frame_mutex);
-            frame_queue.push(frame->pixels());
+            frame_queue.push(*frame->pixels());
             lock.unlock();
             wait_for_frame.notify_one();
 
