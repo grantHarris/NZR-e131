@@ -40,7 +40,7 @@ class Playback {
         void stop();
         void pause();
         void toggle_loop(bool t_loop);
-        std::queue<flatbuffers::Vector<PixelFrame::RGBPixel>> frame_queue;
+        std::queue<flatbuffers::Vector<PixelFrame::RGBPixel*>*> frame_queue;
         void set_state(PlaybackState state);
     private:
         mutable boost::mutex frame_mutex;
