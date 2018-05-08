@@ -42,7 +42,7 @@ class Playback {
         void toggle_loop(bool t_loop);
         std::queue<std::vector<PixelFrame::RGBPixel>> frame_queue;
         void set_state(PlaybackState state);
-        void register_update_fn(std::function<void(std::vector<PixelFrame::RGBPixel>&)> t_callback);
+        void register_update_fn(std::function<void(flatbuffers::VectorPixelFrame::RGBPixel>&)> t_callback);
     private:
         mutable boost::mutex frame_mutex;
         mutable boost::mutex state_mutex;
@@ -52,7 +52,7 @@ class Playback {
         Index index;
         std::chrono::time_point<std::chrono::steady_clock> start_time;
         std::string* playhead;
-        std::function<void(std::vector<PixelFrame::RGBPixel>&)> callback;
+        std::function<void(flatbuffers::Vector<PixelFrame::RGBPixel>&)> callback;
         PlaybackState current_state;
         leveldb::DB* db;
         boost::thread* record_thread;
