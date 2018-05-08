@@ -42,7 +42,7 @@ class Playback {
         void toggle_loop(bool t_loop);
         std::queue<std::vector<PixelFrame::RGBPixel>> frame_queue;
         void set_state(PlaybackState state);
-        void register_update_fn(std::function<void(flatbuffers::VectorPixelFrame::RGBPixel>&)> t_callback);
+        void register_update_fn(std::function<void(flatbuffers::Vector<PixelFrame::RGBPixel>&)> t_callback);
     private:
         mutable boost::mutex frame_mutex;
         mutable boost::mutex state_mutex;
