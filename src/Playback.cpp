@@ -144,7 +144,7 @@ void Playback::play_loop(){
 
             proto::Frame frame;
             //frame.ParseFromString(&data)
-            frame_queue.push(data);
+            frame_queue.push(frame);
             lock.unlock();
             wait_for_frame.notify_one();
             index.playhead = it->key().ToString();
