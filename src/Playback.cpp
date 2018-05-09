@@ -1,5 +1,5 @@
 #include "Playback.h"
-#include <boost/log/trivial.hpp>
+
 /**
  * @brief [brief description]
  * @details [long description]
@@ -10,7 +10,7 @@ Playback::Playback(std::string file_name){
     leveldb::Options options;
     options.create_if_missing = true;
     leveldb::Status status = leveldb::DB::Open(options, file_name, &db);
-    //if (!status.ok()) BOSST_LOG_TRVIAL(error) << status.ToString();
+    if (!status.ok()) BOSST_LOG_TRVIAL(error) << status.ToString();
 
     //eventually load from config/saved state
     playhead = new std::string("0");
