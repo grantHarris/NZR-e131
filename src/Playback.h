@@ -39,7 +39,7 @@ class Playback {
         void stop();
         void pause();
         void toggle_loop(bool t_loop);
-        std::queue<proto::Frame> frame_queue;
+        std::queue<nzr::Frame> frame_queue;
         void set_state(PlaybackState state);
     private:
         mutable boost::mutex frame_mutex;
