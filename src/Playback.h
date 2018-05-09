@@ -13,7 +13,8 @@
 
 #include "LEDStrip.h"
 #include "leveldb/db.h"
- 
+#include "frame.pb.h"
+
 using namespace boost::log;
 namespace logging = boost::log;
 
