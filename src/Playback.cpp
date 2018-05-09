@@ -124,7 +124,7 @@ void Playback::record_loop(){
         auto frame = frame_queue.front();
         std::string output;
         frame.SerializeToString(&output);
-        db->Put(leveldb::WriteOptions(), index.playhead, &output);
+        db->Put(leveldb::WriteOptions(), index.playhead, output);
         frame_queue.pop();
         BOOST_LOG_TRIVIAL(debug) << "Record frame at: " << index.playhead;
     }
