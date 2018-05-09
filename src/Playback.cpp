@@ -142,7 +142,7 @@ void Playback::play_loop(){
         for (it->Seek(index.playhead); current_state == PlaybackState::PLAYING, it->Valid(); it->Next()) {
             auto data = it->value().ToString();
 
-            proto::Frame frame:
+            proto::Frame frame;
             frame.ParseFromString(&data)
             frame_queue.push(data);
             lock.unlock();
