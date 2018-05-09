@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package proto;
+package nzr;
 
 message Pixel {
 	int32 r = 1;
