@@ -143,7 +143,7 @@ void Playback::play_loop(){
             auto data = it->value().ToString();
 
             nzr::Frame frame;
-            //frame.ParseFromString(&data)
+            frame.ParseFromString(&data)
             frame_queue.push(frame);
             lock.unlock();
             wait_for_frame.notify_one();
