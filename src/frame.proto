@@ -1,0 +1,13 @@
+syntax = "proto3"
+
+package proto;
+
+message Pixel {
+	required int32 r = 1;
+	required int32 g = 2;
+	required int32 b = 3;
+}
+
+message Frame {
+	repeated Pixel = 1;
+}

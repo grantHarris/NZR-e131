@@ -121,12 +121,10 @@ void Playback::record_loop(){
         std::chrono::duration<double> position = start_time - end_time;
 
         index.playhead = std::to_string(position.count());
-        flatbuffers::FlatBufferBuilder builder(1024);
-        auto frame_vector = builder.CreateVectorOfStructs(&frame_queue.front());
-        auto frame = CreateFrame(builder, frame_vector);
-        builder.Finish(frame);
-
-        db->Put(leveldb::WriteOptions(), index.playhead, (const char*) builder.GetBufferPointer());
+        proto::Frame frame = frame_queue.front()
+        std::string output;
+        frame.SerializeToString(&output);
+        db->Put(leveldb::WriteOptions(), index.playhead, &output);
         frame_queue.pop();
         BOOST_LOG_TRIVIAL(debug) << "Record frame at: " << index.playhead;
     }
@@ -143,17 +141,13 @@ void Playback::play_loop(){
     while((loop && current_state == PlaybackState::PLAYING)){
         for (it->Seek(index.playhead); current_state == PlaybackState::PLAYING, it->Valid(); it->Next()) {
             auto data = it->value().ToString();
-            char * writable = new char[data.size() + 1];
-            std::copy(data.begin(), data.end(), writable);
-            auto frame = GetFrame(writable);
-            
-            boost::unique_lock<boost::mutex> lock(frame_mutex);
-            frame_queue.push(*frame->pixels());
+
+            proto::Frame frame:
+            frame.ParseFromString(&data)
+            frame_queue.push(data);
             lock.unlock();
             wait_for_frame.notify_one();
-
             index.playhead = it->key().ToString();
-            delete[] writable;
             BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
         }
     }

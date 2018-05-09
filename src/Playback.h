@@ -13,9 +13,7 @@
 
 #include "LEDStrip.h"
 #include "leveldb/db.h"
-#include "frame_generated.h"
-
-using namespace PixelFrame;
+ 
 using namespace boost::log;
 namespace logging = boost::log;
 
@@ -40,7 +38,7 @@ class Playback {
         void stop();
         void pause();
         void toggle_loop(bool t_loop);
-        std::queue<flatbuffers::Vector<PixelFrame::RGBPixel*>*> frame_queue;
+        std::queue<proto::Frame> frame_queue;
         void set_state(PlaybackState state);
     private:
         mutable boost::mutex frame_mutex;
