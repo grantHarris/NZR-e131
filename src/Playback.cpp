@@ -128,7 +128,7 @@ void Playback::record_loop(){
 
         db->Put(leveldb::WriteOptions(), index.playhead, (const char*) builder.GetBufferPointer());
         frame_queue.pop();
-      //  BOOST_LOG_TRIVIAL(debug) << "Record frame at: " << index.playhead;
+        BOOST_LOG_TRIVIAL(debug) << "Record frame at: " << index.playhead;
     }
 
 }
@@ -154,7 +154,7 @@ void Playback::play_loop(){
 
             index.playhead = it->key().ToString();
             delete[] writable;
-        //    BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
+            BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
         }
     }
     delete it;
