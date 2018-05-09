@@ -121,7 +121,7 @@ void Playback::record_loop(){
         std::chrono::duration<double> position = start_time - end_time;
 
         index.playhead = std::to_string(position.count());
-        proto::Frame frame = frame_queue.front()
+        proto::Frame frame = frame_queue.front();
         std::string output;
         frame.SerializeToString(&output);
         db->Put(leveldb::WriteOptions(), index.playhead, &output);
