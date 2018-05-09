@@ -124,7 +124,7 @@ void Playback::record_loop(){
         proto::Frame frame = frame_queue.front();
         std::string output;
         frame.SerializeToString(&output);
-        db->Put(leveldb::WriteOptions(), index.playhead, &output);
+        //db->Put(leveldb::WriteOptions(), index.playhead, &output);
         frame_queue.pop();
         BOOST_LOG_TRIVIAL(debug) << "Record frame at: " << index.playhead;
     }
@@ -143,7 +143,7 @@ void Playback::play_loop(){
             auto data = it->value().ToString();
 
             proto::Frame frame;
-            frame.ParseFromString(&data)
+            //frame.ParseFromString(&data)
             frame_queue.push(data);
             lock.unlock();
             wait_for_frame.notify_one();
