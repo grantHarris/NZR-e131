@@ -45,25 +45,25 @@ struct TableStruct {
 };
 void AddDescriptors();
 }  // namespace protobuf_frame_2eproto
-namespace proto {
+namespace nzr {
 class Frame;
 class FrameDefaultTypeInternal;
 extern FrameDefaultTypeInternal _Frame_default_instance_;
 class Pixel;
 class PixelDefaultTypeInternal;
 extern PixelDefaultTypeInternal _Pixel_default_instance_;
-}  // namespace proto
+}  // namespace nzr
 namespace google {
 namespace protobuf {
-template<> ::proto::Frame* Arena::CreateMaybeMessage<::proto::Frame>(Arena*);
-template<> ::proto::Pixel* Arena::CreateMaybeMessage<::proto::Pixel>(Arena*);
+template<> ::nzr::Frame* Arena::CreateMaybeMessage<::nzr::Frame>(Arena*);
+template<> ::nzr::Pixel* Arena::CreateMaybeMessage<::nzr::Pixel>(Arena*);
 }  // namespace protobuf
 }  // namespace google
-namespace proto {
+namespace nzr {
 
 // ===================================================================
 
-class Pixel : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:proto.Pixel) */ {
+class Pixel : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:nzr.Pixel) */ {
  public:
   Pixel();
   virtual ~Pixel();
@@ -168,7 +168,7 @@ class Pixel : public ::google::protobuf::Message /* @@protoc_insertion_point(cla
   ::google::protobuf::int32 b() const;
   void set_b(::google::protobuf::int32 value);
 
-  // @@protoc_insertion_point(class_scope:proto.Pixel)
+  // @@protoc_insertion_point(class_scope:nzr.Pixel)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
@@ -180,7 +180,7 @@ class Pixel : public ::google::protobuf::Message /* @@protoc_insertion_point(cla
 };
 // -------------------------------------------------------------------
 
-class Frame : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:proto.Frame) */ {
+class Frame : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:nzr.Frame) */ {
  public:
   Frame();
   virtual ~Frame();
@@ -267,23 +267,23 @@ class Frame : public ::google::protobuf::Message /* @@protoc_insertion_point(cla
 
   // accessors -------------------------------------------------------
 
-  // repeated .proto.Pixel pixels = 1;
+  // repeated .nzr.Pixel pixels = 1;
   int pixels_size() const;
   void clear_pixels();
   static const int kPixelsFieldNumber = 1;
-  ::proto::Pixel* mutable_pixels(int index);
-  ::google::protobuf::RepeatedPtrField< ::proto::Pixel >*
+  ::nzr::Pixel* mutable_pixels(int index);
+  ::google::protobuf::RepeatedPtrField< ::nzr::Pixel >*
       mutable_pixels();
-  const ::proto::Pixel& pixels(int index) const;
-  ::proto::Pixel* add_pixels();
-  const ::google::protobuf::RepeatedPtrField< ::proto::Pixel >&
+  const ::nzr::Pixel& pixels(int index) const;
+  ::nzr::Pixel* add_pixels();
+  const ::google::protobuf::RepeatedPtrField< ::nzr::Pixel >&
       pixels() const;
 
-  // @@protoc_insertion_point(class_scope:proto.Frame)
+  // @@protoc_insertion_point(class_scope:nzr.Frame)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::RepeatedPtrField< ::proto::Pixel > pixels_;
+  ::google::protobuf::RepeatedPtrField< ::nzr::Pixel > pixels_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
   friend struct ::protobuf_frame_2eproto::TableStruct;
 };
@@ -303,13 +303,13 @@ inline void Pixel::clear_r() {
   r_ = 0;
 }
 inline ::google::protobuf::int32 Pixel::r() const {
-  // @@protoc_insertion_point(field_get:proto.Pixel.r)
+  // @@protoc_insertion_point(field_get:nzr.Pixel.r)
   return r_;
 }
 inline void Pixel::set_r(::google::protobuf::int32 value) {
   
   r_ = value;
-  // @@protoc_insertion_point(field_set:proto.Pixel.r)
+  // @@protoc_insertion_point(field_set:nzr.Pixel.r)
 }
 
 // int32 g = 2;
@@ -317,13 +317,13 @@ inline void Pixel::clear_g() {
   g_ = 0;
 }
 inline ::google::protobuf::int32 Pixel::g() const {
-  // @@protoc_insertion_point(field_get:proto.Pixel.g)
+  // @@protoc_insertion_point(field_get:nzr.Pixel.g)
   return g_;
 }
 inline void Pixel::set_g(::google::protobuf::int32 value) {
   
   g_ = value;
-  // @@protoc_insertion_point(field_set:proto.Pixel.g)
+  // @@protoc_insertion_point(field_set:nzr.Pixel.g)
 }
 
 // int32 b = 3;
@@ -331,46 +331,46 @@ inline void Pixel::clear_b() {
   b_ = 0;
 }
 inline ::google::protobuf::int32 Pixel::b() const {
-  // @@protoc_insertion_point(field_get:proto.Pixel.b)
+  // @@protoc_insertion_point(field_get:nzr.Pixel.b)
   return b_;
 }
 inline void Pixel::set_b(::google::protobuf::int32 value) {
   
   b_ = value;
-  // @@protoc_insertion_point(field_set:proto.Pixel.b)
+  // @@protoc_insertion_point(field_set:nzr.Pixel.b)
 }
 
 // -------------------------------------------------------------------
 
 // Frame
 
-// repeated .proto.Pixel pixels = 1;
+// repeated .nzr.Pixel pixels = 1;
 inline int Frame::pixels_size() const {
   return pixels_.size();
 }
 inline void Frame::clear_pixels() {
   pixels_.Clear();
 }
-inline ::proto::Pixel* Frame::mutable_pixels(int index) {
-  // @@protoc_insertion_point(field_mutable:proto.Frame.pixels)
+inline ::nzr::Pixel* Frame::mutable_pixels(int index) {
+  // @@protoc_insertion_point(field_mutable:nzr.Frame.pixels)
   return pixels_.Mutable(index);
 }
-inline ::google::protobuf::RepeatedPtrField< ::proto::Pixel >*
+inline ::google::protobuf::RepeatedPtrField< ::nzr::Pixel >*
 Frame::mutable_pixels() {
-  // @@protoc_insertion_point(field_mutable_list:proto.Frame.pixels)
+  // @@protoc_insertion_point(field_mutable_list:nzr.Frame.pixels)
   return &pixels_;
 }
-inline const ::proto::Pixel& Frame::pixels(int index) const {
-  // @@protoc_insertion_point(field_get:proto.Frame.pixels)
+inline const ::nzr::Pixel& Frame::pixels(int index) const {
+  // @@protoc_insertion_point(field_get:nzr.Frame.pixels)
   return pixels_.Get(index);
 }
-inline ::proto::Pixel* Frame::add_pixels() {
-  // @@protoc_insertion_point(field_add:proto.Frame.pixels)
+inline ::nzr::Pixel* Frame::add_pixels() {
+  // @@protoc_insertion_point(field_add:nzr.Frame.pixels)
   return pixels_.Add();
 }
-inline const ::google::protobuf::RepeatedPtrField< ::proto::Pixel >&
+inline const ::google::protobuf::RepeatedPtrField< ::nzr::Pixel >&
 Frame::pixels() const {
-  // @@protoc_insertion_point(field_list:proto.Frame.pixels)
+  // @@protoc_insertion_point(field_list:nzr.Frame.pixels)
   return pixels_;
 }
 
@@ -382,7 +382,7 @@ Frame::pixels() const {
 
 // @@protoc_insertion_point(namespace_scope)
 
-}  // namespace proto
+}  // namespace nzr
 
 // @@protoc_insertion_point(global_scope)
 

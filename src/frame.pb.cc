@@ -22,7 +22,7 @@
 namespace protobuf_frame_2eproto {
 extern PROTOBUF_INTERNAL_EXPORT_protobuf_frame_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_Pixel;
 }  // namespace protobuf_frame_2eproto
-namespace proto {
+namespace nzr {
 class PixelDefaultTypeInternal {
  public:
   ::google::protobuf::internal::ExplicitlyConstructed<Pixel>
@@ -33,17 +33,17 @@ class FrameDefaultTypeInternal {
   ::google::protobuf::internal::ExplicitlyConstructed<Frame>
       _instance;
 } _Frame_default_instance_;
-}  // namespace proto
+}  // namespace nzr
 namespace protobuf_frame_2eproto {
 static void InitDefaultsPixel() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   {
-    void* ptr = &::proto::_Pixel_default_instance_;
-    new (ptr) ::proto::Pixel();
+    void* ptr = &::nzr::_Pixel_default_instance_;
+    new (ptr) ::nzr::Pixel();
     ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
   }
-  ::proto::Pixel::InitAsDefaultInstance();
+  ::nzr::Pixel::InitAsDefaultInstance();
 }
 
 ::google::protobuf::internal::SCCInfo<0> scc_info_Pixel =
@@ -53,11 +53,11 @@ static void InitDefaultsFrame() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   {
-    void* ptr = &::proto::_Frame_default_instance_;
-    new (ptr) ::proto::Frame();
+    void* ptr = &::nzr::_Frame_default_instance_;
+    new (ptr) ::nzr::Frame();
     ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
   }
-  ::proto::Frame::InitAsDefaultInstance();
+  ::nzr::Frame::InitAsDefaultInstance();
 }
 
 ::google::protobuf::internal::SCCInfo<1> scc_info_Frame =
@@ -73,28 +73,28 @@ void InitDefaults() {
 
 const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::proto::Pixel, _internal_metadata_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::nzr::Pixel, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::proto::Pixel, r_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::proto::Pixel, g_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::proto::Pixel, b_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::nzr::Pixel, r_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::nzr::Pixel, g_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::nzr::Pixel, b_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::proto::Frame, _internal_metadata_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::nzr::Frame, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::proto::Frame, pixels_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::nzr::Frame, pixels_),
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, sizeof(::proto::Pixel)},
-  { 8, -1, sizeof(::proto::Frame)},
+  { 0, -1, sizeof(::nzr::Pixel)},
+  { 8, -1, sizeof(::nzr::Frame)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
-  reinterpret_cast<const ::google::protobuf::Message*>(&::proto::_Pixel_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::proto::_Frame_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&::nzr::_Pixel_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&::nzr::_Frame_default_instance_),
 };
 
 void protobuf_AssignDescriptors() {
@@ -118,12 +118,12 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-      "\n\013frame.proto\022\005proto\"(\n\005Pixel\022\t\n\001r\030\001 \001(\005"
-      "\022\t\n\001g\030\002 \001(\005\022\t\n\001b\030\003 \001(\005\"%\n\005Frame\022\034\n\006pixel"
-      "s\030\001 \003(\0132\014.proto.Pixelb\006proto3"
+      "\n\013frame.proto\022\003nzr\"(\n\005Pixel\022\t\n\001r\030\001 \001(\005\022\t"
+      "\n\001g\030\002 \001(\005\022\t\n\001b\030\003 \001(\005\"#\n\005Frame\022\032\n\006pixels\030"
+      "\001 \003(\0132\n.nzr.Pixelb\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 109);
+      descriptor, 105);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "frame.proto", &protobuf_RegisterTypes);
 }
@@ -139,7 +139,7 @@ struct StaticDescriptorInitializer {
   }
 } static_descriptor_initializer;
 }  // namespace protobuf_frame_2eproto
-namespace proto {
+namespace nzr {
 
 // ===================================================================
 
@@ -156,7 +156,7 @@ Pixel::Pixel()
   ::google::protobuf::internal::InitSCC(
       &protobuf_frame_2eproto::scc_info_Pixel.base);
   SharedCtor();
-  // @@protoc_insertion_point(constructor:proto.Pixel)
+  // @@protoc_insertion_point(constructor:nzr.Pixel)
 }
 Pixel::Pixel(const Pixel& from)
   : ::google::protobuf::Message(),
@@ -165,7 +165,7 @@ Pixel::Pixel(const Pixel& from)
   ::memcpy(&r_, &from.r_,
     static_cast<size_t>(reinterpret_cast<char*>(&b_) -
     reinterpret_cast<char*>(&r_)) + sizeof(b_));
-  // @@protoc_insertion_point(copy_constructor:proto.Pixel)
+  // @@protoc_insertion_point(copy_constructor:nzr.Pixel)
 }
 
 void Pixel::SharedCtor() {
@@ -175,7 +175,7 @@ void Pixel::SharedCtor() {
 }
 
 Pixel::~Pixel() {
-  // @@protoc_insertion_point(destructor:proto.Pixel)
+  // @@protoc_insertion_point(destructor:nzr.Pixel)
   SharedDtor();
 }
 
@@ -197,7 +197,7 @@ const Pixel& Pixel::default_instance() {
 
 
 void Pixel::Clear() {
-// @@protoc_insertion_point(message_clear_start:proto.Pixel)
+// @@protoc_insertion_point(message_clear_start:nzr.Pixel)
   ::google::protobuf::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -212,7 +212,7 @@ bool Pixel::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:proto.Pixel)
+  // @@protoc_insertion_point(parse_start:nzr.Pixel)
   for (;;) {
     ::std::pair<::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
@@ -272,17 +272,17 @@ bool Pixel::MergePartialFromCodedStream(
     }
   }
 success:
-  // @@protoc_insertion_point(parse_success:proto.Pixel)
+  // @@protoc_insertion_point(parse_success:nzr.Pixel)
   return true;
 failure:
-  // @@protoc_insertion_point(parse_failure:proto.Pixel)
+  // @@protoc_insertion_point(parse_failure:nzr.Pixel)
   return false;
 #undef DO_
 }
 
 void Pixel::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:proto.Pixel)
+  // @@protoc_insertion_point(serialize_start:nzr.Pixel)
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -305,13 +305,13 @@ void Pixel::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
   }
-  // @@protoc_insertion_point(serialize_end:proto.Pixel)
+  // @@protoc_insertion_point(serialize_end:nzr.Pixel)
 }
 
 ::google::protobuf::uint8* Pixel::InternalSerializeWithCachedSizesToArray(
     bool deterministic, ::google::protobuf::uint8* target) const {
   (void)deterministic; // Unused
-  // @@protoc_insertion_point(serialize_to_array_start:proto.Pixel)
+  // @@protoc_insertion_point(serialize_to_array_start:nzr.Pixel)
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -334,12 +334,12 @@ void Pixel::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:proto.Pixel)
+  // @@protoc_insertion_point(serialize_to_array_end:nzr.Pixel)
   return target;
 }
 
 size_t Pixel::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:proto.Pixel)
+// @@protoc_insertion_point(message_byte_size_start:nzr.Pixel)
   size_t total_size = 0;
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -374,22 +374,22 @@ size_t Pixel::ByteSizeLong() const {
 }
 
 void Pixel::MergeFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:proto.Pixel)
+// @@protoc_insertion_point(generalized_merge_from_start:nzr.Pixel)
   GOOGLE_DCHECK_NE(&from, this);
   const Pixel* source =
       ::google::protobuf::internal::DynamicCastToGenerated<const Pixel>(
           &from);
   if (source == NULL) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:proto.Pixel)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:nzr.Pixel)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:proto.Pixel)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:nzr.Pixel)
     MergeFrom(*source);
   }
 }
 
 void Pixel::MergeFrom(const Pixel& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:proto.Pixel)
+// @@protoc_insertion_point(class_specific_merge_from_start:nzr.Pixel)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::google::protobuf::uint32 cached_has_bits = 0;
@@ -407,14 +407,14 @@ void Pixel::MergeFrom(const Pixel& from) {
 }
 
 void Pixel::CopyFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:proto.Pixel)
+// @@protoc_insertion_point(generalized_copy_from_start:nzr.Pixel)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 void Pixel::CopyFrom(const Pixel& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:proto.Pixel)
+// @@protoc_insertion_point(class_specific_copy_from_start:nzr.Pixel)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -455,21 +455,21 @@ Frame::Frame()
   ::google::protobuf::internal::InitSCC(
       &protobuf_frame_2eproto::scc_info_Frame.base);
   SharedCtor();
-  // @@protoc_insertion_point(constructor:proto.Frame)
+  // @@protoc_insertion_point(constructor:nzr.Frame)
 }
 Frame::Frame(const Frame& from)
   : ::google::protobuf::Message(),
       _internal_metadata_(NULL),
       pixels_(from.pixels_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  // @@protoc_insertion_point(copy_constructor:proto.Frame)
+  // @@protoc_insertion_point(copy_constructor:nzr.Frame)
 }
 
 void Frame::SharedCtor() {
 }
 
 Frame::~Frame() {
-  // @@protoc_insertion_point(destructor:proto.Frame)
+  // @@protoc_insertion_point(destructor:nzr.Frame)
   SharedDtor();
 }
 
@@ -491,7 +491,7 @@ const Frame& Frame::default_instance() {
 
 
 void Frame::Clear() {
-// @@protoc_insertion_point(message_clear_start:proto.Frame)
+// @@protoc_insertion_point(message_clear_start:nzr.Frame)
   ::google::protobuf::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -504,13 +504,13 @@ bool Frame::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:proto.Frame)
+  // @@protoc_insertion_point(parse_start:nzr.Frame)
   for (;;) {
     ::std::pair<::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated .proto.Pixel pixels = 1;
+      // repeated .nzr.Pixel pixels = 1;
       case 1: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
@@ -534,21 +534,21 @@ bool Frame::MergePartialFromCodedStream(
     }
   }
 success:
-  // @@protoc_insertion_point(parse_success:proto.Frame)
+  // @@protoc_insertion_point(parse_success:nzr.Frame)
   return true;
 failure:
-  // @@protoc_insertion_point(parse_failure:proto.Frame)
+  // @@protoc_insertion_point(parse_failure:nzr.Frame)
   return false;
 #undef DO_
 }
 
 void Frame::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:proto.Frame)
+  // @@protoc_insertion_point(serialize_start:nzr.Frame)
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // repeated .proto.Pixel pixels = 1;
+  // repeated .nzr.Pixel pixels = 1;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->pixels_size()); i < n; i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
@@ -561,17 +561,17 @@ void Frame::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
   }
-  // @@protoc_insertion_point(serialize_end:proto.Frame)
+  // @@protoc_insertion_point(serialize_end:nzr.Frame)
 }
 
 ::google::protobuf::uint8* Frame::InternalSerializeWithCachedSizesToArray(
     bool deterministic, ::google::protobuf::uint8* target) const {
   (void)deterministic; // Unused
-  // @@protoc_insertion_point(serialize_to_array_start:proto.Frame)
+  // @@protoc_insertion_point(serialize_to_array_start:nzr.Frame)
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // repeated .proto.Pixel pixels = 1;
+  // repeated .nzr.Pixel pixels = 1;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->pixels_size()); i < n; i++) {
     target = ::google::protobuf::internal::WireFormatLite::
@@ -583,12 +583,12 @@ void Frame::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:proto.Frame)
+  // @@protoc_insertion_point(serialize_to_array_end:nzr.Frame)
   return target;
 }
 
 size_t Frame::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:proto.Frame)
+// @@protoc_insertion_point(message_byte_size_start:nzr.Frame)
   size_t total_size = 0;
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -596,7 +596,7 @@ size_t Frame::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
   }
-  // repeated .proto.Pixel pixels = 1;
+  // repeated .nzr.Pixel pixels = 1;
   {
     unsigned int count = static_cast<unsigned int>(this->pixels_size());
     total_size += 1UL * count;
@@ -613,22 +613,22 @@ size_t Frame::ByteSizeLong() const {
 }
 
 void Frame::MergeFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:proto.Frame)
+// @@protoc_insertion_point(generalized_merge_from_start:nzr.Frame)
   GOOGLE_DCHECK_NE(&from, this);
   const Frame* source =
       ::google::protobuf::internal::DynamicCastToGenerated<const Frame>(
           &from);
   if (source == NULL) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:proto.Frame)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:nzr.Frame)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:proto.Frame)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:nzr.Frame)
     MergeFrom(*source);
   }
 }
 
 void Frame::MergeFrom(const Frame& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:proto.Frame)
+// @@protoc_insertion_point(class_specific_merge_from_start:nzr.Frame)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::google::protobuf::uint32 cached_has_bits = 0;
@@ -638,14 +638,14 @@ void Frame::MergeFrom(const Frame& from) {
 }
 
 void Frame::CopyFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:proto.Frame)
+// @@protoc_insertion_point(generalized_copy_from_start:nzr.Frame)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 void Frame::CopyFrom(const Frame& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:proto.Frame)
+// @@protoc_insertion_point(class_specific_copy_from_start:nzr.Frame)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -672,14 +672,14 @@ void Frame::InternalSwap(Frame* other) {
 
 
 // @@protoc_insertion_point(namespace_scope)
-}  // namespace proto
+}  // namespace nzr
 namespace google {
 namespace protobuf {
-template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::proto::Pixel* Arena::CreateMaybeMessage< ::proto::Pixel >(Arena* arena) {
-  return Arena::CreateInternal< ::proto::Pixel >(arena);
+template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::nzr::Pixel* Arena::CreateMaybeMessage< ::nzr::Pixel >(Arena* arena) {
+  return Arena::CreateInternal< ::nzr::Pixel >(arena);
 }
-template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::proto::Frame* Arena::CreateMaybeMessage< ::proto::Frame >(Arena* arena) {
-  return Arena::CreateInternal< ::proto::Frame >(arena);
+template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::nzr::Frame* Arena::CreateMaybeMessage< ::nzr::Frame >(Arena* arena) {
+  return Arena::CreateInternal< ::nzr::Frame >(arena);
 }
 }  // namespace protobuf
 }  // namespace google
