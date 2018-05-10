@@ -6,7 +6,7 @@
  * 
  * @param file_name Location of the leveldb directory
  */
-Playback::Playback(std::string file_name){
+Playback::Playback(std::string file_name, bool *t_running) : running(t_running) {
     leveldb::Options options;
     options.create_if_missing = true;
     leveldb::Status status = leveldb::DB::Open(options, file_name, &db);
@@ -151,7 +151,7 @@ void Playback::record_loop(){
         frame.SerializeToString(&output);
         db->Put(leveldb::WriteOptions(), index.playhead, output);
         frame_queue.pop();
-        BOOST_LOG_TRIVIAL(debug) << "Record frame at: " << index.playhead;
+        BOOST_LOG_TRIVIAL(info) << "Record frame at: " << index.playhead;
     }
 
 }
