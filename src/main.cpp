@@ -151,8 +151,5 @@ int main(int argc, char* argv[]) {
         BOOST_LOG_TRIVIAL(fatal) << "Exception of unknown type!" << std::endl;
     }
 
-    delete apa102_strip;
-    delete playback;
-
     return 0;
 }
