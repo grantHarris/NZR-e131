@@ -1,6 +1,8 @@
 #ifndef __Playback_H__
 #define __Playback_H__
 
+#include <stdint.h>
+#include <unistd.h>
 #include <fstream>
 #include <chrono>
 #include <vector>
