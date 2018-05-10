@@ -178,9 +178,11 @@ void Playback::play_loop(){
             auto data = it->value().ToString();
             nzr::Frame frame;
        //     try {
-                double playhead = boost::lexical_cast<double>(it->key().ToString());
-                usleep((index.playhead - playhead) * 1000000);
-                index.playhead = playhead;
+                double current = boost::lexical_cast<double>(it->key().ToString());
+                double last = boost::lexical_cast<double>(index.playhead);
+
+                usleep((current - last) * 1000000);
+                index.playhead = current;
                 BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
 
             // } catch(bad_lexical_cast&) {
