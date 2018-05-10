@@ -1,8 +1,6 @@
 #ifndef __Playback_H__
 #define __Playback_H__
 
-#include "LEDStrip.h"
-
 #include <stdint.h>
 #include <unistd.h>
 #include <fstream>
@@ -18,6 +16,8 @@
 #include "leveldb/db.h"
 #include "frame.pb.h"
 
+#include "LEDStrip.h"
+#include "pixel.h"
 
 using namespace boost::log;
 namespace logging = boost::log;

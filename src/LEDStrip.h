@@ -14,14 +14,10 @@
 #include "yaml-cpp/yaml.h"
 #include <boost/thread/condition_variable.hpp>
 
+#include "pixel.h"
+
 using namespace boost::log;
 namespace logging = boost::log;
-
-struct Pixel {
-     uint32_t r;
-     uint32_t g;
-     uint32_t b;
- };
 
  class LEDStrip {
     protected:
