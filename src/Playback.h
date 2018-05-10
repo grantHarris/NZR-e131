@@ -1,6 +1,8 @@
 #ifndef __Playback_H__
 #define __Playback_H__
 
+#include "LEDStrip.h"
+
 #include <stdint.h>
 #include <unistd.h>
 #include <fstream>
@@ -13,9 +15,9 @@
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
 
-#include "LEDStrip.h"
 #include "leveldb/db.h"
 #include "frame.pb.h"
+
 
 using namespace boost::log;
 namespace logging = boost::log;
@@ -37,7 +39,7 @@ class Playback {
     public:
         Playback(std::string file_name);
         ~Playback();
-        void push_frame(std::vector<int> const& t_pixels);
+        void push_frame(std::vector<Pixel> const& t_pixels);
         void record();
         void play();
         void stop();
