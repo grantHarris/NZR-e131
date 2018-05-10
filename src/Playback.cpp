@@ -113,19 +113,26 @@ void Playback::set_state(PlaybackState state){
  * @details [long description]
  */
 void Playback::record_loop(){
+    BOOST_LOG_TRIVIAL(info) << "Record loop starting";
     boost::unique_lock<boost::mutex> lock(frame_mutex);
     while(current_state == PlaybackState::RECORDING)
     {
+        BOOST_LOG_TRIVIAL(info) << "Recording 1";
 
         while(frame_queue.empty())
         {
+            BOOST_LOG_TRIVIAL(info) << "Recording 2";
             if(current_state == PlaybackState::RECORDING){
+                BOOST_LOG_TRIVIAL(info) << "Recording 3";
                 wait_for_frame.wait(lock);
+                BOOST_LOG_TRIVIAL(info) << "Recording 4";
             }else{
+                BOOST_LOG_TRIVIAL(info) << "Recording 5";
                 lock.unlock();
                 break;
             }
         }
+        BOOST_LOG_TRIVIAL(info) << "Recording 6";
 
         auto end_time = std::chrono::steady_clock::now();
         std::chrono::duration<double> position = start_time - end_time;
@@ -146,6 +153,7 @@ void Playback::record_loop(){
  * @details Loops through the leveldb file with an iterator
  */
 void Playback::play_loop(){
+    BOOST_LOG_TRIVIAL(info) << "Play loop starting";
     boost::unique_lock<boost::mutex> lock(frame_mutex);
     leveldb::Iterator* it = db->NewIterator(leveldb::ReadOptions());
     while((loop && current_state == PlaybackState::PLAYING)){
