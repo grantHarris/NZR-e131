@@ -35,6 +35,7 @@ class Playback {
     public:
         Playback(std::string file_name);
         ~Playback();
+        void push_frame(std::vector<Pixel> const& t_pixels);
         void record();
         void play();
         void stop();
@@ -42,7 +43,6 @@ class Playback {
         void toggle_loop(bool t_loop);
         std::queue<nzr::Frame> frame_queue;
         void set_state(PlaybackState state);
-        void push_frame(std::vector<Pixel>& t_pixels);
     private:
         mutable boost::mutex frame_mutex;
         mutable boost::mutex state_mutex;
