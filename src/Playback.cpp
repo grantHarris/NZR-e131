@@ -19,8 +19,7 @@ Playback::Playback(std::string file_name){
     BOOST_LOG_TRIVIAL(info) << "info!: " << *playhead;
 }
 
-void Playback::push_frame(std::vector<Pixel> const& t_pixels);
-{
+void Playback::push_frame(std::vector<Pixel> const& t_pixels){
     boost::unique_lock<boost::mutex> lock(frame_mutex);
     nzr::Frame frame;
     frame_queue.push(frame);
