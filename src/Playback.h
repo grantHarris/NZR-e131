@@ -17,7 +17,6 @@
 #include "frame.pb.h"
 
 #include "LEDStrip.h"
-#include "pixel.h"
 
 using namespace boost::log;
 namespace logging = boost::log;
