@@ -25,6 +25,7 @@ Playback::Playback(std::string file_name){
  */
 void Playback::record(){
     if (current_state == PlaybackState::RECORDING){
+        BOOST_LOG_TRIVIAL(info) << "Already recording";
         return;
     }
     
@@ -33,7 +34,7 @@ void Playback::record(){
         record_thread = new boost::thread(boost::bind(&Playback::record_loop, this));
         start_time = std::chrono::steady_clock::now();
     }
-
+    BOOST_LOG_TRIVIAL(info) << "Starting recording";
     this->set_state(PlaybackState::RECORDING);
 }
 
@@ -44,6 +45,7 @@ void Playback::record(){
  * @param t_loop boolean
  */
 void Playback::toggle_loop(bool t_loop){
+    BOOST_LOG_TRIVIAL(info) << "Toggle looping" << t_loop;
     loop = t_loop;
 }
 
@@ -53,6 +55,7 @@ void Playback::toggle_loop(bool t_loop){
  */
 void Playback::play(){
     if (current_state == PlaybackState::PLAYING){
+        BOOST_LOG_TRIVIAL(info) << "Already playing";
         return;
     }
 
@@ -61,6 +64,7 @@ void Playback::play(){
         playback_thread = new boost::thread(boost::bind(&Playback::play_loop, this));
     }
 
+    BOOST_LOG_TRIVIAL(info) << "Starting playing";
     this->set_state(PlaybackState::PLAYING);
 }
 
@@ -69,6 +73,7 @@ void Playback::play(){
  * @details [long description]
  */
 void Playback::pause(){
+    BOOST_LOG_TRIVIAL(info) << "Pausing";
     this->set_state(PlaybackState::PAUSED);
 }
 
@@ -78,11 +83,14 @@ void Playback::pause(){
  */
 void Playback::stop(){
     if (current_state == PlaybackState::RECORDING){
+        BOOST_LOG_TRIVIAL(info) << "Stopping recording";
         record_thread->join();
     }
     if (current_state == PlaybackState::PLAYING){
+        BOOST_LOG_TRIVIAL(info) << "Stopping playing";
         playback_thread->join();
     }
+    BOOST_LOG_TRIVIAL(info) << "Stopping";
     this->set_state(PlaybackState::STOPPED);
     index.playhead.assign("0");
 }
