@@ -13,6 +13,8 @@
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
 
+#include <boost/lexical_cast.hpp>
+
 #include "leveldb/db.h"
 #include "frame.pb.h"
 

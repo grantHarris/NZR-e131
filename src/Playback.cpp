@@ -22,6 +22,16 @@ Playback::Playback(std::string file_name, bool *t_running) : running(t_running) 
 void Playback::push_frame(std::vector<Pixel> const& t_pixels){
     boost::unique_lock<boost::mutex> lock(frame_mutex);
     nzr::Frame frame;
+    
+    nzr::Pixel* pixel = frame.add_pixels();
+    
+    for(auto it = t_pixels.begin(); it != t_pixels.end(); it++, i++){
+        pixel->set_r(t_pixels[i].r);
+        pixel->set_g(t_pixels[i].g);
+        pixel->set_b(t_pixels[i].b);
+    }
+
+
     frame_queue.push(frame);
     lock.unlock();
     wait_for_frame.notify_one();
@@ -167,14 +177,21 @@ void Playback::play_loop(){
     while((loop && current_state == PlaybackState::PLAYING)){
         for (it->Seek(index.playhead); current_state == PlaybackState::PLAYING, it->Valid(); it->Next()) {
             auto data = it->value().ToString();
-
             nzr::Frame frame;
+            try {
+                double playhead = boost::lexical_cast<double>(it->key().ToString());
+                usleep((index.playhead - playhead) * 1000000);
+                index.playhead = playhead;
+                BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
+
+            } catch(bad_lexical_cast&) {
+                //Do your errormagic
+            }
+
             //frame.ParseFromString(&data)
             frame_queue.push(frame);
             lock.unlock();
             wait_for_frame.notify_one();
-            index.playhead = it->key().ToString();
-            BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
         }
     }
     delete it;
