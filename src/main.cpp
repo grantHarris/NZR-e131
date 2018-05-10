@@ -26,6 +26,7 @@
 #include "LEDStrip.h"
 #include "APA102Strip.h"
 #include "WS2811Strip.h"
+#include "Playback.h"
 
 namespace po = boost::program_options;
 using namespace boost::log;
@@ -34,6 +35,7 @@ namespace logging = boost::log;
 bool running;
 YAML::Node config;
 Apa102Strip* apa102_strip;
+Playback* playback;
 
 static void sig_handler(int t_signum){
     (void)(t_signum);
@@ -88,7 +90,8 @@ int main(int argc, char* argv[]) {
         po::options_description desc("Allowed options");
         desc.add_options()
         ("help,h", "Produce help message")
-        ("config,h", po::value<std::string>()->default_value("./config.yaml"), "Config file path")
+        ("config,c", po::value<std::string>()->default_value("./config.yaml"), "Config file path")
+        ("save_location,s", po::value<std::string>()->default_value("./save"), "Save location")
         ("log,l", po::value<std::string>(), "Logging file path")
         ("stats,s", po::value<std::string>(), "Output update stats for E1.31 updates")
         ("verbosity,v", po::value<std::string>()->default_value("info"), "Enable verbosity (optionally specify level)");
@@ -130,6 +133,10 @@ int main(int argc, char* argv[]) {
             threads.create_thread(boost::bind(&E131::stats_thread, &e131, &running));
         }
 
+        if (vm.count("save_location")) {
+            playback = new Playback(config["save_location"].as<std::string>() )
+        }
+
         threads.join_all();
 
     }
@@ -142,6 +149,9 @@ int main(int argc, char* argv[]) {
     catch(...) {
         BOOST_LOG_TRIVIAL(fatal) << "Exception of unknown type!" << std::endl;
     }
+
+    delete apa102_strip;
+    delete playback;
 
     return 0;
 }
