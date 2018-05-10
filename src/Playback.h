@@ -46,7 +46,7 @@ class Playback {
         std::queue<nzr::Frame> frame_queue;
         void set_state(PlaybackState state);
     private:
-        bool *running
+        bool *running;
         mutable boost::mutex frame_mutex;
         mutable boost::mutex state_mutex;
         void play_loop();
