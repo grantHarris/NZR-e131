@@ -123,14 +123,14 @@ void Playback::set_state(PlaybackState state){
 void Playback::record_loop(){
     BOOST_LOG_TRIVIAL(info) << "Record loop starting";
     boost::unique_lock<boost::mutex> lock(frame_mutex);
-    while(current_state == PlaybackState::RECORDING)
+    while(current_state == PlaybackState::RECORDING && *running == true)
     {
         BOOST_LOG_TRIVIAL(info) << "Recording 1";
 
         while(frame_queue.empty())
         {
             BOOST_LOG_TRIVIAL(info) << "Recording 2";
-            if(current_state == PlaybackState::RECORDING){
+            if(current_state == PlaybackState::RECORDING && *running == true){
                 BOOST_LOG_TRIVIAL(info) << "Recording 3";
                 wait_for_frame.wait(lock);
                 BOOST_LOG_TRIVIAL(info) << "Recording 4";
@@ -143,7 +143,7 @@ void Playback::record_loop(){
         BOOST_LOG_TRIVIAL(info) << "Recording 6";
 
         auto end_time = std::chrono::steady_clock::now();
-        std::chrono::duration<double> position = start_time - end_time;
+        std::chrono::duration<double> position =  end_time - start_time;
 
         index.playhead = std::to_string(position.count());
         auto frame = frame_queue.front();
