@@ -15,6 +15,8 @@ Playback::Playback(std::string file_name){
     //eventually load from config/saved state
     playhead = new std::string("0");
     current_state = PlaybackState::STOPPED;
+
+    BOOST_LOG_TRIVIAL(info) << "info!: " << playhead;
 }
 
 /**
