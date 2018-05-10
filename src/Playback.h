@@ -21,7 +21,6 @@
 
 using namespace boost::log;
 namespace logging = boost::log;
-using namespace nzr;
 
 enum class PlaybackState {
     STOPPED,
