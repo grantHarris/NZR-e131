@@ -16,7 +16,7 @@ Playback::Playback(std::string file_name){
     playhead = new std::string("0");
     current_state = PlaybackState::STOPPED;
 
-    BOOST_LOG_TRIVIAL(info) << "info!: " << playhead;
+    BOOST_LOG_TRIVIAL(info) << "info!: " << *playhead;
 }
 
 /**
