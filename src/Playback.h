@@ -37,7 +37,7 @@ class Playback {
     public:
         Playback(std::string file_name);
         ~Playback();
-        void push_frame(std::vector<Pixel> const& t_pixels);
+        void push_frame(std::vector<int> const& t_pixels);
         void record();
         void play();
         void stop();
