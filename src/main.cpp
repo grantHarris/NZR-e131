@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
         }
 
         if (vm.count("save_location")) {
-            playback = new Playback(config["save_location"].as<std::string>());
+            //playback = new Playback(config["save_location"].as<std::string>());
         }
 
         threads.join_all();
