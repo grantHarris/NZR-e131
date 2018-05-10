@@ -42,6 +42,7 @@ class Playback {
         void toggle_loop(bool t_loop);
         std::queue<nzr::Frame> frame_queue;
         void set_state(PlaybackState state);
+        void push_frame(std::vector<Pixel> const& t_pixels);
     private:
         mutable boost::mutex frame_mutex;
         mutable boost::mutex state_mutex;

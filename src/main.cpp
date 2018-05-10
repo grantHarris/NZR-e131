@@ -120,7 +120,7 @@ int main(int argc, char* argv[]) {
             apa102_strip = new Apa102Strip(&running);
             threads.add_thread(apa102_strip->thread);
             BOOST_LOG_TRIVIAL(debug) << "APA102 strip set up";
-            e131.register_update_fn(boost::bind(&Apa102Strip::push_frame, apa102_strip, _1));
+            //e131.register_update_fn(boost::bind(&Apa102Strip::push_frame, apa102_strip, _1));
         }else{
            BOOST_LOG_TRIVIAL(info) << "Using WS2811 strip";
            //WS2811Strip ws2811_strip(config);
@@ -137,6 +137,7 @@ int main(int argc, char* argv[]) {
             BOOST_LOG_TRIVIAL(info) << "Save location: " << vm["save_location"].as<std::string>();
             playback = new Playback(vm["save_location"].as<std::string>());
             playback->record();
+            e131.register_update_fn(boost::bind(&Playback::push_frame, playback, _1));
         }
 
         threads.join_all();
