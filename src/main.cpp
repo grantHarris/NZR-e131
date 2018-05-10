@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
         }
 
         if (vm.count("save_location")) {
-            BOOST_LOG_TRIVIAL(info) << "Save location: " << config["save_location"].as<std::string>();
+            BOOST_LOG_TRIVIAL(info) << "Save location: " << vm["save_location"].as<std::string>();
             //playback = new Playback(config["save_location"].as<std::string>());
         }
 
