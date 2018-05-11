@@ -135,19 +135,19 @@ int main(int argc, char* argv[]) {
             threads.create_thread(boost::bind(&E131::stats_thread, &e131, &running));
         }
 
-        if (vm.count("save_location")) {
-            BOOST_LOG_TRIVIAL(info) << "Save location: " << vm["save_location"].as<std::string>();
-            playback = new Playback(vm["save_location"].as<std::string>(), &running);
-            playback->record();
-            e131.register_update_fn(boost::bind(&Playback::push_frame, playback, _1));
-        }
+        // if (vm.count("save_location")) {
+        //     BOOST_LOG_TRIVIAL(info) << "Save location: " << vm["save_location"].as<std::string>();
+        //     playback = new Playback(vm["save_location"].as<std::string>(), &running);
+        //     playback->record();
+        //     e131.register_update_fn(boost::bind(&Playback::push_frame, playback, _1));
+        // }
 
-         // char str[80];
-         // initscr();
-         // getstr(str);
-         // mvprintw(LINES - 2, 0, "You Entered: %s", str);
-         // getch();
-         // endwin();
+         char str[80];
+         initscr();
+         getstr(str);
+         mvprintw(LINES - 2, 0, "You Entered: %s", str);
+         getch();
+         endwin();
 
         threads.join_all();
 
