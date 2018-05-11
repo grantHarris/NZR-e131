@@ -5,6 +5,7 @@
 #include <err.h>
 #include <mutex>
 #include <vector>
+#include <functional>
 #include <boost/log/trivial.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
