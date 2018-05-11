@@ -28,6 +28,8 @@
 #include "WS2811Strip.h"
 #include "Playback.h"
 
+#include <ncurses.h>
+
 namespace po = boost::program_options;
 using namespace boost::log;
 namespace logging = boost::log;
@@ -140,11 +142,13 @@ int main(int argc, char* argv[]) {
             e131.register_update_fn(boost::bind(&Playback::push_frame, playback, _1));
         }
 
-        // char userInput;
-        // while(running == true){
-        //     std::cin >> userInput;
-        //     BOOST_LOG_TRIVIAL(info) << "Inputted: " << userInput;
-        // }
+        while(running == true){
+            initscr();
+            timeout(1000);
+            char c = getch();
+            endwin();
+            printf("Char: %c\n", c);
+        }
         
 
         threads.join_all();
