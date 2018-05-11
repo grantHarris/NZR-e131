@@ -143,11 +143,11 @@ int main(int argc, char* argv[]) {
         // }
 
          //char str[80];
-         initscr();
+         //initscr();
          //getstr(str);
          //mvprintw(LINES - 2, 0, "You Entered: %s", str);
          BOOST_LOG_TRIVIAL(info) << getch();
-         endwin();
+         //endwin();
 
         threads.join_all();
 
