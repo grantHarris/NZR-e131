@@ -139,14 +139,27 @@ int main(int argc, char* argv[]) {
             BOOST_LOG_TRIVIAL(info) << "Save location: " << vm["save_location"].as<std::string>();
             playback = new Playback(vm["save_location"].as<std::string>(), &running);
             e131.register_update_fn(boost::bind(&Playback::push_frame, playback, _1));
-            playback->record();
+            
+            initscr();
+            while(running == true){
+                char c = getch();
+                switch(c){
+                    case 'r':
+                        playback->record();
+                    break;
+                    case 'p':
+                        playback->play();
+                    break;
+                    case 'a':
+                        playback->pause();
+                    break;
+                    case 's':
+                        playback->stop();
+                    break;
+                }
+            }
+            endwin();
         }
-        initscr();
-        while(running == true){
-            char c = getch();
-            printf("Char: %c\n", c);
-        }
-        endwin();
         
 
         threads.join_all();
