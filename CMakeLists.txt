@@ -15,12 +15,11 @@ find_library(YAML_CPP_LIBRARY yaml-cpp)
 find_library(BCM bcm2835)
 find_library(LEVELDB leveldb)
 find_library(PROTOBUF protobuf)
-find_library(NCURSES ncurses)
 
 include_directories(${Boost_INCLUDE_DIRS})
 
 add_executable(${MY_TARGET_NAME} ${SOURCES})
 
-target_link_libraries(${MY_TARGET_NAME} ${YAML_CPP_LIBRARY} ${E131} ${BCM} ${LEVELDB} ${PROTOBUF} ${NCURSES})
+target_link_libraries(${MY_TARGET_NAME} ${YAML_CPP_LIBRARY} ${E131} ${BCM} ${LEVELDB} ${PROTOBUF})
 target_link_libraries(${MY_TARGET_NAME} ${CMAKE_SOURCE_DIR}/lib/libws2811.a)
 target_link_libraries(${MY_TARGET_NAME} ${Boost_LIBRARIES})
