@@ -40,19 +40,7 @@ void Apa102Strip::send_color(Pixel t_pixel, uint8_t t_brightness){
 }
 
 Apa102Strip::Apa102Strip(bool* t_running) : LEDStrip(t_running){
-	BOOST_LOG_TRIVIAL(info) << "Setup";
-  
-    //buffer.resize(125);
-    //for (auto i = 0; i < buffer.size(); ++i)
-    //{
-//	auto& pixel = buffer[i];
-//        pixel.r = buffer.size() - i;
-//        pixel.g = 0;
-//        pixel.b = i;
-//    }
-
-    //bcm2835_set_debug(1);
-    	//Initiate the SPI Data Frame
+    //Initiate the SPI Data Frame
     if (!bcm2835_init()){
       BOOST_LOG_TRIVIAL(error) << "bcm2835_init failed";
     }
