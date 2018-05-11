@@ -140,11 +140,11 @@ int main(int argc, char* argv[]) {
             e131.register_update_fn(boost::bind(&Playback::push_frame, playback, _1));
         }
 
-        char userInput;
-        while(running == true){
-            std::cin >> userInput;
-            BOOST_LOG_TRIVIAL(info) << "Inputted: " << userInput;
-        }
+        // char userInput;
+        // while(running == true){
+        //     std::cin >> userInput;
+        //     BOOST_LOG_TRIVIAL(info) << "Inputted: " << userInput;
+        // }
         
 
         threads.join_all();

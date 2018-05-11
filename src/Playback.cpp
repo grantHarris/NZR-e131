@@ -133,12 +133,12 @@ void Playback::set_state(PlaybackState state){
 void Playback::record_loop(){
     BOOST_LOG_TRIVIAL(info) << "Record loop starting";
     boost::unique_lock<boost::mutex> lock(frame_mutex);
-    while(current_state == PlaybackState::RECORDING)
+    while(current_state == PlaybackState::RECORDING && *running == true)
     {
 
         while(frame_queue.empty())
         {
-            if(current_state == PlaybackState::RECORDING){
+            if(current_state == PlaybackState::RECORDING && *running == true){
                 wait_for_frame.wait(lock);
             }else{
                 lock.unlock();
