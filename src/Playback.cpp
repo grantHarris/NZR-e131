@@ -155,7 +155,7 @@ void Playback::record_loop(){
         frame.SerializeToString(&output);
         db->Put(leveldb::WriteOptions(), index.playhead, output);
         frame_queue.pop();
-        BOOST_LOG_TRIVIAL(debug) << "Record frame at: " << index.playhead;
+        BOOST_LOG_TRIVIAL(info) << "Record frame at: " << index.playhead;
     }
 
 }
