@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <ncurses.h>
 
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
@@ -21,8 +22,6 @@
 
 #include "yaml-cpp/yaml.h"
 #include <boost/log/utility/setup/file.hpp>
-
-#include <ncurses.h>
 
 #include "E131.h"
 #include "LEDStrip.h"
