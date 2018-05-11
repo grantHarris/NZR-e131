@@ -22,6 +22,8 @@
 #include "yaml-cpp/yaml.h"
 #include <boost/log/utility/setup/file.hpp>
 
+#include <ncurses.h>
+
 #include "E131.h"
 #include "LEDStrip.h"
 #include "APA102Strip.h"
@@ -139,6 +141,18 @@ int main(int argc, char* argv[]) {
             playback->record();
             e131.register_update_fn(boost::bind(&Playback::push_frame, playback, _1));
         }
+
+         char str[80];
+         int row,col;
+
+         initscr();
+         getmaxyx(stdscr,row,col);
+         mvprintw(row/2,(col-strlen(mesg))/2,"%s",mesg);
+
+         getstr(str);
+         mvprintw(LINES - 2, 0, "You Entered: %s", str);
+         getch();
+         endwin();
 
         threads.join_all();
 
