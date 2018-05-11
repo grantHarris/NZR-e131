@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <ncurses.h>
 
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
@@ -28,6 +27,8 @@
 #include "APA102Strip.h"
 #include "WS2811Strip.h"
 #include "Playback.h"
+
+#include <ncurses.h>
 
 namespace po = boost::program_options;
 using namespace boost::log;
