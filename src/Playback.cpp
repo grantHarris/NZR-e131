@@ -27,8 +27,11 @@ void Playback::push_frame(std::vector<Pixel> const& t_pixels){
     
     for(std::vector<Pixel>::iterator it = t_pixels->begin(); it != t_pixels->end(); it++){
         pixel->set_r(*it.r);
+        BOOST_LOG_TRIVIAL(debug) << "Set r: " << *it.r;
         pixel->set_g(*it.g);
+        BOOST_LOG_TRIVIAL(debug) << "Set g: " << *it.g;
         pixel->set_b(*it.b);
+        BOOST_LOG_TRIVIAL(debug) << "Set b: " << *it.b;
     }
 
     frame_queue.push(frame);
