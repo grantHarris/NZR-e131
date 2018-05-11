@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
 
         char userInput;
         while(*running == true){
-            cin >> userInput;
+            std::cin >> userInput;
             BOOST_LOG_TRIVIAL(info) << "Inputted: " << userInput;
         }
         
