@@ -146,7 +146,7 @@ int main(int argc, char* argv[]) {
          //initscr();
          //getstr(str);
          //mvprintw(LINES - 2, 0, "You Entered: %s", str);
-         BOOST_LOG_TRIVIAL(info) << getch();
+         //BOOST_LOG_TRIVIAL(info) << getch();
          //endwin();
 
         threads.join_all();
