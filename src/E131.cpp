@@ -107,7 +107,12 @@ void E131::map_to_buffer(e131_packet_t &packet){
 	}
 
     }
-    callback(pixels);
+    try{
+        callback(pixels);
+    }
+    catch (std::bad_function_call& e){
+        BOOST_LOG_TRIVIAL(warning) << "Bad function call in map to buffer callback\n";
+    }
 }
 
 void E131::save_to_file(e131_packet_t &packet){
