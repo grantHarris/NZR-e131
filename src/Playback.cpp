@@ -28,12 +28,12 @@ void Playback::push_frame(std::vector<Pixel> const& t_pixels){
     int i = 0;  // counter.
 
     for(it = t_pixels.begin(); it != t_pixels.end(); it++, i++ ){
-        pixel->set_r(*it->r);
-        BOOST_LOG_TRIVIAL(debug) << "Set r: " << *it->r;
-        pixel->set_g(*it->g);
-        BOOST_LOG_TRIVIAL(debug) << "Set g: " << *it->g;
-        pixel->set_b(*it->b);
-        BOOST_LOG_TRIVIAL(debug) << "Set b: " << *it->b;
+        pixel->set_r((*it).r);
+        BOOST_LOG_TRIVIAL(debug) << "Set r: " << (*it).r;
+        pixel->set_g((*it).g);
+        BOOST_LOG_TRIVIAL(debug) << "Set g: " << (*it).g;
+        pixel->set_b((*it).b);
+        BOOST_LOG_TRIVIAL(debug) << "Set b: " << (*it).b;
     }
 
     frame_queue.push(frame);
