@@ -138,8 +138,8 @@ int main(int argc, char* argv[]) {
         if (vm.count("save_location")) {
             BOOST_LOG_TRIVIAL(info) << "Save location: " << vm["save_location"].as<std::string>();
             playback = new Playback(vm["save_location"].as<std::string>(), &running);
-            playback->record();
             e131.register_update_fn(boost::bind(&Playback::push_frame, playback, _1));
+            playback->record();
         }
         initscr();
         while(running == true){
