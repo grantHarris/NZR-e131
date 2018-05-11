@@ -28,6 +28,8 @@
 #include "WS2811Strip.h"
 #include "Playback.h"
 
+#include <ncurses/curses.h>
+
 namespace po = boost::program_options;
 using namespace boost::log;
 namespace logging = boost::log;
