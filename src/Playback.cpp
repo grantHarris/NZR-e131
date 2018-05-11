@@ -135,22 +135,16 @@ void Playback::record_loop(){
     boost::unique_lock<boost::mutex> lock(frame_mutex);
     while(current_state == PlaybackState::RECORDING)
     {
-        BOOST_LOG_TRIVIAL(info) << "Recording 1";
 
         while(frame_queue.empty())
         {
-            BOOST_LOG_TRIVIAL(info) << "Recording 2";
             if(current_state == PlaybackState::RECORDING){
-                BOOST_LOG_TRIVIAL(info) << "Recording 3";
                 wait_for_frame.wait(lock);
-                BOOST_LOG_TRIVIAL(info) << "Recording 4";
             }else{
-                BOOST_LOG_TRIVIAL(info) << "Recording 5";
                 lock.unlock();
                 break;
             }
         }
-        BOOST_LOG_TRIVIAL(info) << "Recording 6";
 
         auto end_time = std::chrono::steady_clock::now();
         std::chrono::duration<double> position =  end_time - start_time;
@@ -161,7 +155,7 @@ void Playback::record_loop(){
         frame.SerializeToString(&output);
         db->Put(leveldb::WriteOptions(), index.playhead, output);
         frame_queue.pop();
-        BOOST_LOG_TRIVIAL(info) << "Record frame at: " << index.playhead;
+        BOOST_LOG_TRIVIAL(debug) << "Record frame at: " << index.playhead;
     }
 
 }
