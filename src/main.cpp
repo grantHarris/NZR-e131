@@ -141,12 +141,12 @@ int main(int argc, char* argv[]) {
             e131.register_update_fn(boost::bind(&Playback::push_frame, playback, _1));
             playback->record();
         }
-        initscr();
+        //initscr();
         while(running == true){
             char c = getch();
             printf("Char: %c\n", c);
         }
-        endwin();
+        //endwin();
         
 
         threads.join_all();
