@@ -142,12 +142,12 @@ int main(int argc, char* argv[]) {
             e131.register_update_fn(boost::bind(&Playback::push_frame, playback, _1));
         }
 
-         char str[80];
-         initscr();
-         getstr(str);
-         mvprintw(LINES - 2, 0, "You Entered: %s", str);
-         getch();
-         endwin();
+         // char str[80];
+         // initscr();
+         // getstr(str);
+         // mvprintw(LINES - 2, 0, "You Entered: %s", str);
+         // getch();
+         // endwin();
 
         threads.join_all();
 
