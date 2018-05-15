@@ -152,7 +152,7 @@ int main(int argc, char* argv[]) {
             
             if (vm.count("save_location")) {
                 BOOST_LOG_TRIVIAL(info) << "Save location: " << vm["save_location"].as<std::string>();
-                plaback.set_save_location(vm["save_location"].as<std::string>());
+                playback.set_save_location(vm["save_location"].as<std::string>());
             }
 
                 
@@ -190,7 +190,7 @@ int main(int argc, char* argv[]) {
         }
 
         if(running == false){
-            plaback.stop()
+            playback.stop()
             e131.stop();
             apa102_strip.stop();
         }
