@@ -135,7 +135,7 @@ void Playback::live(){
         e131.receive_data();
     });
 
-    thread_list.push_back(std::move(e131_receive_data_thread));
+    //thread_list.push_back(std::move(e131_receive_data_thread));
 }
 
 /**
