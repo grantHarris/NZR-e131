@@ -8,6 +8,7 @@
 #include <vector>
 #include <queue>
 #include <string>
+#include <utility>
 
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
