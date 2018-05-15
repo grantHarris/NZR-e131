@@ -26,6 +26,8 @@
 
 #include "LEDStrip.h"
 #include "Stoppable.h"
+#include "LEDStrip.h"
+#include "APA102Strip.h"
 
 using namespace boost::log;
 namespace logging = boost::log;
@@ -57,6 +59,9 @@ class Playback : public Stoppable {
         std::queue<nzr::Frame> frame_queue;
         void set_state(PlaybackState state);
     private:
+        E131 e131;
+        Apa102Strip apa102_strip;
+
         mutable std::mutex frame_mutex;
         mutable std::mutex state_mutex;
         void play_from_file_thread();

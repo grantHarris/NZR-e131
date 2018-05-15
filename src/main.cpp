@@ -90,9 +90,6 @@ void setup_logging(po::variables_map& vm){
 
 int main(int argc, char* argv[]) {
         
-    Apa102Strip apa102_strip;
-    Playback playback;
-    std::vector<std::thread> thread_list;
 
     try {
         
@@ -121,11 +118,9 @@ int main(int argc, char* argv[]) {
         config = YAML::LoadFile(vm["config"].as<std::string>());
 
         E131 e131(config);
-        std::thread e131_receive_data_thread([&](){
-            e131.receive_data();
-        });
-
-        thread_list.push_back(std::move(e131_receive_data_thread));
+        Apa102Strip apa102_strip;
+        Playback playback(e131, apa102_strip);
+        std::vector<std::thread> thread_list;
 
         if(vm.count("stats")){
             BOOST_LOG_TRIVIAL(info) << "Stats enabled";
@@ -134,60 +129,49 @@ int main(int argc, char* argv[]) {
             });
             thread_list.push_back(std::move(e131_stats_thread));
         }
-        
-        if(config["strip_type"].as<std::string>() == "APA102"){
-            BOOST_LOG_TRIVIAL(info) << "Using APA102 strip";
-            std::thread apa102_pop_and_display_frame_thread([&](){
-                apa102_strip.pop_and_display_frame();
-            });
-            thread_list.push_back(std::move(apa102_pop_and_display_frame_thread));
 
-            BOOST_LOG_TRIVIAL(debug) << "APA102 strip set up";
-         
-            // while(running == true){
-            //     std::unique_lock<std::mutex> mlock(e131.frame_mutex);
-            //     e131.wait_for_frame.wait(mlock);
-            //     apa102_strip.push_frame(e131.pixels);
-            // }
-            
-            if (vm.count("save_location")) {
-                BOOST_LOG_TRIVIAL(info) << "Save location: " << vm["save_location"].as<std::string>();
-                playback.set_save_location(vm["save_location"].as<std::string>());
-            }
-
-                
-            initscr();
-            while(running == true){
-                char c = getch();
-                switch(c){
-                    case 'r':
-                        playback.record();
-                    break;
-                    case 'p':
-                        playback.play();
-                    break;
-                    case 'a':
-                        playback.pause();
-                    break;
-                    case 's':
-                        playback.stop();
-                    break;
-                }
-            }
-            endwin();
-
-
-        }else{
-           BOOST_LOG_TRIVIAL(info) << "Using WS2811 strip";
- //          WS2811Strip ws2811_strip(config);
- //          BOOST_LOG_TRIVIAL(debug) << "WS2811 strip set up";
- //          while(running == true){
- //               while(e131.wait_for_frame){
- //                   wait();
- //               }
- //               ws2811_strip.push_frame(e131.pixels);
- //           }
+        if (vm.count("save_location")) {
+            BOOST_LOG_TRIVIAL(info) << "Save location: " << vm["save_location"].as<std::string>();
+            playback.set_save_location(vm["save_location"].as<std::string>());
         }
+
+    
+        BOOST_LOG_TRIVIAL(info) << "Using APA102 strip";
+        
+        std::thread apa102_pop_and_display_frame_thread([&](){
+            apa102_strip.pop_and_display_frame();
+        });
+        
+        thread_list.push_back(std::move(apa102_pop_and_display_frame_thread));
+
+        BOOST_LOG_TRIVIAL(debug) << "APA102 strip set up";
+     
+        // while(running == true){
+        //     std::unique_lock<std::mutex> mlock(e131.frame_mutex);
+        //     e131.wait_for_frame.wait(mlock);
+        //     apa102_strip.push_frame(e131.pixels);
+        // }
+        
+            
+        initscr();
+        while(running == true){
+            char c = getch();
+            switch(c){
+                case 'r':
+                    playback.record();
+                break;
+                case 'p':
+                    playback.play();
+                break;
+                case 'a':
+                    playback.pause();
+                break;
+                case 's':
+                    playback.stop();
+                break;
+            }
+        }
+        endwin();
 
         if(running == false){
             playback.stop();

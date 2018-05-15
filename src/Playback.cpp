@@ -6,7 +6,7 @@
  * 
  * @param file_name Location of the leveldb directory
  */
-Playback::Playback() {
+Playback::Playback(E131& t_e131, Apa102Strip t_apa102_strip) : e131(t_e131), apa102_strip(t_apa102_strip){
     current_state = PlaybackState::STOPPED;
     playhead = new std::string("0");
     current_state = PlaybackState::STOPPED;
@@ -21,6 +21,10 @@ void Playback::set_save_location(std::string file_name){
     //eventually load from config/saved state
     playhead = new std::string("0");
     current_state = PlaybackState::STOPPED;
+}
+
+void Playback::set_e131(E131& e131){
+
 }
 
 void Playback::push_frame(std::vector<Pixel>& t_pixels){
@@ -126,6 +130,14 @@ void Playback::stop(){
     index.playhead.assign("0");
 }
 
+void Playback::live(){
+    std::thread e131_receive_data_thread([&](){
+        e131.receive_data();
+    });
+
+    thread_list.push_back(std::move(e131_receive_data_thread));
+}
+
 /**
  * @brief Set the current state of playback. eg Playing
  * @details [long description]
@@ -204,6 +216,7 @@ void Playback::play_from_file_thread(){
 
 
 void Playback::live_stream_thread(){
+
     while (stop_requested() == false){
         // std::unique_lock<std::mutex> mlock(e131.frame_mutex);
         // e131.wait_for_frame.wait(mlock);
