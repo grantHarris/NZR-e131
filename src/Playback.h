@@ -62,6 +62,7 @@ class Playback : public Stoppable {
         void toggle_loop(bool t_loop);
         std::queue<nzr::Frame> frame_queue;
         void set_state(PlaybackState state);
+        std::vector<std::thread> thread_list;
     private:
         E131&& e131;
         Apa102Strip&& apa102_strip;

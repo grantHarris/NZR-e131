@@ -133,11 +133,11 @@ void Playback::live(){
         e131.receive_data();
     });
 
-    std::thread live_stream_thread([&](){
-        this->live_stream_thread();
-    });
+    thread_list.push_back(std::move(e131_receive_data_thread));
 
-    //thread_list.push_back(std::move(e131_receive_data_thread));
+    // std::thread live_stream_thread([&](){
+    //     this->live_stream_thread();
+    // });
 }
 
 /**
