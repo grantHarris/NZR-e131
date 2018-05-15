@@ -49,7 +49,7 @@ struct Index{
 
 class Playback : public Stoppable {
     public:
-        Playback(E131& t_e131, Apa102Strip& t_apa102_strip);
+        Playback(E131&& t_e131, Apa102Strip&& t_apa102_strip);
         ~Playback();
         void set_save_location(std::string file_name);
         void push_frame(std::vector<Pixel>& t_pixels);
@@ -62,8 +62,8 @@ class Playback : public Stoppable {
         std::queue<nzr::Frame> frame_queue;
         void set_state(PlaybackState state);
     private:
-        E131 e131;
-        Apa102Strip apa102_strip;
+        // E131 e131;
+        // Apa102Strip apa102_strip;
 
         mutable std::mutex frame_mutex;
         mutable std::mutex state_mutex;

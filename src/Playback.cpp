@@ -6,7 +6,7 @@
  * 
  * @param file_name Location of the leveldb directory
  */
-Playback::Playback(E131& t_e131, Apa102Strip& t_apa102_strip){
+Playback::Playback(E131&& t_e131, Apa102Strip&& t_apa102_strip){
     current_state = PlaybackState::STOPPED;
     playhead = new std::string("0");
     current_state = PlaybackState::STOPPED;
@@ -128,9 +128,9 @@ void Playback::stop(){
 }
 
 void Playback::live(){
-    std::thread e131_receive_data_thread([&](){
-        e131.receive_data();
-    });
+    // std::thread e131_receive_data_thread([&](){
+    //     e131.receive_data();
+    // });
 
     //thread_list.push_back(std::move(e131_receive_data_thread));
 }
