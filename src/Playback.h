@@ -63,8 +63,8 @@ class Playback : public Stoppable {
         std::queue<nzr::Frame> frame_queue;
         void set_state(PlaybackState state);
     private:
-        // E131 e131;
-        // Apa102Strip apa102_strip;
+        E131 e131;
+        Apa102Strip apa102_strip;
 
         mutable std::mutex frame_mutex;
         mutable std::mutex state_mutex;
