@@ -102,6 +102,7 @@ void Playback::pause(){
  * @details [long description]
  */
 void Playback::stop(){
+    this->stop();
     if (current_state == PlaybackState::RECORDING){
         BOOST_LOG_TRIVIAL(info) << "Stopping recording";
         if(record_thread->joinable()){
