@@ -26,6 +26,8 @@
 #include <mutex>
 #include <future>
 
+#include <ncurses.h>
+
 #include "E131.h"
 #include "LEDStrip.h"
 #include "APA102Strip.h"
