@@ -29,6 +29,8 @@
 #include "LEDStrip.h"
 #include "APA102Strip.h"
 
+#include "E131.h"
+
 using namespace boost::log;
 namespace logging = boost::log;
 
