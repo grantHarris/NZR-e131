@@ -190,7 +190,7 @@ int main(int argc, char* argv[]) {
         }
 
         if(running == false){
-            playback.stop()
+            playback.stop();
             e131.stop();
             apa102_strip.stop();
         }
