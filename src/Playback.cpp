@@ -6,7 +6,13 @@
  * 
  * @param file_name Location of the leveldb directory
  */
-Playback::Playback(std::string file_name) {
+Playback::Playback() {
+    current_state = PlaybackState::STOPPED;
+    playhead = new std::string("0");
+    current_state = PlaybackState::STOPPED;
+}
+
+void Playback::set_save_location(std::string file_name){
     leveldb::Options options;
     options.create_if_missing = true;
     leveldb::Status status = leveldb::DB::Open(options, file_name, &db);

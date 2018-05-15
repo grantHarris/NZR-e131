@@ -136,11 +136,40 @@ int main(int argc, char* argv[]) {
 
             BOOST_LOG_TRIVIAL(debug) << "APA102 strip set up";
          
-            while(running == true){
-                std::unique_lock<std::mutex> mlock(e131.frame_mutex);
-                e131.wait_for_frame.wait(mlock);
-                apa102_strip.push_frame(e131.pixels);
+            // while(running == true){
+            //     std::unique_lock<std::mutex> mlock(e131.frame_mutex);
+            //     e131.wait_for_frame.wait(mlock);
+            //     apa102_strip.push_frame(e131.pixels);
+            // }
+            
+            playback = new Playback();
+            
+            if (vm.count("save_location")) {
+                BOOST_LOG_TRIVIAL(info) << "Save location: " << vm["save_location"].as<std::string>();
+                plaback->set_save_location(vm["save_location"].as<std::string>());
             }
+
+                
+            initscr();
+            while(running == true){
+                char c = getch();
+                switch(c){
+                    case 'r':
+                        playback->record();
+                    break;
+                    case 'p':
+                        playback->play();
+                    break;
+                    case 'a':
+                        playback->pause();
+                    break;
+                    case 's':
+                        playback->stop();
+                    break;
+                }
+            }
+            endwin();
+
 
         }else{
            BOOST_LOG_TRIVIAL(info) << "Using WS2811 strip";
@@ -155,6 +184,7 @@ int main(int argc, char* argv[]) {
         }
 
         if(running == false){
+            plaback.stop()
             e131.stop();
             apa102_strip.stop();
         }
