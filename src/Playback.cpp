@@ -23,9 +23,6 @@ void Playback::set_save_location(std::string file_name){
     current_state = PlaybackState::STOPPED;
 }
 
-void Playback::set_e131(E131& e131){
-
-}
 
 void Playback::push_frame(std::vector<Pixel>& t_pixels){
     std::unique_lock<std::mutex> lock(frame_mutex);
