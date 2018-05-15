@@ -169,7 +169,7 @@ void Playback::record_to_file_thread(){
  */
 void Playback::play_from_file_thread(){
     BOOST_LOG_TRIVIAL(info) << "Play loop starting";
-    boost::unique_lock<boost::mutex> lock(frame_mutex);
+    std::unique_lock<std::mutex> lock(frame_mutex);
     leveldb::Iterator* it = db->NewIterator(leveldb::ReadOptions());
     while((stop_requested() == false && current_state == PlaybackState::PLAYING)){
         for (it->Seek(index.playhead); current_state == PlaybackState::PLAYING, it->Valid(); it->Next()) {
@@ -189,7 +189,6 @@ void Playback::play_from_file_thread(){
 
             //frame.ParseFromString(&data)
             frame_queue.push(frame);
-            lock.unlock();
             wait_for_frame.notify_one();
         }
     }
