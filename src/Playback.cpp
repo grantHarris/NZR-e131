@@ -126,9 +126,8 @@ void Playback::stop(){
  * @param state [description]
  */
 void Playback::set_state(PlaybackState state){
-    boost::unique_lock<boost::mutex> lock(state_mutex);
+    std::unique_lock<std::mutex> lock(state_mutex);
     current_state = state;
-    lock.unlock();
 }
 
 
@@ -138,7 +137,7 @@ void Playback::set_state(PlaybackState state){
  */
 void Playback::record_thread(){
     BOOST_LOG_TRIVIAL(info) << "Record loop starting";
-    boost::unique_lock<boost::mutex> lock(frame_mutex);
+    std::unique_lock<std::mutex> lock(frame_mutex);
     while(stop_requested() == false && current_state == PlaybackState::RECORDING)
     {
         while(frame_queue.empty())
@@ -146,7 +145,6 @@ void Playback::record_thread(){
             if(stop_requested() == false && current_state == PlaybackState::RECORDING){
                 wait_for_frame.wait(lock);
             }else{
-                lock.unlock();
                 break;
             }
         }
