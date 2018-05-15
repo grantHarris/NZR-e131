@@ -179,7 +179,7 @@ void Playback::play_from_file_thread(){
                 double current = boost::lexical_cast<double>(it->key().ToString());
                 double last = boost::lexical_cast<double>(index.playhead);
 
-                //usleep((current - last) * 1000000);
+                std::this_thread::sleep_for(std::chrono::seconds((current - last)));
                 index.playhead = current;
                 BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
 
