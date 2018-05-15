@@ -57,6 +57,7 @@ class Playback : public Stoppable {
         void play();
         void stop();
         void pause();
+        void live();
         void toggle_loop(bool t_loop);
         std::queue<nzr::Frame> frame_queue;
         void set_state(PlaybackState state);
