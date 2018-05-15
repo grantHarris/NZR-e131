@@ -29,6 +29,8 @@
 #include "E131.h"
 #include "LEDStrip.h"
 #include "APA102Strip.h"
+#include "Playback.h"
+
 //#include "WS2811Strip.h"
 
 namespace po = boost::program_options;
@@ -142,11 +144,11 @@ int main(int argc, char* argv[]) {
             //     apa102_strip.push_frame(e131.pixels);
             // }
             
-            playback = new Playback();
+            Playback playback();
             
             if (vm.count("save_location")) {
                 BOOST_LOG_TRIVIAL(info) << "Save location: " << vm["save_location"].as<std::string>();
-                plaback->set_save_location(vm["save_location"].as<std::string>());
+                plaback.set_save_location(vm["save_location"].as<std::string>());
             }
 
                 
@@ -155,16 +157,16 @@ int main(int argc, char* argv[]) {
                 char c = getch();
                 switch(c){
                     case 'r':
-                        playback->record();
+                        playback.record();
                     break;
                     case 'p':
-                        playback->play();
+                        playback.play();
                     break;
                     case 'a':
-                        playback->pause();
+                        playback.pause();
                     break;
                     case 's':
-                        playback->stop();
+                        playback.stop();
                     break;
                 }
             }
