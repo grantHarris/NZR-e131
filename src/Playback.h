@@ -58,8 +58,9 @@ class Playback : public Stoppable {
     private:
         mutable std::mutex frame_mutex;
         mutable std::mutex state_mutex;
-        void play_loop();
-        void record_loop();
+        void play_thread();
+        void record_thread();
+        void live_thread();
         bool loop;
         Index index;
         std::chrono::time_point<std::chrono::steady_clock> start_time;
