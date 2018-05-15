@@ -49,7 +49,7 @@ struct Index{
 
 class Playback : public Stoppable {
     public:
-        Playback();
+        Playback(E131& t_e131, Apa102Strip& t_apa102_strip);
         ~Playback();
         void set_save_location(std::string file_name);
         void push_frame(std::vector<Pixel>& t_pixels);
