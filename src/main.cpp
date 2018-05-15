@@ -1,3 +1,4 @@
+
 #include <utility>
 #include <cstdio>
 #include <stdexcept>
@@ -26,12 +27,13 @@
 #include <mutex>
 #include <future>
 
-#include <ncurses.h>
-
 #include "E131.h"
 #include "LEDStrip.h"
 #include "APA102Strip.h"
 #include "Playback.h"
+
+#include <ncurses.h>
+
 
 //#include "WS2811Strip.h"
 
@@ -91,7 +93,7 @@ int main(int argc, char* argv[]) {
     Apa102Strip apa102_strip;
     Playback playback;
     std::vector<std::thread> thread_list;
-    
+
     try {
         
         setup_handlers();
