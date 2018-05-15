@@ -87,6 +87,11 @@ void setup_logging(po::variables_map& vm){
 }
 
 int main(int argc, char* argv[]) {
+        
+    Apa102Strip apa102_strip;
+    Playback playback;
+    std::vector<std::thread> thread_list;
+    
     try {
         
         setup_handlers();
@@ -113,10 +118,7 @@ int main(int argc, char* argv[]) {
         BOOST_LOG_TRIVIAL(info) << "Using config file " << vm["config"].as<std::string>();
         config = YAML::LoadFile(vm["config"].as<std::string>());
 
-        std::vector<std::thread> thread_list;
         E131 e131(config);
-        Apa102Strip apa102_strip;
-
         std::thread e131_receive_data_thread([&](){
             e131.receive_data();
         });
@@ -145,8 +147,6 @@ int main(int argc, char* argv[]) {
             //     e131.wait_for_frame.wait(mlock);
             //     apa102_strip.push_frame(e131.pixels);
             // }
-            
-            Playback playback();
             
             if (vm.count("save_location")) {
                 BOOST_LOG_TRIVIAL(info) << "Save location: " << vm["save_location"].as<std::string>();
