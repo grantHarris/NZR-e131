@@ -135,7 +135,7 @@ void Playback::set_state(PlaybackState state){
  * @brief Record loop function
  * @details [long description]
  */
-void Playback::record_thread(){
+void Playback::record_to_file_thread(){
     BOOST_LOG_TRIVIAL(info) << "Record loop starting";
     std::unique_lock<std::mutex> lock(frame_mutex);
     while(stop_requested() == false && current_state == PlaybackState::RECORDING)
@@ -167,7 +167,7 @@ void Playback::record_thread(){
  * @brief Playback loop function
  * @details Loops through the leveldb file with an iterator
  */
-void Playback::play_thread(){
+void Playback::play_from_file_thread(){
     BOOST_LOG_TRIVIAL(info) << "Play loop starting";
     boost::unique_lock<boost::mutex> lock(frame_mutex);
     leveldb::Iterator* it = db->NewIterator(leveldb::ReadOptions());
@@ -197,7 +197,7 @@ void Playback::play_thread(){
 }
 
 
-void Playback::live_thread(){
+void Playback::live_stream_thread(){
     while (stop_requested() == false){
         std::unique_lock<std::mutex> mlock(e131.frame_mutex);
         e131.wait_for_frame.wait(mlock);
