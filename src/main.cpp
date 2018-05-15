@@ -167,7 +167,7 @@ int main(int argc, char* argv[]) {
                     playback.pause();
                 break;
                 case 's':
-                    playback.stop();
+                    playback.stop_play();
                 break;
             }
         }

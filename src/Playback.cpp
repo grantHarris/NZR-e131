@@ -108,7 +108,8 @@ void Playback::pause(){
  * @brief Stops playback
  * @details [long description]
  */
-void Playback::stop(){
+void Playback::stop_play(){
+    BOOST_LOG_TRIVIAL(info) << "Stop";
     this->stop();
     if (current_state == PlaybackState::RECORDING){
         BOOST_LOG_TRIVIAL(info) << "Stopping recording";
