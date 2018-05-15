@@ -198,9 +198,9 @@ void Playback::play_from_file_thread(){
 
 void Playback::live_stream_thread(){
     while (stop_requested() == false){
-        std::unique_lock<std::mutex> mlock(e131.frame_mutex);
-        e131.wait_for_frame.wait(mlock);
-        apa102_strip.push_frame(e131.pixels);
+        // std::unique_lock<std::mutex> mlock(e131.frame_mutex);
+        // e131.wait_for_frame.wait(mlock);
+        // apa102_strip.push_frame(e131.pixels);
     }
 }
 
