@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
 
         E131 e131(config);
         Apa102Strip apa102_strip;
-        Playback playback(e131, apa102_strip);
+        Playback playback(std::move(e131), std::move(apa102_strip));
         std::vector<std::thread> thread_list;
 
         if(vm.count("stats")){
