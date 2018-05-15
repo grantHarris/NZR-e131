@@ -6,7 +6,7 @@
  * 
  * @param file_name Location of the leveldb directory
  */
-Playback::Playback(E131& t_e131, Apa102Strip t_apa102_strip) : e131(t_e131), apa102_strip(t_apa102_strip){
+Playback::Playback(E131& t_e131, Apa102Strip& t_apa102_strip) : e131(t_e131), apa102_strip(t_apa102_strip){
     current_state = PlaybackState::STOPPED;
     playhead = new std::string("0");
     current_state = PlaybackState::STOPPED;
