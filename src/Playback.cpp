@@ -48,7 +48,7 @@ void Playback::record(){
     if(current_state == PlaybackState::STOPPED){
         //start new playback thread
         record_thread = new std::thread([&](){
-            this->record_loop();
+            this->record_to_file_thread();
         });
         start_time = std::chrono::steady_clock::now();
     }
@@ -80,7 +80,7 @@ void Playback::play(){
     if(current_state == PlaybackState::STOPPED){
         //start new playback thread
         record_thread = new std::thread([&](){
-            this->play_loop();
+            this->play_from_file_thread();
         });
     }
 
