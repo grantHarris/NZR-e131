@@ -18,7 +18,7 @@ Playback::Playback(std::string file_name) {
 }
 
 void Playback::push_frame(std::vector<Pixel>& t_pixels){
-    boost::unique_lock<boost::mutex> lock(frame_mutex);
+    std::unique_lock<std::mutex> lock(frame_mutex);
     nzr::Frame frame;
     
     nzr::Pixel* pixel = frame.add_pixels();
