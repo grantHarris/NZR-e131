@@ -6,7 +6,7 @@
  * 
  * @param file_name Location of the leveldb directory
  */
-Playback::Playback(std::string file_name, bool *t_running) : running(t_running) {
+Playback::Playback(std::string file_name) {
     leveldb::Options options;
     options.create_if_missing = true;
     leveldb::Status status = leveldb::DB::Open(options, file_name, &db);
@@ -47,7 +47,9 @@ void Playback::record(){
     
     if(current_state == PlaybackState::STOPPED){
         //start new playback thread
-        record_thread = new boost::thread(boost::bind(&Playback::record_loop, this));
+        record_thread = new std::thread([&](){
+            this->record_loop();
+        });
         start_time = std::chrono::steady_clock::now();
     }
     BOOST_LOG_TRIVIAL(info) << "Starting recording";
@@ -77,7 +79,9 @@ void Playback::play(){
 
     if(current_state == PlaybackState::STOPPED){
         //start new playback thread
-        playback_thread = new boost::thread(boost::bind(&Playback::play_loop, this));
+        record_thread = new std::thread([&](){
+            this->play_loop();
+        });
     }
 
     BOOST_LOG_TRIVIAL(info) << "Starting playing";
@@ -100,11 +104,15 @@ void Playback::pause(){
 void Playback::stop(){
     if (current_state == PlaybackState::RECORDING){
         BOOST_LOG_TRIVIAL(info) << "Stopping recording";
-        record_thread->join();
+        if(record_thread->joinable()){
+            record_thread->join();
+        }
     }
     if (current_state == PlaybackState::PLAYING){
         BOOST_LOG_TRIVIAL(info) << "Stopping playing";
-        playback_thread->join();
+        if(playback_thread->joinable()){
+            playback_thread->join();
+        }
     }
     BOOST_LOG_TRIVIAL(info) << "Stopping";
     this->set_state(PlaybackState::STOPPED);
@@ -128,15 +136,14 @@ void Playback::set_state(PlaybackState state){
  * @brief Record loop function
  * @details [long description]
  */
-void Playback::record_loop(){
+void Playback::record_thread(){
     BOOST_LOG_TRIVIAL(info) << "Record loop starting";
     boost::unique_lock<boost::mutex> lock(frame_mutex);
-    while(current_state == PlaybackState::RECORDING && *running == true)
+    while(stop_requested() == false && current_state == PlaybackState::RECORDING)
     {
-
         while(frame_queue.empty())
         {
-            if(current_state == PlaybackState::RECORDING && *running == true){
+            if(stop_requested() == false && current_state == PlaybackState::RECORDING){
                 wait_for_frame.wait(lock);
             }else{
                 lock.unlock();
@@ -162,11 +169,11 @@ void Playback::record_loop(){
  * @brief Playback loop function
  * @details Loops through the leveldb file with an iterator
  */
-void Playback::play_loop(){
+void Playback::play_thread(){
     BOOST_LOG_TRIVIAL(info) << "Play loop starting";
     boost::unique_lock<boost::mutex> lock(frame_mutex);
     leveldb::Iterator* it = db->NewIterator(leveldb::ReadOptions());
-    while((loop && current_state == PlaybackState::PLAYING)){
+    while((stop_requested() == false && current_state == PlaybackState::PLAYING)){
         for (it->Seek(index.playhead); current_state == PlaybackState::PLAYING, it->Valid(); it->Next()) {
             auto data = it->value().ToString();
             nzr::Frame frame;
@@ -174,7 +181,7 @@ void Playback::play_loop(){
                 double current = boost::lexical_cast<double>(it->key().ToString());
                 double last = boost::lexical_cast<double>(index.playhead);
 
-                usleep((current - last) * 1000000);
+                //usleep((current - last) * 1000000);
                 index.playhead = current;
                 BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
 
@@ -189,6 +196,15 @@ void Playback::play_loop(){
         }
     }
     delete it;
+}
+
+
+void Playback::live_thread(){
+    while (stop_requested() == false){
+        std::unique_lock<std::mutex> mlock(e131.frame_mutex);
+        e131.wait_for_frame.wait(mlock);
+        apa102_strip.push_frame(e131.pixels);
+    }
 }
 
 Playback::~Playback(){

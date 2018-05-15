@@ -6,6 +6,7 @@
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
 
+#include <future>
 #include "LEDStrip.h"
 
 using namespace boost::log;
@@ -13,7 +14,7 @@ namespace logging = boost::log;
 
 class Apa102Strip : public LEDStrip {
 public:
- 	Apa102Strip(bool *t_running);
+ 	Apa102Strip();
 	~Apa102Strip();
  	void set_brightness(uint8_t brightness);
  	void write_pixels_to_strip(std::vector<Pixel> &t_pixels);

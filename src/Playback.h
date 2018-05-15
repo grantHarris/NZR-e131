@@ -15,10 +15,17 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include <condition_variable>
+#include <thread>
+#include <functional>
+#include <mutex>
+#include <future>
+
 #include "leveldb/db.h"
 #include "frame.pb.h"
 
 #include "LEDStrip.h"
+#include "Stoppable.h"
 
 using namespace boost::log;
 namespace logging = boost::log;
@@ -27,6 +34,7 @@ enum class PlaybackState {
     STOPPED,
     PAUSED,
     PLAYING,
+    LIVE,
     RECORDING
 };
 
@@ -35,9 +43,9 @@ struct Index{
     std::string playhead;
 };
 
-class Playback {
+class Playback : public Stoppable {
     public:
-        Playback(std::string file_name, bool *t_running);
+        Playback(std::string file_name);
         ~Playback();
         void push_frame(std::vector<Pixel>& t_pixels);
         void record();
@@ -48,9 +56,8 @@ class Playback {
         std::queue<nzr::Frame> frame_queue;
         void set_state(PlaybackState state);
     private:
-        bool *running;
-        mutable boost::mutex frame_mutex;
-        mutable boost::mutex state_mutex;
+        mutable std::mutex frame_mutex;
+        mutable std::mutex state_mutex;
         void play_loop();
         void record_loop();
         bool loop;
@@ -59,9 +66,9 @@ class Playback {
         std::string* playhead;
         PlaybackState current_state;
         leveldb::DB* db;
-        boost::thread* record_thread;
-        boost::thread* playback_thread;
-        boost::condition_variable wait_for_frame;
+        std::thread* record_thread;
+        std::thread* playback_thread;
+        std::condition_variable wait_for_frame;
 };
 
 #endif /* __Playback_H__ */

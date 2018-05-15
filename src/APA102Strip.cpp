@@ -1,52 +1,16 @@
 #include "APA102Strip.h"
 
-void Apa102Strip::set_brightness(uint8_t t_brightness = 31){
-  brightness = t_brightness;
-}
 
-void Apa102Strip::write_pixels_to_strip(std::vector<Pixel>& t_pixels){
-	Apa102Strip::write(t_pixels, brightness);
-}
-
-void Apa102Strip::write(std::vector<Pixel>& t_pixels, uint8_t t_brightness){
-  Apa102Strip::send_start_frame();
-  for(uint16_t i = 0; i < t_pixels.size(); i++){
-       Apa102Strip::send_color(t_pixels[i], t_brightness);
-  }
-  Apa102Strip::send_end_frame(t_pixels.size());
-}
-
-void Apa102Strip::send_start_frame(){
-  char ledDataBlock[4] = {0};
-  bcm2835_spi_writenb(ledDataBlock, 4);
-}
-
-void Apa102Strip::send_end_frame(uint16_t count){
-  bcm2835_spi_transfer(0xFF);
-  for (uint16_t i = 0; i < 5 + count / 16; i++){
-    bcm2835_spi_transfer(0);
-  }
-}
-
-void Apa102Strip::send_color(uint8_t red, uint8_t green, uint8_t blue, uint8_t brightness){
-  bcm2835_spi_transfer(0b11100000 | brightness);
-  bcm2835_spi_transfer(blue);
-  bcm2835_spi_transfer(green);
-  bcm2835_spi_transfer(red);
-}
-
-void Apa102Strip::send_color(Pixel t_pixel, uint8_t t_brightness){
-  Apa102Strip::send_color(t_pixel.r, t_pixel.g, t_pixel.b, t_brightness);
-}
-
-Apa102Strip::Apa102Strip(bool* t_running) : LEDStrip(t_running){
+Apa102Strip::Apa102Strip(){
     //Initiate the SPI Data Frame
     if (!bcm2835_init()){
       BOOST_LOG_TRIVIAL(error) << "bcm2835_init failed";
+      throw std::string("bcm2835_init failed");
     }
 
     if (!bcm2835_spi_begin()){
       BOOST_LOG_TRIVIAL(error) << "bcm2835_spi_begin failed";
+      throw std::string("bcm2835_init failed");
     }
 
     bcm2835_spi_setBitOrder(BCM2835_SPI_BIT_ORDER_MSBFIRST);      // The default
@@ -83,7 +47,90 @@ Apa102Strip::Apa102Strip(bool* t_running) : LEDStrip(t_running){
     bcm2835_spi_setChipSelectPolarity(BCM2835_SPI_CS0, LOW);
 }
 
- Apa102Strip::~Apa102Strip(){
+/**
+ * @brief Set 5 bit global brightness value for strip
+ * 
+ * @param t_brightness 5 bit brightness value
+ */
+void Apa102Strip::set_brightness(uint8_t t_brightness = 31){
+  brightness = t_brightness;
+}
+
+/**
+ * @brief [brief description]
+ * @details [long description]
+ * 
+ * @param t_brightness [description]
+ */
+void Apa102Strip::write_pixels_to_strip(std::vector<Pixel>& t_pixels){
+	Apa102Strip::write(t_pixels, brightness);
+}
+
+/**
+ * @brief [brief description]
+ * @details [long description]
+ * 
+ * @param t_brightness [description]
+ */
+void Apa102Strip::write(std::vector<Pixel>& t_pixels, uint8_t t_brightness){
+  BOOST_LOG_TRIVIAL(debug) << "send apa102 frame";
+  Apa102Strip::send_start_frame();
+  for(uint16_t i = 0; i < t_pixels.size(); i++){
+       Apa102Strip::send_color(t_pixels[i], t_brightness);
+  }
+  Apa102Strip::send_end_frame(t_pixels.size());
+}
+
+/**
+ * @brief Send four 0x00 bytes for APA102 start frame
+ * 
+ */
+void Apa102Strip::send_start_frame(){
+  char ledDataBlock[4] = {0};
+  bcm2835_spi_writenb(ledDataBlock, 4);
+}
+
+/**
+ * @brief [brief description]
+ * @details [long description]
+ * 
+ * @param count [description]
+ */
+void Apa102Strip::send_end_frame(uint16_t count){
+  bcm2835_spi_transfer(0xFF);
+  for (uint16_t i = 0; i < 5 + count / 16; i++){
+    bcm2835_spi_transfer(0);
+  }
+}
+
+/**
+ * @brief [brief description]
+ * @details [long description]
+ * 
+ * @param red
+ * @param green
+ * @param blue
+ * @param t_brightness [description]
+ */
+void Apa102Strip::send_color(uint8_t red, uint8_t green, uint8_t blue, uint8_t brightness){
+  bcm2835_spi_transfer(0b11100000 | brightness);
+  bcm2835_spi_transfer(blue);
+  bcm2835_spi_transfer(green);
+  bcm2835_spi_transfer(red);
+}
+
+/**
+ * @brief [brief description]
+ * @details [long description]
+ * 
+ * @param t_pixel
+ * @param t_brightness [description]
+ */
+void Apa102Strip::send_color(Pixel t_pixel, uint8_t t_brightness){
+  Apa102Strip::send_color(t_pixel.r, t_pixel.g, t_pixel.b, t_brightness);
+}
+
+Apa102Strip::~Apa102Strip(){
     bcm2835_spi_end();
     bcm2835_close();
 }

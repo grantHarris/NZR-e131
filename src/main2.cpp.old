@@ -1,4 +1,3 @@
-#include <utility>
 #include <cstdio>
 #include <stdexcept>
 
@@ -12,6 +11,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
+
 #include <boost/program_options.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/core.hpp>
@@ -20,23 +22,22 @@
 #include "yaml-cpp/yaml.h"
 #include <boost/log/utility/setup/file.hpp>
 
-#include <condition_variable>
-#include <thread>
-#include <functional>
-#include <mutex>
-#include <future>
-
 #include "E131.h"
 #include "LEDStrip.h"
 #include "APA102Strip.h"
-//#include "WS2811Strip.h"
+#include "WS2811Strip.h"
+#include "Playback.h"
+
+#include <ncurses.h>
 
 namespace po = boost::program_options;
 using namespace boost::log;
 namespace logging = boost::log;
 
+bool running;
 YAML::Node config;
-bool running = true;
+Apa102Strip* apa102_strip;
+Playback* playback;
 
 static void sig_handler(int t_signum){
     (void)(t_signum);
@@ -83,6 +84,7 @@ void setup_logging(po::variables_map& vm){
 }
 
 int main(int argc, char* argv[]) {
+    boost::thread_group threads;
     try {
         
         setup_handlers();
@@ -91,6 +93,7 @@ int main(int argc, char* argv[]) {
         desc.add_options()
         ("help,h", "Produce help message")
         ("config,c", po::value<std::string>()->default_value("./config.yaml"), "Config file path")
+        ("save_location,s", po::value<std::string>()->default_value("./save"), "Save location")
         ("log,l", po::value<std::string>(), "Logging file path")
         ("stats,s", po::value<std::string>(), "Output update stats for E1.31 updates")
         ("verbosity,v", po::value<std::string>()->default_value("info"), "Enable verbosity (optionally specify level)");
@@ -109,66 +112,67 @@ int main(int argc, char* argv[]) {
         BOOST_LOG_TRIVIAL(info) << "Using config file " << vm["config"].as<std::string>();
         config = YAML::LoadFile(vm["config"].as<std::string>());
 
-        std::vector<std::thread> thread_list;
         E131 e131(config);
-        Apa102Strip apa102_strip;
+        running = true;
 
-        std::thread e131_receive_data_thread([&](){
-            e131.receive_data();
-        });
-
-        thread_list.push_back(std::move(e131_receive_data_thread));
-
-        if(vm.count("stats")){
-            BOOST_LOG_TRIVIAL(info) << "Stats enabled";
-            std::thread e131_stats_thread([&](){
-                e131.stats_thread();
-            });
-            thread_list.push_back(std::move(e131_stats_thread));
-        }
+        threads.create_thread(boost::bind(&E131::receive_data, &e131, &running));
         
         if(config["strip_type"].as<std::string>() == "APA102"){
             BOOST_LOG_TRIVIAL(info) << "Using APA102 strip";
-            std::thread apa102_pop_and_display_frame_thread([&](){
-                apa102_strip.pop_and_display_frame();
-            });
-            thread_list.push_back(std::move(apa102_pop_and_display_frame_thread));
-
+            apa102_strip = new Apa102Strip(&running);
+            threads.add_thread(apa102_strip->thread);
             BOOST_LOG_TRIVIAL(debug) << "APA102 strip set up";
-         
-            while(running == true){
-                std::unique_lock<std::mutex> mlock(e131.frame_mutex);
-                e131.wait_for_frame.wait(mlock);
-                apa102_strip.push_frame(e131.pixels);
-            }
-
+            //e131.register_update_fn(boost::bind(&Apa102Strip::push_frame, apa102_strip, _1));
         }else{
            BOOST_LOG_TRIVIAL(info) << "Using WS2811 strip";
- //          WS2811Strip ws2811_strip(config);
- //          BOOST_LOG_TRIVIAL(debug) << "WS2811 strip set up";
- //          while(running == true){
- //               while(e131.wait_for_frame){
- //                   wait();
- //               }
- //               ws2811_strip.push_frame(e131.pixels);
- //           }
+           //WS2811Strip ws2811_strip(config);
+           //e131.register_update_fn(boost::bind(&WS2811Strip::push, &ws2811_strip));
+           BOOST_LOG_TRIVIAL(debug) << "WS2811 strip set up";
         }
 
-        if(running == false){
-            e131.stop();
-            apa102_strip.stop();
+        if(vm.count("stats")){
+            BOOST_LOG_TRIVIAL(info) << "Stats enabled";
+            threads.create_thread(boost::bind(&E131::stats_thread, &e131, &running));
         }
 
-        std::for_each(thread_list.begin(), thread_list.end(), std::mem_fn(&std::thread::join));
+        if (vm.count("save_location")) {
+            BOOST_LOG_TRIVIAL(info) << "Save location: " << vm["save_location"].as<std::string>();
+            playback = new Playback(vm["save_location"].as<std::string>(), &running);
+            e131.register_update_fn(boost::bind(&Playback::push_frame, playback, _1));
+            
+            initscr();
+            while(running == true){
+                char c = getch();
+                switch(c){
+                    case 'r':
+                        playback->record();
+                    break;
+                    case 'p':
+                        playback->play();
+                    break;
+                    case 'a':
+                        playback->pause();
+                    break;
+                    case 's':
+                        playback->stop();
+                    break;
+                }
+            }
+            endwin();
+        }
+        
+
+        threads.join_all();
+
     }
 
     catch(std::exception& e) {
         BOOST_LOG_TRIVIAL(fatal) << "Error: " << e.what() << std::endl;
         return 1;
     }
+
     catch(...) {
         BOOST_LOG_TRIVIAL(fatal) << "Exception of unknown type!" << std::endl;
-        return 1;
     }
 
     return 0;

@@ -2,17 +2,22 @@
 #define __LEDSTRIP_H__
 #include <queue>
 #include <vector>
+#include <utility>
 #include <stdint.h>
 #include <unistd.h>
-#include <mutex>
 #include <err.h>
 #include <boost/log/trivial.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
+
+#include <condition_variable>
+#include <thread>
+#include <mutex>
+#include <future>
+
 #include "yaml-cpp/yaml.h"
-#include <boost/thread/condition_variable.hpp>
+
+#include "Stoppable.h"
 
 using namespace boost::log;
 namespace logging = boost::log;
@@ -23,43 +28,46 @@ struct Pixel {
      uint32_t b;
  };
 
- class LEDStrip {
+ class LEDStrip : public Stoppable {
     protected:
-        bool *running;
         std::queue<std::vector<Pixel>> frame_queue;
     public:
-        mutable boost::mutex frame_mutex;
-        boost::condition_variable wait_for_frame;
-        boost::thread* thread;
-        
-        LEDStrip(bool *t_running) : running(t_running)
-        {
-            BOOST_LOG_TRIVIAL(debug) << "Led strip constructor";
-            thread = new boost::thread(boost::bind(&LEDStrip::pop_and_display_frame, this));
-        }
+        mutable std::mutex frame_mutex;
+        std::condition_variable wait_for_frame;
 
+        /**
+         * @brief Abstract class to be implemented for writing to the strip
+         * @param t_pixels Vector with pixel data to write to strip
+         */
         virtual void write_pixels_to_strip(std::vector<Pixel>& t_pixels) = 0;
-         
-        void push_frame(std::vector<Pixel> const& t_pixels)
-        {
-            boost::unique_lock<boost::mutex> lock(frame_mutex);
+        
+        /**
+         * @brief Display a new frame on the strip
+         * 
+         * @param t_pixels Vector of pixels
+         */
+        void push_frame(std::vector<Pixel> const& t_pixels){
+            std::lock_guard<std::mutex> lock(frame_mutex); //replace with c++11
             frame_queue.push(t_pixels);
-            lock.unlock();
             wait_for_frame.notify_one();
         }
 
-        void pop_and_display_frame()
-        {
-            boost::unique_lock<boost::mutex> lock(frame_mutex);
-            BOOST_LOG_TRIVIAL(info) << "wait and pop";
-            while(*running == true)
+        /**
+         * @brief [brief description]
+         * @details [long description]
+         * 
+         * @param lock [description]
+         */
+        void pop_and_display_frame(){
+            std::unique_lock<std::mutex> lock(frame_mutex); //replace with c++11
+            BOOST_LOG_TRIVIAL(info) << "Wait and pop";
+            while(stop_requested() == false)
             {
                 while(frame_queue.empty())
                 {
-                    if(*running == true){
+                    if(stop_requested() == false){
                         wait_for_frame.wait(lock);
                     }else{
-                        lock.unlock();
                         break;
                     }
                 }
