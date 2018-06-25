@@ -30,12 +30,11 @@
 #include "E131.h"
 #include "LEDStrip.h"
 #include "APA102Strip.h"
+#include "WS2811Strip.h"
+
 #include "Playback.h"
 
 #include <ncurses.h>
-
-
-//#include "WS2811Strip.h"
 
 namespace po = boost::program_options;
 using namespace boost::log;
@@ -116,10 +115,37 @@ int main(int argc, char* argv[]) {
 
         BOOST_LOG_TRIVIAL(info) << "Using config file " << vm["config"].as<std::string>();
         config = YAML::LoadFile(vm["config"].as<std::string>());
+    
+        if(){
+            BOOST_LOG_TRIVIAL(info) << "Using APA102 strip";
+            Apa102Strip apa102_strip;
+            boostrap_strip(config, apa102_strip);
 
+        }else{
+            BOOST_LOG_TRIVIAL(info) << "Using WS2811 strip";
+            WS2811Strip ws_2811_strip;
+            boostrap_strip(config, ws_2811_strip);
+        }
+
+    }
+
+    catch(std::exception& e) {
+        BOOST_LOG_TRIVIAL(fatal) << "Error: " << e.what() << std::endl;
+        return 1;
+    }
+    catch(...) {
+        BOOST_LOG_TRIVIAL(fatal) << "Exception of unknown type!" << std::endl;
+        return 1;
+    }
+
+    return 0;
+}
+
+//generics for strip here
+
+void boostrap_strip(YAML::Node& config, strip){
         E131 e131(config);
-        Apa102Strip apa102_strip;
-        Playback playback(std::move(e131), std::move(apa102_strip));
+        Playback playback(std::move(e131), std::move(strip));
         std::vector<std::thread> thread_list;
 
         if(vm.count("stats")){
@@ -135,24 +161,18 @@ int main(int argc, char* argv[]) {
             playback.set_save_location(vm["save_location"].as<std::string>());
         }
 
-    
-        BOOST_LOG_TRIVIAL(info) << "Using APA102 strip";
-        
-        std::thread apa102_pop_and_display_frame_thread([&](){
-            apa102_strip.pop_and_display_frame();
-        });
-        
-        thread_list.push_back(std::move(apa102_pop_and_display_frame_thread));
-
-        BOOST_LOG_TRIVIAL(debug) << "APA102 strip set up";
-     
-        // while(running == true){
-        //     std::unique_lock<std::mutex> mlock(e131.frame_mutex);
-        //     e131.wait_for_frame.wait(mlock);
-        //     apa102_strip.push_frame(e131.pixels);
-        // }
-        
+            std::thread strip_pop_and_display_frame_thread([&](){
+                apa102_strip.pop_and_display_frame();
+            });
             
+            thread_list.push_back(std::move(strip_pop_and_display_frame_thread));
+
+            // while(running == true){
+            //     std::unique_lock<std::mutex> mlock(e131.frame_mutex);
+            //     e131.wait_for_frame.wait(mlock);
+            //     apa102_strip.push_frame(e131.pixels);
+            // }
+
         initscr();
         while(running == true){
             char c = getch();
@@ -175,24 +195,11 @@ int main(int argc, char* argv[]) {
             }
         }
         endwin();
-
         if(running == false){
             playback.stop();
             e131.stop();
-            apa102_strip.stop();
+            strip.stop();
         }
 
         std::for_each(thread_list.begin(), thread_list.end(), std::mem_fn(&std::thread::join));
-    }
-
-    catch(std::exception& e) {
-        BOOST_LOG_TRIVIAL(fatal) << "Error: " << e.what() << std::endl;
-        return 1;
-    }
-    catch(...) {
-        BOOST_LOG_TRIVIAL(fatal) << "Exception of unknown type!" << std::endl;
-        return 1;
-    }
-
-    return 0;
 }

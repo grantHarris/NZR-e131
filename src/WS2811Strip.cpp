@@ -1,22 +1,13 @@
 #include "WS2811Strip.h"
 
-WS2811Strip::WS2811Strip(YAML::Node& t_config) : config(t_config) {
-    this->setup_ouput();
-    ws2811_return_t ret;
-    if ((ret = ws2811_init(&output)) != WS2811_SUCCESS){
-        BOOST_LOG_TRIVIAL(fatal) << "ws2811 init failed:" << ws2811_get_return_t_str(ret);
-        exit(1);
-    }
-}
-
-void WS2811Strip::setup_ouput(){
+WS2811Strip::WS2811Strip(YAML::Node& t_config) {
     output.freq = TARGET_FREQ;
     output.dmanum = DMA;
 
-    int gpio_pin = it->config["gpionum"].as<int>();
-    int count = it->config["count"].as<int>();
-    int invert = it->config["invert"].as<int>();
-    int brightness = it->config["brightness"].as<int>();
+    int gpio_pin = it->t_config["gpionum"].as<int>();
+    int count = it->t_config["count"].as<int>();
+    int invert = it->t_config["invert"].as<int>();
+    int brightness = it->t_config["brightness"].as<int>();
 
     output.channel[ch].gpionum = gpio_pin;
     output.channel[ch].count = count;
@@ -31,7 +22,13 @@ void WS2811Strip::setup_ouput(){
     << ", Invert: " << invert
     << ", Brightness: " << brightness;
 
+    ws2811_return_t ret;
+    if ((ret = ws2811_init(&output)) != WS2811_SUCCESS){
+        BOOST_LOG_TRIVIAL(fatal) << "ws2811 init failed:" << ws2811_get_return_t_str(ret);
+        exit(1);
+    }
 }
+
 
 void WS2811Strip::write_pixels_to_strip(std::vector<Pixel>& t_pixels){
 	for(uint16_t i = 0; i < t_pixels.size(); i++){
@@ -45,12 +42,10 @@ void WS2811Strip::write_pixels_to_strip(std::vector<Pixel>& t_pixels){
 
 
 void WS2811Strip::write_to_output_buffer(int strip_channel, int index, Pixel pixel){
-    output_mutex.lock();
     output.channel[strip_channel].leds[index] = 
     static_cast<uint32_t>(pixel.r << 16) |
     static_cast<uint32_t>(pixel.g << 8) |
     static_cast<uint32_t>(pixel.b);
-    output_mutex.unlock();
     
     BOOST_LOG_TRIVIAL(trace) 
     << "Ch: " << strip_channel 

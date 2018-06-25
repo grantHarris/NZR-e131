@@ -32,8 +32,6 @@ class WS2811Strip : public LEDStrip {
     	void write_to_output_buffer(int strip_channel, int index, Pixel pixel);
     private:
         ws2811_t output;
-        YAML::Node config;
-        std::mutex output_mutex;
         void setup_ouput();
 };
 
