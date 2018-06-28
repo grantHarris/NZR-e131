@@ -5,7 +5,7 @@ WS2811Strip::WS2811Strip(YAML::Node& t_config) {
     output.dmanum = DMA;
 
     int gpio_pin = t_config["gpionum"].as<int>();
-    int count = t_config["count"].as<int>();
+    int count = t_config["led_count"].as<int>();
     int invert = t_config["invert"].as<int>();
     int brightness = t_config["brightness"].as<int>();
 
