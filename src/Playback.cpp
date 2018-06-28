@@ -6,7 +6,7 @@
  * 
  * @param file_name Location of the leveldb directory
  */
-Playback::Playback(E131&& t_e131, Apa102Strip&& t_apa102_strip) : e131(std::move(t_e131)), apa102_strip(std::move(t_apa102_strip)){
+Playback::Playback(E131&& t_e131, WS2811Strip&& t_strip) : e131(std::move(t_e131)), strip(std::move(t_strip)){
     current_state = PlaybackState::STOPPED;
     playhead = new std::string("0");
     current_state = PlaybackState::STOPPED;
@@ -221,7 +221,7 @@ void Playback::live_stream_thread(){
     while (stop_requested() == false){
         std::unique_lock<std::mutex> mlock(e131.frame_mutex);
         e131.wait_for_frame.wait(mlock);
-        apa102_strip.push_frame(e131.pixels);
+        strip.push_frame(e131.pixels);
     }
 }
 

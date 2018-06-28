@@ -28,7 +28,7 @@
 #include "LEDStrip.h"
 #include "Stoppable.h"
 #include "LEDStrip.h"
-#include "APA102Strip.h"
+#include "WS2811Strip.h"
 
 #include "E131.h"
 
@@ -50,7 +50,7 @@ struct Index{
 
 class Playback : public Stoppable {
     public:
-        Playback(E131&& t_e131, Apa102Strip&& t_apa102_strip);
+        Playback(E131&& t_e131, WS2811Strip&& t_strip);
         ~Playback();
         void set_save_location(std::string file_name);
         void push_frame(std::vector<Pixel>& t_pixels);
@@ -65,7 +65,7 @@ class Playback : public Stoppable {
         std::vector<std::thread> thread_list;
     private:
         E131&& e131;
-        Apa102Strip&& apa102_strip;
+        WS2811Strip&& strip;
 
         mutable std::mutex frame_mutex;
         mutable std::mutex state_mutex;
