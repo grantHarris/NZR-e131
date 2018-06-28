@@ -55,6 +55,7 @@ class Playback : public Stoppable {
         void push_frame(std::vector<Pixel>& t_pixels);
         void record();
         void play();
+        void stop();
         void stop_play();
         void pause();
         void live();
