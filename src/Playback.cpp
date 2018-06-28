@@ -108,6 +108,15 @@ void Playback::pause(){
  * @brief Stops playback
  * @details [long description]
  */
+void Playback::stop(){
+    BOOST_LOG_TRIVIAL(info) << "Stopping";
+    this->set_state(PlaybackState::STOPPED);
+}
+
+/**
+ * @brief Stops playback
+ * @details [long description]
+ */
 void Playback::stop_play(){
     BOOST_LOG_TRIVIAL(info) << "Stop";
     this->stop();
