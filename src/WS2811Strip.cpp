@@ -4,10 +4,10 @@ WS2811Strip::WS2811Strip(YAML::Node& t_config) {
     output.freq = TARGET_FREQ;
     output.dmanum = DMA;
 
-    int gpio_pin = it->t_config["gpionum"].as<int>();
-    int count = it->t_config["count"].as<int>();
-    int invert = it->t_config["invert"].as<int>();
-    int brightness = it->t_config["brightness"].as<int>();
+    int gpio_pin = t_config["gpionum"].as<int>();
+    int count = t_config["count"].as<int>();
+    int invert = t_config["invert"].as<int>();
+    int brightness = t_config["brightness"].as<int>();
 
     output.channel[ch].gpionum = gpio_pin;
     output.channel[ch].count = count;
@@ -32,9 +32,10 @@ WS2811Strip::WS2811Strip(YAML::Node& t_config) {
 
 void WS2811Strip::write_pixels_to_strip(std::vector<Pixel>& t_pixels){
 	for(uint16_t i = 0; i < t_pixels.size(); i++){
-		this->write_to_output_buffer(0i, t_pixels[i]);
+		this->write_to_output_buffer(0, t_pixels[i]);
 	}
 
+	ws2811_return_t ret;
     if ((ret = ws2811_render(&output)) != WS2811_SUCCESS){
     	BOOST_LOG_TRIVIAL(error) << "ws2811 render frame failed:" << ws2811_get_return_t_str(ret);
     }
