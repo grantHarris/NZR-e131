@@ -190,6 +190,7 @@ void Playback::record_to_file_thread(){
         frame_queue.pop();
         BOOST_LOG_TRIVIAL(info) << "Record frame at: " << index.playhead;
     }
+    BOOST_LOG_TRIVIAL(info) << "Record loop stopping";
 
 }
 
@@ -222,6 +223,7 @@ void Playback::play_from_file_thread(){
             wait_for_frame.notify_one();
         }
     }
+    BOOST_LOG_TRIVIAL(info) << "Play from file loop stopping";
     delete it;
 }
 
@@ -232,6 +234,7 @@ void Playback::live_stream_thread(){
         e131.wait_for_frame.wait(mlock);
         strip.push_frame(e131.pixels);
     }
+    BOOST_LOG_TRIVIAL(info) << "Live stream loop stopping";
 }
 
 Playback::~Playback(){
