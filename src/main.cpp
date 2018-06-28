@@ -116,16 +116,73 @@ int main(int argc, char* argv[]) {
         BOOST_LOG_TRIVIAL(info) << "Using config file " << vm["config"].as<std::string>();
         config = YAML::LoadFile(vm["config"].as<std::string>());
     
-        if(){
-            BOOST_LOG_TRIVIAL(info) << "Using APA102 strip";
-            Apa102Strip apa102_strip;
-            boostrap_strip(config, apa102_strip);
+        // if(){
+        //     BOOST_LOG_TRIVIAL(info) << "Using APA102 strip";
+        //     Apa102Strip apa102_strip;
+        //     boostrap_strip(config, apa102_strip);
 
-        }else{
+        // }else{
             BOOST_LOG_TRIVIAL(info) << "Using WS2811 strip";
-            WS2811Strip ws_2811_strip;
-            boostrap_strip(config, ws_2811_strip);
-        }
+            WS2811Strip ws_2811_strip(config);
+            E131 e131(config);
+            Playback playback(std::move(e131), std::move(ws_2811_strip));
+            std::vector<std::thread> thread_list;
+
+            if(vm.count("stats")){
+                BOOST_LOG_TRIVIAL(info) << "Stats enabled";
+                std::thread e131_stats_thread([&](){
+                    e131.stats_thread();
+                });
+                thread_list.push_back(std::move(e131_stats_thread));
+            }
+
+            if (vm.count("save_location")) {
+                BOOST_LOG_TRIVIAL(info) << "Save location: " << vm["save_location"].as<std::string>();
+                playback.set_save_location(vm["save_location"].as<std::string>());
+            }
+
+                std::thread strip_pop_and_display_frame_thread([&](){
+                    ws_2811_strip.pop_and_display_frame();
+                });
+                
+                thread_list.push_back(std::move(strip_pop_and_display_frame_thread));
+
+                // while(running == true){
+                //     std::unique_lock<std::mutex> mlock(e131.frame_mutex);
+                //     e131.wait_for_frame.wait(mlock);
+                //     apa102_strip.push_frame(e131.pixels);
+                // }
+
+            initscr();
+            while(running == true){
+                char c = getch();
+                switch(c){
+                    case 'r':
+                        playback.record();
+                    break;
+                    case 'p':
+                        playback.play();
+                    break;
+                    case 'a':
+                        playback.pause();
+                    break;
+                    case 's':
+                        playback.stop_play();
+                    break;
+                    case 'l':
+                        playback.live();
+                    break;
+                }
+            }
+            endwin();
+            if(running == false){
+                playback.stop();
+                e131.stop();
+                ws_2811_strip.stop();
+            }
+
+            std::for_each(thread_list.begin(), thread_list.end(), std::mem_fn(&std::thread::join));
+        //}
 
     }
 
@@ -143,63 +200,63 @@ int main(int argc, char* argv[]) {
 
 //generics for strip here
 
-void boostrap_strip(YAML::Node& config, strip){
-        E131 e131(config);
-        Playback playback(std::move(e131), std::move(strip));
-        std::vector<std::thread> thread_list;
+// void boostrap_strip(YAML::Node& config, strip){
+//         E131 e131(config);
+//         Playback playback(std::move(e131), std::move(strip));
+//         std::vector<std::thread> thread_list;
 
-        if(vm.count("stats")){
-            BOOST_LOG_TRIVIAL(info) << "Stats enabled";
-            std::thread e131_stats_thread([&](){
-                e131.stats_thread();
-            });
-            thread_list.push_back(std::move(e131_stats_thread));
-        }
+//         if(vm.count("stats")){
+//             BOOST_LOG_TRIVIAL(info) << "Stats enabled";
+//             std::thread e131_stats_thread([&](){
+//                 e131.stats_thread();
+//             });
+//             thread_list.push_back(std::move(e131_stats_thread));
+//         }
 
-        if (vm.count("save_location")) {
-            BOOST_LOG_TRIVIAL(info) << "Save location: " << vm["save_location"].as<std::string>();
-            playback.set_save_location(vm["save_location"].as<std::string>());
-        }
+//         if (vm.count("save_location")) {
+//             BOOST_LOG_TRIVIAL(info) << "Save location: " << vm["save_location"].as<std::string>();
+//             playback.set_save_location(vm["save_location"].as<std::string>());
+//         }
 
-            std::thread strip_pop_and_display_frame_thread([&](){
-                apa102_strip.pop_and_display_frame();
-            });
+//             std::thread strip_pop_and_display_frame_thread([&](){
+//                 apa102_strip.pop_and_display_frame();
+//             });
             
-            thread_list.push_back(std::move(strip_pop_and_display_frame_thread));
+//             thread_list.push_back(std::move(strip_pop_and_display_frame_thread));
 
-            // while(running == true){
-            //     std::unique_lock<std::mutex> mlock(e131.frame_mutex);
-            //     e131.wait_for_frame.wait(mlock);
-            //     apa102_strip.push_frame(e131.pixels);
-            // }
+//             // while(running == true){
+//             //     std::unique_lock<std::mutex> mlock(e131.frame_mutex);
+//             //     e131.wait_for_frame.wait(mlock);
+//             //     apa102_strip.push_frame(e131.pixels);
+//             // }
 
-        initscr();
-        while(running == true){
-            char c = getch();
-            switch(c){
-                case 'r':
-                    playback.record();
-                break;
-                case 'p':
-                    playback.play();
-                break;
-                case 'a':
-                    playback.pause();
-                break;
-                case 's':
-                    playback.stop_play();
-                break;
-                case 'l':
-                    playback.live();
-                break;
-            }
-        }
-        endwin();
-        if(running == false){
-            playback.stop();
-            e131.stop();
-            strip.stop();
-        }
+//         initscr();
+//         while(running == true){
+//             char c = getch();
+//             switch(c){
+//                 case 'r':
+//                     playback.record();
+//                 break;
+//                 case 'p':
+//                     playback.play();
+//                 break;
+//                 case 'a':
+//                     playback.pause();
+//                 break;
+//                 case 's':
+//                     playback.stop_play();
+//                 break;
+//                 case 'l':
+//                     playback.live();
+//                 break;
+//             }
+//         }
+//         endwin();
+//         if(running == false){
+//             playback.stop();
+//             e131.stop();
+//             strip.stop();
+//         }
 
-        std::for_each(thread_list.begin(), thread_list.end(), std::mem_fn(&std::thread::join));
-}
+//         std::for_each(thread_list.begin(), thread_list.end(), std::mem_fn(&std::thread::join));
+// }
