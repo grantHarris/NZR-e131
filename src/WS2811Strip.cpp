@@ -16,7 +16,7 @@ WS2811Strip::WS2811Strip(YAML::Node& t_config) {
     output.channel[0].strip_type = STRIP_TYPE;
 
     BOOST_LOG_TRIVIAL(info) 
-    << ", GPIO: " << gpio_pin
+    << "GPIO: " << gpio_pin
     << ", Total LED's: " << count
     << ", Invert: " << invert
     << ", Brightness: " << brightness;

@@ -6,7 +6,7 @@
  * 
  * @param file_name Location of the leveldb directory
  */
-Playback::Playback(E131&& t_e131, WS2811Strip&& t_strip) : e131(std::move(t_e131)), strip(std::move(t_strip)){
+Playback::Playback(E131&& t_e131, LEDStrip&& t_strip) : e131(std::move(t_e131)), strip(std::move(t_strip)){
     current_state = PlaybackState::STOPPED;
     playhead = new std::string("0");
     current_state = PlaybackState::STOPPED;
