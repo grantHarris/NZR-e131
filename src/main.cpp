@@ -124,9 +124,13 @@ int main(int argc, char* argv[]) {
         // }else{
             BOOST_LOG_TRIVIAL(info) << "Using WS2811 strip";
             WS2811Strip ws_2811_strip(config);
+            BOOST_LOG_TRIVIAL(info) << "ws2811 strip setup";
             E131 e131(config);
+            BOOST_LOG_TRIVIAL(info) << "e131 setup";
             Playback playback(std::move(e131), std::move(ws_2811_strip));
+            BOOST_LOG_TRIVIAL(info) << "playback started";
             std::vector<std::thread> thread_list;
+            BOOST_LOG_TRIVIAL(info) << "thread list";
 
             if(vm.count("stats")){
                 BOOST_LOG_TRIVIAL(info) << "Stats enabled";
