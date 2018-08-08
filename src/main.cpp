@@ -87,8 +87,6 @@ void setup_logging(po::variables_map& vm){
     logging::core::get()->set_filter(logging::trivial::severity >= verbosity);
 }
 
-//generics for strip here
-
 void boostrap_strip(po::variables_map& vm, YAML::Node& config, LEDStrip&& strip){
     E131 e131(config);
     Playback playback(std::move(e131), std::move(strip));
@@ -108,16 +106,10 @@ void boostrap_strip(po::variables_map& vm, YAML::Node& config, LEDStrip&& strip)
     }
 
     std::thread strip_pop_and_display_frame_thread([&](){
-        ws_2811_strip.pop_and_display_frame();
+        strip.pop_and_display_frame();
     });
         
     thread_list.push_back(std::move(strip_pop_and_display_frame_thread));
-
-    // while(running == true){
-    //     std::unique_lock<std::mutex> mlock(e131.frame_mutex);
-    //     e131.wait_for_frame.wait(mlock);
-    //     apa102_strip.push_frame(e131.pixels);
-    // }
 
     initscr();
     while(running == true){
@@ -150,7 +142,7 @@ void boostrap_strip(po::variables_map& vm, YAML::Node& config, LEDStrip&& strip)
     if(running == false){
         playback.stop();
         e131.stop();
-        ws_2811_strip.stop();
+        strip.stop();
     }
 
     std::for_each(thread_list.begin(), thread_list.end(), std::mem_fn(&std::thread::join));
