@@ -104,7 +104,7 @@ void Playback::set_state(PlaybackState state){
 }
 
 
-void Playback::loop(){
+void Playback::thread_loop(){
     while(stop_requested() == false)
     {
         switch(current_state){
@@ -178,7 +178,11 @@ void Playback::play_from_file(){
 
         //frame.ParseFromString(&data)
         //frame_queue.push(frame);
-        strip.push_frame(frame);
+        
+
+
+        //this needs to be converted to the type used
+        //strip.push_frame(frame);
         wait_for_frame.notify_one();
     }
     delete it;
