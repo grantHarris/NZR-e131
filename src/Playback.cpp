@@ -81,15 +81,15 @@ void Playback::stop(){
 }
 
 void Playback::live(){
-    std::thread e131_receive_data_thread([&](){
-        e131.receive_data();
-    });
+    // std::thread e131_receive_data_thread([&](){
+    //     e131.receive_data();
+    // });
 
-    thread_list.push_back(std::move(e131_receive_data_thread));
+    // thread_list.push_back(std::move(e131_receive_data_thread));
 
-    std::thread live_stream_thread([&](){
-        this->live_stream_thread();
-    });
+    // std::thread live_stream_thread([&](){
+    //     this->live_stream_thread();
+    // });
 }
 
 /**
@@ -102,7 +102,6 @@ void Playback::set_state(PlaybackState state){
     std::unique_lock<std::mutex> lock(state_mutex);
     current_state = state;
 }
-
 
 void Playback::thread_loop(){
     while(stop_requested() == false)
