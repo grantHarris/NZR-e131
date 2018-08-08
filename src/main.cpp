@@ -89,7 +89,7 @@ void setup_logging(po::variables_map& vm){
 
 //generics for strip here
 
-void boostrap_strip(YAML::Node& config, LEDStrip&& strip){
+void boostrap_strip(po::variables_map& vm, YAML::Node& config, LEDStrip&& strip){
     E131 e131(config);
     Playback playback(std::move(e131), std::move(strip));
     std::vector<std::thread> thread_list;
@@ -187,11 +187,11 @@ int main(int argc, char* argv[]) {
         if(vm.count("apa102")){
             BOOST_LOG_TRIVIAL(info) << "Using APA102 strip";
             Apa102Strip apa102_strip;
-            boostrap_strip(config, std::move(apa102_strip));
+            boostrap_strip(vm, config, std::move(apa102_strip));
         }else{
             BOOST_LOG_TRIVIAL(info) << "Using WS2811 Strip";
             WS2811Strip ws2811_strip;
-            boostrap_strip(config, std::move(ws2811_strip));
+            boostrap_strip(vm, config, std::move(ws2811_strip));
         }
 
     }
