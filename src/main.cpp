@@ -175,21 +175,27 @@ void boostrap_strip(YAML::Node& config, LEDStrip&& strip){
     while(running == true){
         char c = getch();
         switch(c){
-            case 'r':
+            case 'r':{
                 playback.record();
-            break;
-            case 'p':
+                break;
+            }
+            case 'p':{
                 playback.play();
-            break;
-            case 'a':
+                break;
+            }
+
+            case 'a':{
                 playback.pause();
-            break;
-            case 's':
+                break;
+            }
+            case 's':{
                 playback.stop();
-            break;
-            case 'l':
+                break;
+            }
+            case 'l':{
                 playback.live();
-            break;
+                break;
+            }
         }
     }
     endwin();

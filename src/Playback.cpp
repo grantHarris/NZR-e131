@@ -108,18 +108,21 @@ void Playback::thread_loop(){
     while(stop_requested() == false)
     {
         switch(current_state){
-            case PlaybackState::RECORDING:
+            case PlaybackState::RECORDING:{
                 auto pixels = this->live_stream();
                 this->record_to_file(pixels);
-            break;
+                break;
+            }
 
-            case PlaybackState::PLAYING:
+            case PlaybackState::PLAYING:{
                 this->play_from_file();
-            break;
+                break;
+            }
 
-            case PlaybackState::LIVE:
+            case PlaybackState::LIVE:{
                 this->live_stream();
-            break;
+                break;
+            }
         }
     }
 
