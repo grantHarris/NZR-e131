@@ -87,58 +87,6 @@ void setup_logging(po::variables_map& vm){
     logging::core::get()->set_filter(logging::trivial::severity >= verbosity);
 }
 
-int main(int argc, char* argv[]) {
-        
-    try {
-        
-        setup_handlers();
-
-        po::options_description desc("Allowed options");
-        desc.add_options()
-        ("help,h", "Produce help message")
-        ("config,c", po::value<std::string>()->default_value("./config.yaml"), "Config file path")
-        ("log,l", po::value<std::string>(), "Logging file path")
-        ("stats,s", po::value<std::string>(), "Output update stats for E1.31 updates")
-        ("verbosity,v", po::value<std::string>()->default_value("info"), "Enable verbosity (optionally specify level)");
-
-        po::variables_map vm;        
-        po::store(po::parse_command_line(argc, argv, desc), vm);
-        po::notify(vm);    
-
-        if (vm.count("help")) {
-            std::cout << desc << std::endl;
-            return 0;
-        }
-
-        setup_logging(vm);
-
-        BOOST_LOG_TRIVIAL(info) << "Using config file " << vm["config"].as<std::string>();
-        config = YAML::LoadFile(vm["config"].as<std::string>());
-    
-        if(vm.count("apa102")){
-            BOOST_LOG_TRIVIAL(info) << "Using APA102 strip";
-            Apa102Strip apa102_strip;
-            boostrap_strip(config, std::move(apa102_strip));
-        }else{
-            BOOST_LOG_TRIVIAL(info) << "Using WS2811 Strip";
-            WS2811Strip ws2811_strip;
-            boostrap_strip(config, std::move(ws2811_strip));
-        }
-
-    }
-
-    catch(std::exception& e) {
-        BOOST_LOG_TRIVIAL(fatal) << "Error: " << e.what() << std::endl;
-        return 1;
-    }
-    catch(...) {
-        BOOST_LOG_TRIVIAL(fatal) << "Exception of unknown type!" << std::endl;
-        return 1;
-    }
-
-    return 0;
-}
-
 //generics for strip here
 
 void boostrap_strip(YAML::Node& config, LEDStrip&& strip){
@@ -207,3 +155,56 @@ void boostrap_strip(YAML::Node& config, LEDStrip&& strip){
 
     std::for_each(thread_list.begin(), thread_list.end(), std::mem_fn(&std::thread::join));
 }
+
+int main(int argc, char* argv[]) {
+        
+    try {
+        
+        setup_handlers();
+
+        po::options_description desc("Allowed options");
+        desc.add_options()
+        ("help,h", "Produce help message")
+        ("config,c", po::value<std::string>()->default_value("./config.yaml"), "Config file path")
+        ("log,l", po::value<std::string>(), "Logging file path")
+        ("stats,s", po::value<std::string>(), "Output update stats for E1.31 updates")
+        ("verbosity,v", po::value<std::string>()->default_value("info"), "Enable verbosity (optionally specify level)");
+
+        po::variables_map vm;        
+        po::store(po::parse_command_line(argc, argv, desc), vm);
+        po::notify(vm);    
+
+        if (vm.count("help")) {
+            std::cout << desc << std::endl;
+            return 0;
+        }
+
+        setup_logging(vm);
+
+        BOOST_LOG_TRIVIAL(info) << "Using config file " << vm["config"].as<std::string>();
+        config = YAML::LoadFile(vm["config"].as<std::string>());
+    
+        if(vm.count("apa102")){
+            BOOST_LOG_TRIVIAL(info) << "Using APA102 strip";
+            Apa102Strip apa102_strip;
+            boostrap_strip(config, std::move(apa102_strip));
+        }else{
+            BOOST_LOG_TRIVIAL(info) << "Using WS2811 Strip";
+            WS2811Strip ws2811_strip;
+            boostrap_strip(config, std::move(ws2811_strip));
+        }
+
+    }
+
+    catch(std::exception& e) {
+        BOOST_LOG_TRIVIAL(fatal) << "Error: " << e.what() << std::endl;
+        return 1;
+    }
+    catch(...) {
+        BOOST_LOG_TRIVIAL(fatal) << "Exception of unknown type!" << std::endl;
+        return 1;
+    }
+
+    return 0;
+}
+
