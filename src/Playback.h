@@ -52,19 +52,19 @@ class Playback : public Stoppable {
         Playback(E131&& t_e131, LEDStrip&& t_strip);
         ~Playback();
         void set_save_location(std::string file_name);
-        void record();
         void toggle_loop(bool t_loop);
-        void play();
-        void pause();
-        void stop();
-        void live();
+        void record_from_live();
+        void play_live();
+        void start_playback();
+        void pause_playback();
+        void stop_playback();
         void set_state(PlaybackState state);
         void record_to_file(std::vector<Pixel>& t_pixels);
         void play_from_file();
         void thread_loop();
         std::vector<Pixel> live_stream();
         std::queue<nzr::Frame> frame_queue;
-        std::vector<std::thread> thread_list;
+
     private:
         E131&& e131;
         LEDStrip&& strip;
@@ -80,8 +80,6 @@ class Playback : public Stoppable {
         std::string* playhead;
         PlaybackState current_state;
         leveldb::DB* db;
-        std::thread* record_thread;
-        std::thread* playback_thread;
         std::condition_variable wait_for_frame;
 };
 

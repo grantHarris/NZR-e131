@@ -23,12 +23,26 @@ void Playback::set_save_location(std::string file_name){
     current_state = PlaybackState::STOPPED;
 }
 
+/**
+ * @brief Sets if playback should loop on end
+ * @details [long description]
+ * 
+ * @param t_loop boolean
+ */
+void Playback::toggle_loop(bool t_loop){
+    BOOST_LOG_TRIVIAL(info) << "Toggle looping" << t_loop;
+    loop = t_loop;
+}
+
+
+
+// Playhead controls //
 
 /**
  * @brief Starts recording
  * @details [long description]
  */
-void Playback::record(){
+void Playback::record_from_live(){
     if (current_state == PlaybackState::RECORDING){
         BOOST_LOG_TRIVIAL(info) << "Already recording";
         return;
@@ -41,46 +55,7 @@ void Playback::record(){
     this->set_state(PlaybackState::RECORDING);
 }
 
-/**
- * @brief Sets if playback should loop on end
- * @details [long description]
- * 
- * @param t_loop boolean
- */
-void Playback::toggle_loop(bool t_loop){
-    BOOST_LOG_TRIVIAL(info) << "Toggle looping" << t_loop;
-    loop = t_loop;
-}
-
-/**
- * @brief Starts playback
- * @details [long description]
- */
-void Playback::play(){
-    BOOST_LOG_TRIVIAL(info) << "Starting playing";
-    this->set_state(PlaybackState::PLAYING);
-}
-
-/**
- * @brief Pauses playback
- * @details [long description]
- */
-void Playback::pause(){
-    BOOST_LOG_TRIVIAL(info) << "Pausing";
-    this->set_state(PlaybackState::PAUSED);
-}
-
-/**
- * @brief Stops playback
- * @details [long description]
- */
-void Playback::stop(){
-    BOOST_LOG_TRIVIAL(info) << "Stopping";
-    this->set_state(PlaybackState::STOPPED);
-    index.playhead.assign("0");
-}
-
-void Playback::live(){
+void Playback::play_live(){
     // std::thread e131_receive_data_thread([&](){
     //     e131.receive_data();
     // });
@@ -93,6 +68,35 @@ void Playback::live(){
 }
 
 /**
+ * @brief Starts playback
+ * @details [long description]
+ */
+void Playback::start_playback(){
+    BOOST_LOG_TRIVIAL(info) << "Starting playing";
+    this->set_state(PlaybackState::PLAYING);
+}
+
+/**
+ * @brief Pauses playback
+ * @details [long description]
+ */
+void Playback::pause_playback(){
+    BOOST_LOG_TRIVIAL(info) << "Pausing";
+    this->set_state(PlaybackState::PAUSED);
+}
+
+/**
+ * @brief Stops playback
+ * @details [long description]
+ */
+void Playback::stop_playback(){
+    BOOST_LOG_TRIVIAL(info) << "Stopping";
+    this->set_state(PlaybackState::STOPPED);
+    index.playhead.assign("0");
+}
+
+
+/**
  * @brief Set the current state of playback. eg Playing
  * @details [long description]
  * 
@@ -101,30 +105,6 @@ void Playback::live(){
 void Playback::set_state(PlaybackState state){
     std::unique_lock<std::mutex> lock(state_mutex);
     current_state = state;
-}
-
-void Playback::thread_loop(){
-    while(stop_requested() == false)
-    {
-        switch(current_state){
-            case PlaybackState::RECORDING:{
-                auto pixels = this->live_stream();
-                this->record_to_file(pixels);
-                break;
-            }
-
-            case PlaybackState::PLAYING:{
-                this->play_from_file();
-                break;
-            }
-
-            case PlaybackState::LIVE:{
-                this->live_stream();
-                break;
-            }
-        }
-    }
-
 }
 
 /**
@@ -196,6 +176,29 @@ std::vector<Pixel> Playback::live_stream(){
     e131.wait_for_frame.wait(mlock);
     strip.push_frame(e131.pixels);
     return e131.pixels;
+}
+
+void Playback::thread_loop(){
+    while(stop_requested() == false)
+    {
+        switch(current_state){
+            case PlaybackState::RECORDING:{
+                auto pixels = this->live_stream();
+                this->record_to_file(pixels);
+                break;
+            }
+
+            case PlaybackState::PLAYING:{
+                this->play_from_file();
+                break;
+            }
+
+            case PlaybackState::LIVE:{
+                this->live_stream();
+                break;
+            }
+        }
+    }
 }
 
 Playback::~Playback(){

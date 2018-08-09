@@ -92,6 +92,7 @@ void boostrap_strip(po::variables_map& vm, YAML::Node& config, LEDStrip&& strip)
     Playback playback(std::move(e131), std::move(strip));
     std::vector<std::thread> thread_list;
 
+    // Stats thread
     if(vm.count("stats")){
         BOOST_LOG_TRIVIAL(info) << "Stats enabled";
         std::thread e131_stats_thread([&](){
@@ -105,35 +106,43 @@ void boostrap_strip(po::variables_map& vm, YAML::Node& config, LEDStrip&& strip)
         playback.set_save_location(vm["save_location"].as<std::string>());
     }
 
+    // Strip render thread
     std::thread strip_pop_and_display_frame_thread([&](){
         strip.pop_and_display_frame();
     });
-        
     thread_list.push_back(std::move(strip_pop_and_display_frame_thread));
+
+    // Playback thread. Handles live frame, recording, playback
+    std::thread playback_loop_thread([&](){
+        strip.thread_loop();
+    });
+    thread_list.push_back(std::move(playback_loop_thread));
+
 
     initscr();
     while(running == true){
         char c = getch();
         switch(c){
             case 'r':{
-                playback.record();
+                playback.record_from_live();
                 break;
             }
             case 'p':{
-                playback.play();
+                playback.start_playback();
                 break;
             }
 
             case 'a':{
-                playback.pause();
+                playback.pause_playback();
                 break;
             }
+            
             case 's':{
-                playback.stop();
+                playback.stop_playback();
                 break;
             }
             case 'l':{
-                playback.live();
+                playback.play_live();
                 break;
             }
         }
