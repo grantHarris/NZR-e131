@@ -191,7 +191,7 @@ int main(int argc, char* argv[]) {
         }else{
             BOOST_LOG_TRIVIAL(info) << "Using WS2811 Strip";
             WS2811Strip ws2811_strip(config);
-            //boostrap_strip(vm, config, std::move(ws2811_strip));
+            boostrap_strip(vm, config, std::move(ws2811_strip));
         }
 
     }

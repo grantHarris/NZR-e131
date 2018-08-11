@@ -6,19 +6,17 @@ WS2811Strip::WS2811Strip(YAML::Node& t_config) {
 
     int gpio_pin = t_config["gpionum"].as<int>();
     int count = t_config["led_count"].as<int>();
-    int invert = t_config["invert"].as<int>();
     int brightness = t_config["brightness"].as<int>();
 
     output.channel[0].gpionum = gpio_pin;
     output.channel[0].count = count;
-    output.channel[0].invert = invert;
+    output.channel[0].invert = 0;
     output.channel[0].brightness = brightness;
     output.channel[0].strip_type = STRIP_TYPE;
 
     BOOST_LOG_TRIVIAL(info) 
     << "GPIO: " << gpio_pin
     << ", Total LED's: " << count
-    << ", Invert: " << invert
     << ", Brightness: " << brightness;
 
     ws2811_return_t ret;
@@ -27,7 +25,6 @@ WS2811Strip::WS2811Strip(YAML::Node& t_config) {
         exit(1);
     }
 }
-
 
 void WS2811Strip::write_pixels_to_strip(std::vector<Pixel>& t_pixels){
 	for(uint16_t i = 0; i < t_pixels.size(); i++){

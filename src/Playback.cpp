@@ -56,15 +56,8 @@ void Playback::record_from_live(){
 }
 
 void Playback::play_live(){
-    // std::thread e131_receive_data_thread([&](){
-    //     e131.receive_data();
-    // });
-
-    // thread_list.push_back(std::move(e131_receive_data_thread));
-
-    // std::thread live_stream_thread([&](){
-    //     this->live_stream_thread();
-    // });
+    BOOST_LOG_TRIVIAL(info) << "Start live playback";
+    this->set_state(PlaybackState::LIVE);
 }
 
 /**
