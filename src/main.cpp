@@ -101,9 +101,9 @@ void boostrap_strip(po::variables_map& vm, YAML::Node& config, LEDStrip&& strip)
         thread_list.push_back(std::move(e131_stats_thread));
     }
 
-    if (vm.count("save_location")) {
-        BOOST_LOG_TRIVIAL(info) << "Save location: " << vm["save_location"].as<std::string>();
-        playback.set_save_location(vm["save_location"].as<std::string>());
+    if (vm.count("set_file_location")) {
+        BOOST_LOG_TRIVIAL(info) << "File location: " << vm["set_file_location"].as<std::string>();
+        playback.set_file_location(vm["set_file_location"].as<std::string>());
     }
 
     // Strip render thread
@@ -114,10 +114,9 @@ void boostrap_strip(po::variables_map& vm, YAML::Node& config, LEDStrip&& strip)
 
     // Playback thread. Handles live frame, recording, playback
     std::thread playback_loop_thread([&](){
-        strip.thread_loop();
+        playback.thread_loop();
     });
     thread_list.push_back(std::move(playback_loop_thread));
-
 
     initscr();
     while(running == true){
@@ -192,7 +191,7 @@ int main(int argc, char* argv[]) {
         }else{
             BOOST_LOG_TRIVIAL(info) << "Using WS2811 Strip";
             WS2811Strip ws2811_strip(config);
-            boostrap_strip(vm, config, std::move(ws2811_strip));
+            //boostrap_strip(vm, config, std::move(ws2811_strip));
         }
 
     }

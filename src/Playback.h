@@ -51,7 +51,7 @@ class Playback : public Stoppable {
     public:
         Playback(E131&& t_e131, LEDStrip&& t_strip);
         ~Playback();
-        void set_save_location(std::string file_name);
+        void set_file_location(std::string file_name);
         void toggle_loop(bool t_loop);
         void record_from_live();
         void play_live();

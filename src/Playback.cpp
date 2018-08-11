@@ -12,7 +12,7 @@ Playback::Playback(E131&& t_e131, LEDStrip&& t_strip) : e131(std::move(t_e131)),
     current_state = PlaybackState::STOPPED;
 }
 
-void Playback::set_save_location(std::string file_name){
+void Playback::set_file_location(std::string file_name){
     leveldb::Options options;
     options.create_if_missing = true;
     leveldb::Status status = leveldb::DB::Open(options, file_name, &db);
@@ -145,8 +145,7 @@ void Playback::play_from_file(){
     leveldb::Iterator* it = db->NewIterator(leveldb::ReadOptions());
     for (it->Seek(index.playhead); current_state == PlaybackState::PLAYING, it->Valid(); it->Next()) {
         auto data = it->value().ToString();
-        nzr::Frame frame;
-   //     try {
+        //try {
             double current = boost::lexical_cast<double>(it->key().ToString());
             double last = boost::lexical_cast<double>(index.playhead);
 
@@ -154,17 +153,26 @@ void Playback::play_from_file(){
             index.playhead = current;
             BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
 
-        // } catch(bad_lexical_cast&) {
-        //     //Do your errormagic
-        // }
-
-        //frame.ParseFromString(&data)
-        //frame_queue.push(frame);
+        //} catch(bad_lexical_cast&) {
+            //Do your errormagic
+        //}
         
+        nzr::Frame frame;
+        frame.ParseFromString(data);
+        
+        std::vector<Pixel> pixels;
+        pixels.resize(frame.pixels_size());
 
+        for(int i = 0; i < frame.pixels_size(); i++){
+            const nzr::Pixel& proto_pixel = frame.pixels(i);
+            Pixel pixel;
+            pixel.r = proto_pixel.r();
+            pixel.g = proto_pixel.g();
+            pixel.b = proto_pixel.b();
+            pixels[i] = pixel;
+        }
 
-        //this needs to be converted to the type used
-        //strip.push_frame(frame);
+        strip.push_frame(pixels);
         wait_for_frame.notify_one();
     }
     delete it;
