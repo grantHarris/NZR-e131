@@ -166,35 +166,42 @@ void Playback::play_from_file(){
         }
 
         strip.push_frame(pixels);
-        wait_for_frame.notify_one();
+        strip.wait_for_frame.notify_one();
     }
     delete it;
 }
 
 
-std::vector<Pixel> Playback::live_stream(){
+void Playback::live_stream(){
+    BOOST_LOG_TRIVIAL(debug) << "1";
     std::unique_lock<std::mutex> mlock(e131.frame_mutex);
-    e131.wait_for_frame.wait(mlock);
-    strip.push_frame(e131.pixels);
-    return e131.pixels;
+    BOOST_LOG_TRIVIAL(debug) << "2";
+    //e131.wait_for_frame.wait(mlock);
+    BOOST_LOG_TRIVIAL(debug) << "3";
+    //strip.push_frame(e131.pixels);
+    BOOST_LOG_TRIVIAL(debug) << "4";
 }
 
 void Playback::thread_loop(){
     while(stop_requested() == false)
     {
+        BOOST_LOG_TRIVIAL(debug) << "In frame loop";
         switch(current_state){
             case PlaybackState::RECORDING:{
-                auto pixels = this->live_stream();
-                this->record_to_file(pixels);
+                BOOST_LOG_TRIVIAL(debug) << "State record";
+                this->live_stream();
+                this->record_to_file(e131.pixels);
                 break;
             }
 
             case PlaybackState::PLAYING:{
+                 BOOST_LOG_TRIVIAL(debug) << "State: Play from file";
                 this->play_from_file();
                 break;
             }
 
             case PlaybackState::LIVE:{
+                BOOST_LOG_TRIVIAL(debug) << "State: Live";
                 this->live_stream();
                 break;
             }

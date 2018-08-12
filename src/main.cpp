@@ -101,9 +101,9 @@ void boostrap_strip(po::variables_map& vm, YAML::Node& config, LEDStrip&& strip)
         thread_list.push_back(std::move(e131_stats_thread));
     }
 
-    if (vm.count("set_file_location")) {
-        BOOST_LOG_TRIVIAL(info) << "File location: " << vm["set_file_location"].as<std::string>();
-        playback.set_file_location(vm["set_file_location"].as<std::string>());
+    if (vm.count("file")) {
+        BOOST_LOG_TRIVIAL(info) << "File location: " << vm["file"].as<std::string>();
+        playback.set_file_location(vm["file"].as<std::string>());
     }
 
     // Strip render thread
@@ -117,6 +117,14 @@ void boostrap_strip(po::variables_map& vm, YAML::Node& config, LEDStrip&& strip)
         playback.thread_loop();
     });
     thread_list.push_back(std::move(playback_loop_thread));
+
+    std::thread e131_receive_data_thread([&](){
+        e131.receive_data();
+    });
+    thread_list.push_back(std::move(e131_receive_data_thread));
+
+    playback.play_live();
+
 
     initscr();
     while(running == true){
@@ -147,11 +155,10 @@ void boostrap_strip(po::variables_map& vm, YAML::Node& config, LEDStrip&& strip)
         }
     }
     endwin();
-    if(running == false){
-        playback.stop();
-        e131.stop();
-        strip.stop();
-    }
+
+    playback.stop();
+    e131.stop();
+    strip.stop();
 
     std::for_each(thread_list.begin(), thread_list.end(), std::mem_fn(&std::thread::join));
 }
@@ -168,6 +175,7 @@ int main(int argc, char* argv[]) {
         ("config,c", po::value<std::string>()->default_value("./config.yaml"), "Config file path")
         ("log,l", po::value<std::string>(), "Logging file path")
         ("stats,s", po::value<std::string>(), "Output update stats for E1.31 updates")
+        ("file,f", po::value<std::string>(), "File name where the replays are stored")
         ("verbosity,v", po::value<std::string>()->default_value("info"), "Enable verbosity (optionally specify level)");
 
         po::variables_map vm;        

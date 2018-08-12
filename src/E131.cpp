@@ -40,7 +40,7 @@ void E131::join_universe(int t_universe){
     BOOST_LOG_TRIVIAL(info) << "Joining universe: " << t_universe;
 
     std::stringstream ss;
-    ss << "sudo ip maddr add 239.255.0." << t_universe << " dev wlan0";
+    ss << "sudo ip maddr add 239.255.0." << t_universe << " dev enxb827eb1e5deb";
     
     BOOST_LOG_TRIVIAL(debug) << "Executing shell command: " << ss.str();
     Util::exec(ss.str().c_str());
@@ -91,6 +91,7 @@ void E131::receive_data(){
  * @param packet [description]
  */
 void E131::map_to_buffer(e131_packet_t &packet){
+    std::lock_guard<std::mutex> lock(frame_mutex);
     int start_address, end_address, output_address_start;
     YAML::Node universe_config = config["mapping"][ntohs(packet.frame.universe)];
 
@@ -114,9 +115,8 @@ void E131::map_to_buffer(e131_packet_t &packet){
             pixel.r = packet.dmp.prop_val[index];
             pixel.g = packet.dmp.prop_val[index + 1];
             pixel.b = packet.dmp.prop_val[index + 2];
-            //put a lock here
+            
             pixels[output_address_start + i] = pixel;
-            //end lock
         }
     }
     wait_for_frame.notify_all();

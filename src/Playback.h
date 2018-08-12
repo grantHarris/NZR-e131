@@ -62,7 +62,7 @@ class Playback : public Stoppable {
         void record_to_file(std::vector<Pixel>& t_pixels);
         void play_from_file();
         void thread_loop();
-        std::vector<Pixel> live_stream();
+        void live_stream();
         std::queue<nzr::Frame> frame_queue;
 
     private:
