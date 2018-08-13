@@ -133,10 +133,8 @@ void Playback::record_to_file(std::vector<Pixel>& t_pixels){
 void Playback::play_from_file(){
     leveldb::Iterator* it = db->NewIterator(leveldb::ReadOptions());
     for (it->Seek(index.playhead); current_state == PlaybackState::PLAYING && stop_requested() == false, it->Valid(); it->Next()) {
-        BOOST_LOG_TRIVIAL(debug) << "in the playback loop" << it->key().ToString();
-        BOOST_LOG_TRIVIAL(debug) << "data" << it->value().ToString();
         
-        // auto data = it->value().ToString();
+        
         // //try {
         //     double current = boost::lexical_cast<double>(it->key().ToString());
         //     double last = boost::lexical_cast<double>(index.playhead);
@@ -149,22 +147,23 @@ void Playback::play_from_file(){
         //     //Do your errormagic
         // //}
         
-        // nzr::Frame frame;
-        // frame.ParseFromString(data);
+        nzr::Frame frame;
+        auto data = it->value().ToString();
+        frame.ParseFromString(data);
         
-        // std::vector<Pixel> pixels;
-        // pixels.resize(frame.pixels_size());
+        std::vector<Pixel> pixels;
+        pixels.resize(frame.pixels_size());
 
-        // for(int i = 0; i < frame.pixels_size(); i++){
-        //     const nzr::Pixel& proto_pixel = frame.pixels(i);
-        //     Pixel pixel;
-        //     pixel.r = proto_pixel.r();
-        //     pixel.g = proto_pixel.g();
-        //     pixel.b = proto_pixel.b();
-        //     pixels[i] = pixel;
-        // }
+        for(int i = 0; i < frame.pixels_size(); i++){
+            const nzr::Pixel& proto_pixel = frame.pixels(i);
+            Pixel pixel;
+            pixel.r = proto_pixel.r();
+            pixel.g = proto_pixel.g();
+            pixel.b = proto_pixel.b();
+            pixels[i] = pixel;
+        }
 
-        // strip.push_frame(pixels);
+        strip.push_frame(pixels);
     }
     BOOST_LOG_TRIVIAL(debug) << "DONE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
     delete it;

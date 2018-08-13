@@ -126,7 +126,6 @@ void boostrap_strip(po::variables_map& vm, YAML::Node& config, LEDStrip&& strip)
     //playback.record_from_live();
     playback.start_playback();
 
-
     //initscr();
     while(running == true){
         // char c = getch();
