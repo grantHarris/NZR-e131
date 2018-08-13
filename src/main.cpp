@@ -123,8 +123,8 @@ void boostrap_strip(po::variables_map& vm, YAML::Node& config, LEDStrip&& strip)
     });
     thread_list.push_back(std::move(e131_receive_data_thread));
 
-    playback.record_from_live();
-    //playback.start_playback();
+    //playback.record_from_live();
+    playback.start_playback();
 
 
     //initscr();

@@ -111,10 +111,10 @@ void Playback::record_to_file(std::vector<Pixel>& t_pixels){
     index.playhead = std::to_string(position.count());
 
     nzr::Frame frame;
-    nzr::Pixel* pixel = frame.add_pixels();
     std::vector<Pixel>::iterator it;
 
     for(it = t_pixels.begin(); it != t_pixels.end(); it++){
+        nzr::Pixel* pixel = frame.add_pixels();
         pixel->set_r((*it).r);
         pixel->set_g((*it).g);
         pixel->set_b((*it).b);
