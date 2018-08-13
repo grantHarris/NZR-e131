@@ -42,6 +42,7 @@ public:
     std::condition_variable wait_for_frame;
     std::vector<Pixel> pixels;
     mutable std::mutex frame_mutex;
+    void start();
 private:
     mutable std::mutex log_mutex;
 
@@ -49,7 +50,7 @@ private:
     std::map<unsigned int, unsigned int> sequence_numbers;
     YAML::Node config;
     
-    int sockfd;
+    int sockfd = 0;
     e131_packet_t packet;
     e131_error_t error;
     uint8_t last_seq = 0x00;

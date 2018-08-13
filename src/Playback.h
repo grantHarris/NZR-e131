@@ -1,3 +1,5 @@
+#define _HAS_ITERATOR_DEBUGGING 0
+
 #ifndef __Playback_H__
 #define __Playback_H__
 
@@ -23,6 +25,7 @@
 #include <future>
 
 #include "leveldb/db.h"
+#include "leveldb/comparator.h"
 #include "frame.pb.h"
 
 #include "LEDStrip.h"
@@ -33,6 +36,24 @@
 
 using namespace boost::log;
 namespace logging = boost::log;
+
+class Comparator : public leveldb::Comparator {
+ public:
+  int Compare(const leveldb::Slice& a, const leveldb::Slice& b) const {
+    double a1 = boost::lexical_cast<double>(a.ToString());
+    double b1 = boost::lexical_cast<double>(b.ToString());
+
+    if (a1 < b1) return -1;
+    if (a1 > b1) return +1;
+    return 0;
+  }
+
+  // Ignore the following methods for now:
+  const char* Name() const { return "Comparator"; }
+  void FindShortestSeparator(std::string*, const leveldb::Slice&) const {}
+  void FindShortSuccessor(std::string*) const {}
+};
+
 
 enum class PlaybackState {
     STOPPED,
@@ -49,6 +70,7 @@ struct Index{
 
 class Playback : public Stoppable {
     public:
+        Comparator cmp;
         Playback(E131&& t_e131, LEDStrip&& t_strip);
         ~Playback();
         void set_file_location(std::string file_name);
@@ -76,7 +98,6 @@ class Playback : public Stoppable {
         bool loop;
         Index index;
         std::chrono::time_point<std::chrono::steady_clock> start_time;
-        std::string* playhead;
         PlaybackState current_state;
         leveldb::DB* db;
         std::condition_variable wait_for_frame;

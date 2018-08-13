@@ -1,3 +1,4 @@
+#define _HAS_ITERATOR_DEBUGGING 0
 
 #include <utility>
 #include <cstdio>
@@ -61,30 +62,30 @@ void setup_logging(po::variables_map& vm){
         logging::add_file_log(vm["log"].as<std::string>());
     }
     
-    int verbosity;
-    if (vm.count("verbosity")){
-        std::string verbosityStr = vm["verbosity"].as<std::string>();
+    int level;
+    if (vm.count("level")){
+        std::string levelStr = vm["level"].as<std::string>();
 
-        if(verbosityStr == "trace"){
-            verbosity = logging::trivial::trace;
-        }else if(verbosityStr == "debug"){
-            verbosity = logging::trivial::debug;
-        }else if(verbosityStr == "info"){
-            verbosity = logging::trivial::info;
-        }else if(verbosityStr == "warning"){ 
-            verbosity = logging::trivial::warning;
-        }else if(verbosityStr == "error"){
-            verbosity = logging::trivial::error;
-        }else if(verbosityStr == "fatal"){
-            verbosity = logging::trivial::error;
+        if(levelStr == "trace"){
+            level = logging::trivial::trace;
+        }else if(levelStr == "debug"){
+            level = logging::trivial::debug;
+        }else if(levelStr == "info"){
+            level = logging::trivial::info;
+        }else if(levelStr == "warning"){ 
+            level = logging::trivial::warning;
+        }else if(levelStr == "error"){
+            level = logging::trivial::error;
+        }else if(levelStr == "fatal"){
+            level = logging::trivial::error;
         }else{
-            verbosity = logging::trivial::info;
+            level = logging::trivial::info;
         }
     }else{
-        verbosity = logging::trivial::info;
+        level = logging::trivial::info;
     }
 
-    logging::core::get()->set_filter(logging::trivial::severity >= verbosity);
+    logging::core::get()->set_filter(logging::trivial::severity >= level);
 }
 
 void boostrap_strip(po::variables_map& vm, YAML::Node& config, LEDStrip&& strip){
@@ -92,14 +93,6 @@ void boostrap_strip(po::variables_map& vm, YAML::Node& config, LEDStrip&& strip)
     Playback playback(std::move(e131), std::move(strip));
     std::vector<std::thread> thread_list;
 
-    // Stats thread
-    if(vm.count("stats")){
-        BOOST_LOG_TRIVIAL(info) << "Stats enabled";
-        std::thread e131_stats_thread([&](){
-            e131.stats_thread();
-        });
-        thread_list.push_back(std::move(e131_stats_thread));
-    }
 
     if (vm.count("file")) {
         BOOST_LOG_TRIVIAL(info) << "File location: " << vm["file"].as<std::string>();
@@ -118,16 +111,67 @@ void boostrap_strip(po::variables_map& vm, YAML::Node& config, LEDStrip&& strip)
     });
     thread_list.push_back(std::move(playback_loop_thread));
 
-    std::thread e131_receive_data_thread([&](){
-        e131.receive_data();
-    });
-    thread_list.push_back(std::move(e131_receive_data_thread));
 
-    //playback.record_from_live();
-    playback.start_playback();
+    //Todo : clean below up and put into functions
+    if (vm.count("mode")){
+        std::string levelStr = vm["mode"].as<std::string>();
+
+        if(levelStr == "record"){
+            e131.start();
+            BOOST_LOG_TRIVIAL(info) << "Starting recording from live";
+            // Stats thread
+            if(vm.count("stats")){
+                BOOST_LOG_TRIVIAL(info) << "Stats enabled";
+                std::thread e131_stats_thread([&](){
+                    e131.stats_thread();
+                });
+                thread_list.push_back(std::move(e131_stats_thread));
+            }
+            std::thread e131_receive_data_thread([&](){
+                e131.receive_data();
+            });
+            thread_list.push_back(std::move(e131_receive_data_thread));
+            playback.record_from_live();
+        }else if(levelStr == "playback"){
+            BOOST_LOG_TRIVIAL(info) << "Starting playback";
+            playback.start_playback();
+        }else{
+            BOOST_LOG_TRIVIAL(info) << "Starting live";
+            // Stats thread
+            if(vm.count("stats")){
+                BOOST_LOG_TRIVIAL(info) << "Stats enabled";
+                std::thread e131_stats_thread([&](){
+                    e131.stats_thread();
+                });
+                thread_list.push_back(std::move(e131_stats_thread));
+            }
+            std::thread e131_receive_data_thread([&](){
+                e131.receive_data();
+            });
+            thread_list.push_back(std::move(e131_receive_data_thread));
+            playback.play_live();
+        }
+    }else{
+        BOOST_LOG_TRIVIAL(info) << "Starting live";
+        // Stats thread
+        if(vm.count("stats")){
+            BOOST_LOG_TRIVIAL(info) << "Stats enabled";
+            std::thread e131_stats_thread([&](){
+                e131.stats_thread();
+            });
+            thread_list.push_back(std::move(e131_stats_thread));
+        }
+        std::thread e131_receive_data_thread([&](){
+            e131.receive_data();
+        });
+        thread_list.push_back(std::move(e131_receive_data_thread));
+        playback.play_live();
+    }
+
 
     //initscr();
     while(running == true){
+        usleep(5000000);
         // char c = getch();
         // switch(c){
         //     case 'r':{
@@ -174,9 +218,10 @@ int main(int argc, char* argv[]) {
         ("help,h", "Produce help message")
         ("config,c", po::value<std::string>()->default_value("./config.yaml"), "Config file path")
         ("log,l", po::value<std::string>(), "Logging file path")
+        ("mode,m", po::value<std::string>(), "Mode to start in")
         ("stats,s", po::value<std::string>(), "Output update stats for E1.31 updates")
         ("file,f", po::value<std::string>(), "File name where the replays are stored")
-        ("verbosity,v", po::value<std::string>()->default_value("info"), "Enable verbosity (optionally specify level)");
+        ("level,v", po::value<std::string>()->default_value("info"), "Enable level (optionally specify level)");
 
         po::variables_map vm;        
         po::store(po::parse_command_line(argc, argv, desc), vm);

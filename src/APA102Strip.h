@@ -1,3 +1,5 @@
+#define _HAS_ITERATOR_DEBUGGING 0
+
 #ifndef __APA102_H__
 #define __APA102_H__
 #include <bcm2835.h>

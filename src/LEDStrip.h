@@ -1,3 +1,5 @@
+#define _HAS_ITERATOR_DEBUGGING 0
+
 #ifndef __LEDSTRIP_H__
 #define __LEDSTRIP_H__
 #include <queue>

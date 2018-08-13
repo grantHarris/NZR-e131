@@ -2,33 +2,32 @@
 
 E131::E131(YAML::Node& t_config) : config(t_config){
     pixels.resize(t_config["led_count"].as<int>());
+}
 
-    do {
+void E131::start(){
+    if(sockfd == 0){
         sockfd = e131_socket();
         if(sockfd < 0){
             BOOST_LOG_TRIVIAL(error) << "E1.31 socket creation failed.";
-            usleep(1000000);//get rid of this weird loop crap
+            err(EXIT_FAILURE, "E1.31 socket creation failed.");
+        }
+
+        BOOST_LOG_TRIVIAL(info) << "E1.31 socket created.";
+
+        if (e131_bind(sockfd, E131_DEFAULT_PORT) < 0){
+            BOOST_LOG_TRIVIAL(error) << "E1.31 failed binding to port: " << E131_DEFAULT_PORT;
+            err(EXIT_FAILURE, "Failed to bind");
+        }
+
+        BOOST_LOG_TRIVIAL(info) << "E1.31 client bound to port: " << E131_DEFAULT_PORT;
+
+        for(YAML::const_iterator it=config["mapping"].begin(); it != config["mapping"].end(); ++it) {
+            int universe = it->first.as<int>();
+            this->join_universe(universe);
+            sequence_numbers[universe] = 0;
+            this->register_universe_for_stats(universe);
         }
     }
-
-    while (sockfd < 0);
-
-    BOOST_LOG_TRIVIAL(info) << "E1.31 socket created.";
-
-    while (e131_bind(sockfd, E131_DEFAULT_PORT) < 0){
-        BOOST_LOG_TRIVIAL(error) << "E1.31 failed binding to port: " << E131_DEFAULT_PORT;
-        usleep(1000000); //get rid of this weird loop crap       
-    }
-
-    BOOST_LOG_TRIVIAL(info) << "E1.31 client bound to port: " << E131_DEFAULT_PORT;
-
-    for(YAML::const_iterator it=config["mapping"].begin(); it != config["mapping"].end(); ++it) {
-        int universe = it->first.as<int>();
-        this->join_universe(universe);
-        sequence_numbers[universe] = 0;
-        this->register_universe_for_stats(universe);
-    }
-
 }
 
 /**
@@ -77,7 +76,7 @@ void E131::receive_data(){
         }
 
         this->log_universe_packet(universe, State::GOOD);
-        BOOST_LOG_TRIVIAL(debug) << "Packet for universe: " << universe;
+        BOOST_LOG_TRIVIAL(trace) << "Packet for universe: " << universe;
         this->map_to_buffer(packet);
 
         sequence_numbers[universe] = packet.frame.seq_number;
@@ -119,7 +118,6 @@ void E131::map_to_buffer(e131_packet_t &packet){
             pixels[output_address_start + i] = pixel;
         }
     }
-    BOOST_LOG_TRIVIAL(info) << "New packet notification";
     wait_for_frame.notify_all();
 }
 
@@ -156,6 +154,7 @@ void E131::log_universe_packet(unsigned int t_universe, State state){
  */
 void E131::stats_thread(){
     while (stop_requested() == false){
+        BOOST_LOG_TRIVIAL(info) << "stats loop";
         log_mutex.lock();
         for(std::map<unsigned int, UniverseStats>::iterator iter = universe_stats.begin(); iter != universe_stats.end(); ++iter)
         {
