@@ -96,7 +96,7 @@ void Playback::stop_playback(){
  * @param state [description]
  */
 void Playback::set_state(PlaybackState state){
-    std::unique_lock<std::mutex> lock(state_mutex);
+    std::lock_guard<std::mutex> lock(state_mutex);
     current_state = state;
 }
 
@@ -111,7 +111,6 @@ void Playback::record_to_file(std::vector<Pixel>& t_pixels){
     index.playhead = std::to_string(position.count());
 
     nzr::Frame frame;
-    
     nzr::Pixel* pixel = frame.add_pixels();
     std::vector<Pixel>::iterator it;
 
@@ -124,9 +123,7 @@ void Playback::record_to_file(std::vector<Pixel>& t_pixels){
     std::string output;
     frame.SerializeToString(&output);
     db->Put(leveldb::WriteOptions(), index.playhead, output);
-    frame_queue.pop();
     BOOST_LOG_TRIVIAL(info) << "Record frame at: " << index.playhead;
-
 }
 
 /**
@@ -134,53 +131,46 @@ void Playback::record_to_file(std::vector<Pixel>& t_pixels){
  * @details Loops through the leveldb file with an iterator
  */
 void Playback::play_from_file(){
-    std::unique_lock<std::mutex> lock(frame_mutex);
     leveldb::Iterator* it = db->NewIterator(leveldb::ReadOptions());
-    for (it->Seek(index.playhead); current_state == PlaybackState::PLAYING, it->Valid(); it->Next()) {
-        auto data = it->value().ToString();
-        //try {
-            double current = boost::lexical_cast<double>(it->key().ToString());
-            double last = boost::lexical_cast<double>(index.playhead);
-
-            std::this_thread::sleep_for(std::chrono::milliseconds((long) (current - last) * 1000));
-            index.playhead = current;
-            BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
-
-        //} catch(bad_lexical_cast&) {
-            //Do your errormagic
-        //}
+    for (it->Seek(index.playhead); current_state == PlaybackState::PLAYING && stop_requested() == false, it->Valid(); it->Next()) {
+        BOOST_LOG_TRIVIAL(debug) << "in the playback loop" << it->key().ToString();
+        BOOST_LOG_TRIVIAL(debug) << "data" << it->value().ToString();
         
-        nzr::Frame frame;
-        frame.ParseFromString(data);
+        // auto data = it->value().ToString();
+        // //try {
+        //     double current = boost::lexical_cast<double>(it->key().ToString());
+        //     double last = boost::lexical_cast<double>(index.playhead);
+
+        //     std::this_thread::sleep_for(std::chrono::milliseconds((long) (current - last) * 1000));
+        //     index.playhead = current;
+        //     BOOST_LOG_TRIVIAL(debug) << "Play frame at: " << index.playhead;
+
+        // //} catch(bad_lexical_cast&) {
+        //     //Do your errormagic
+        // //}
         
-        std::vector<Pixel> pixels;
-        pixels.resize(frame.pixels_size());
+        // nzr::Frame frame;
+        // frame.ParseFromString(data);
+        
+        // std::vector<Pixel> pixels;
+        // pixels.resize(frame.pixels_size());
 
-        for(int i = 0; i < frame.pixels_size(); i++){
-            const nzr::Pixel& proto_pixel = frame.pixels(i);
-            Pixel pixel;
-            pixel.r = proto_pixel.r();
-            pixel.g = proto_pixel.g();
-            pixel.b = proto_pixel.b();
-            pixels[i] = pixel;
-        }
+        // for(int i = 0; i < frame.pixels_size(); i++){
+        //     const nzr::Pixel& proto_pixel = frame.pixels(i);
+        //     Pixel pixel;
+        //     pixel.r = proto_pixel.r();
+        //     pixel.g = proto_pixel.g();
+        //     pixel.b = proto_pixel.b();
+        //     pixels[i] = pixel;
+        // }
 
-        strip.push_frame(pixels);
-        strip.wait_for_frame.notify_one();
+        // strip.push_frame(pixels);
     }
+    BOOST_LOG_TRIVIAL(debug) << "DONE\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
     delete it;
 }
 
 
-void Playback::live_stream(){
-    BOOST_LOG_TRIVIAL(debug) << "1";
-    std::unique_lock<std::mutex> mlock(e131.frame_mutex);
-    BOOST_LOG_TRIVIAL(debug) << "2";
-    //e131.wait_for_frame.wait(mlock);
-    BOOST_LOG_TRIVIAL(debug) << "3";
-    //strip.push_frame(e131.pixels);
-    BOOST_LOG_TRIVIAL(debug) << "4";
-}
 
 void Playback::thread_loop(){
     while(stop_requested() == false)
@@ -188,21 +178,25 @@ void Playback::thread_loop(){
         BOOST_LOG_TRIVIAL(debug) << "In frame loop";
         switch(current_state){
             case PlaybackState::RECORDING:{
-                BOOST_LOG_TRIVIAL(debug) << "State record";
-                this->live_stream();
+                BOOST_LOG_TRIVIAL(info) << "State record";
+                std::unique_lock<std::mutex> mlock(e131.frame_mutex);
+                e131.wait_for_frame.wait(mlock);
+                strip.push_frame(e131.pixels);
                 this->record_to_file(e131.pixels);
                 break;
             }
 
             case PlaybackState::PLAYING:{
-                 BOOST_LOG_TRIVIAL(debug) << "State: Play from file";
+                BOOST_LOG_TRIVIAL(info) << "State: Play from file";
                 this->play_from_file();
                 break;
             }
 
             case PlaybackState::LIVE:{
-                BOOST_LOG_TRIVIAL(debug) << "State: Live";
-                this->live_stream();
+                BOOST_LOG_TRIVIAL(info) << "State: Live";
+                std::unique_lock<std::mutex> mlock(e131.frame_mutex);
+                e131.wait_for_frame.wait(mlock);
+                strip.push_frame(e131.pixels);
                 break;
             }
         }

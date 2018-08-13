@@ -31,10 +31,10 @@ void WS2811Strip::write_pixels_to_strip(std::vector<Pixel>& t_pixels){
 		this->write_to_output_buffer(0, i, t_pixels[i]);
 	}
 
-	ws2811_return_t ret;
-    if ((ret = ws2811_render(&output)) != WS2811_SUCCESS){
-    	BOOST_LOG_TRIVIAL(error) << "ws2811 render frame failed:" << ws2811_get_return_t_str(ret);
-    }
+	// ws2811_return_t ret;
+ //    if ((ret = ws2811_render(&output)) != WS2811_SUCCESS){
+ //    	BOOST_LOG_TRIVIAL(error) << "ws2811 render frame failed:" << ws2811_get_return_t_str(ret);
+ //    }
 }
 
 

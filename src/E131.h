@@ -11,6 +11,7 @@
 #include <thread>
 #include <chrono>
 #include <condition_variable>
+#include <queue>
 
 #include <boost/log/trivial.hpp>
 #include <boost/log/core.hpp>

@@ -63,7 +63,6 @@ class Playback : public Stoppable {
         void play_from_file();
         void thread_loop();
         void live_stream();
-        std::queue<nzr::Frame> frame_queue;
 
     private:
         E131&& e131;

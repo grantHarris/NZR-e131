@@ -119,6 +119,7 @@ void E131::map_to_buffer(e131_packet_t &packet){
             pixels[output_address_start + i] = pixel;
         }
     }
+    BOOST_LOG_TRIVIAL(info) << "New packet notification";
     wait_for_frame.notify_all();
 }
 

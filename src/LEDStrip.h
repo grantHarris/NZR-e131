@@ -47,7 +47,7 @@ struct Pixel {
          * @param t_pixels Vector of pixels
          */
         void push_frame(std::vector<Pixel> const& t_pixels){
-            std::lock_guard<std::mutex> lock(frame_mutex); //replace with c++11
+            std::lock_guard<std::mutex> lock(frame_mutex);
             frame_queue.push(t_pixels);
             wait_for_frame.notify_one();
         }
@@ -59,7 +59,7 @@ struct Pixel {
          * @param lock [description]
          */
         void pop_and_display_frame(){
-            std::unique_lock<std::mutex> lock(frame_mutex); //replace with c++11
+            std::unique_lock<std::mutex> lock(frame_mutex);
             BOOST_LOG_TRIVIAL(info) << "Wait and pop";
             while(stop_requested() == false)
             {

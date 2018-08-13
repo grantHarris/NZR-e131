@@ -123,38 +123,39 @@ void boostrap_strip(po::variables_map& vm, YAML::Node& config, LEDStrip&& strip)
     });
     thread_list.push_back(std::move(e131_receive_data_thread));
 
-    playback.play_live();
+    playback.record_from_live();
+    //playback.start_playback();
 
 
-    initscr();
+    //initscr();
     while(running == true){
-        char c = getch();
-        switch(c){
-            case 'r':{
-                playback.record_from_live();
-                break;
-            }
-            case 'p':{
-                playback.start_playback();
-                break;
-            }
+        // char c = getch();
+        // switch(c){
+        //     case 'r':{
+        //         playback.record_from_live();
+        //         break;
+        //     }
+        //     case 'p':{
+        //         playback.start_playback();
+        //         break;
+        //     }
 
-            case 'a':{
-                playback.pause_playback();
-                break;
-            }
+        //     case 'a':{
+        //         playback.pause_playback();
+        //         break;
+        //     }
             
-            case 's':{
-                playback.stop_playback();
-                break;
-            }
-            case 'l':{
-                playback.play_live();
-                break;
-            }
-        }
+        //     case 's':{
+        //         playback.stop_playback();
+        //         break;
+        //     }
+        //     case 'l':{
+        //         playback.play_live();
+        //         break;
+        //     }
+        // }
     }
-    endwin();
+    //endwin();
 
     playback.stop();
     e131.stop();
