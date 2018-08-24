@@ -14,7 +14,7 @@ sudo ./e131bridge --config=../config/config-poi.yml --verbosity=info --stats=tru
 
 ### Flags
 
-* --verbosity="[log level]"
+* --level="[log level]"
 Toggle level of logging verbosity. 
 
 * --stats=true
@@ -81,7 +81,7 @@ make
     sudo make install
 
 ### Install libe131
-    sudo install automake
+    sudo apt-get install automake
     git clone git@github.com:hhromic/libe131.git
     ./autogen.sh
 
