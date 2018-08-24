@@ -48,13 +48,13 @@ make
 ### Install gcc git
     sudo apt-get install gcc git vim
 
-###Install cmake
-	wget https://cmake.org/files/v3.12/cmake-3.12.0.tar.gz
-	tar -xvzf cmake-3.12.0.tar.gz
-	cd cmake-3.12.0/
-	sudo ./bootstrap
-	sudo make
-	sudo make install
+### Install cmake
+    wget https://cmake.org/files/v3.12/cmake-3.12.0.tar.gz
+    tar -xvzf cmake-3.12.0.tar.gz
+    cd cmake-3.12.0/
+    sudo ./bootstrap
+    sudo make
+    sudo make install
 
 ### Install boost
     wget https://dl.bintray.com/boostorg/release/1.67.0/source/boost_1_67_0.tar.gz
