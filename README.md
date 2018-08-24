@@ -65,6 +65,11 @@ make
 ### Install yaml-cpp
     wget https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-0.6.2.tar.gz
     tar -xvzf yaml-cpp-0.6.2.tar.gz
+    mkdir build
+    cd build
+    cmake ..
+    make
+    sudo make install
 
 ### Install BCM2835
     wget http://www.airspayce.com/mikem/bcm2835/bcm2835-1.56.tar.gz
