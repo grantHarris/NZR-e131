@@ -2,43 +2,45 @@
 
 RPi e1.31 bridge to WS2811 LEDs
 
-## Useage examples
+## Usage examples
 ### Basic Usage
+This will set up a live stream with logging level of info using the config.yaml file in the current directory
 ```bash
 sudo ./e131bridge
 ```
 
-### Playing back for the robot config from folder foo
+### Playback
+This will play back a saved sequence from the folder `foo` in the current directory with a mapping config file of config-robot.yml 
 ```bash
 sudo ./e131bridge --config=../config/config-robot.yml --level=trace --mode=playback --file=foo
 ```
 
-### Logging for poi 
+### Debug level of logging for poi config
 ```bash
-sudo ./e131bridge --config=../config/config-poi.yml --level=info --stats=true
+sudo ./e131bridge --config=../config/config-poi.yml --level=debug --stats=true
 ```
 
 ## Flags
 
-* --level=[log level]
-Toggle level of logging verbosity. trace, debug, info, warning, error, fatal. Defaults to info.
+* **--level=[log level]**
+Toggle level of logging verbosity. `trace`, `debug`, `info`, `warning`, `error`, `fatal`. Defaults to `info`.
 
-* --mode=[mode type]
-One of record, playback, or live. Defaults to live.
- - Playback plays back from an existing sequence stored in a leveldb folder
- - Record records from a live e131 stream to the folder specified in the --file flag
- - Live. Plays the live e131 stream. No recording.
+* **--mode=[mode type]**
+One of `record`, `playback`, or `live`. Defaults to `live`.
+  - Playback plays back from an existing sequence stored in a leveldb folder
+  - Record records from a live e131 stream to the folder specified in the --file flag
+  - Live. Plays the live e131 stream. No recording.
 
-* --file=path/to/leveldb/folder
+* **--file=path/to/leveldb/folder**
 The location where the saved show is stored. This is a leveldb folder. If the folder already exists you can play it back by setting the mode flag to playback. If you set the mode flag to record and the folder doesn't already exist it is created. Recording records from the live stream.
 
-* --stats=true
+* **--stats=true**
 Toggle stats display on or off
 
-* --config=path/to/config.yaml
-Path to config file
+* **--config=path/to/config.yaml**
+Path to config file. See config folder for sample config files.
 
-* --log=path/to/logfile
+* **--log=path/to/logfile**
 Path to logging file
 
 ## Build Debug 
@@ -130,8 +132,3 @@ make
     scons
     # move built a file into the lib directory
 
-## Libraries
-* https://github.com/jgarff/rpi_ws281x.git
-* https://github.com/jbeder/yaml-cpp.git
-* Boost 1.66
-* http://www.airspayce.com/mikem/bcm2835/
