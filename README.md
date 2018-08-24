@@ -83,10 +83,15 @@ make
 ### Install libe131
     sudo apt-get install automake
     git clone git@github.com:hhromic/libe131.git
+    cd libe131
     ./autogen.sh
+    ./configure
+    make
+    sudo make install
 
 ### Install LevelDB
     git clone git@github.com:google/leveldb.git
+    cd leveldb
     mkdir -p build && cd build
     cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build .
 
