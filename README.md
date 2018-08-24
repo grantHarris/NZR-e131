@@ -7,7 +7,7 @@ RPi e1.31 bridge to WS2811 LED's
 sudo ./e131bridge
 ```
 
-### Logginf for poi 
+### Logging for poi 
 ```bash
 sudo ./e131bridge --config=../config/config-poi.yml --verbosity=info --stats=true
 ```
