@@ -12,7 +12,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -DBOOST_LOG_DYN_LINK
 find_package(Boost 1.62.0 COMPONENTS log program_options REQUIRED)
 find_library(E131 e131)
 find_library(YAML_CPP_LIBRARY yaml-cpp)
-find_library(BCM bcm2835)
+#find_library(BCM bcm2835)
 find_library(LEVELDB leveldb)
 find_library(PROTOBUF protobuf)
 find_library(NCURSES ncurses)
@@ -21,6 +21,6 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 add_executable(${MY_TARGET_NAME} ${SOURCES})
 
-target_link_libraries(${MY_TARGET_NAME} ${YAML_CPP_LIBRARY} ${E131} ${BCM} ${LEVELDB} ${PROTOBUF} ${NCURSES})
+target_link_libraries(${MY_TARGET_NAME} ${YAML_CPP_LIBRARY} ${E131}  ${LEVELDB} ${PROTOBUF} ${NCURSES})
 target_link_libraries(${MY_TARGET_NAME} ${CMAKE_SOURCE_DIR}/lib/libws2811.a)
 target_link_libraries(${MY_TARGET_NAME} ${Boost_LIBRARIES})
