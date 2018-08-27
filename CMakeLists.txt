@@ -7,7 +7,7 @@ project(${MY_TARGET_NAME})
 file(GLOB SOURCES "src/*.cpp")
 
 link_directories("lib/")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -DBOOST_LOG_DYN_LINK")
 
 find_package(Boost 1.62.0 COMPONENTS log program_options REQUIRED)
 find_library(E131 e131)

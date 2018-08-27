@@ -31,7 +31,7 @@ class WS2811Strip : public LEDStrip {
     	void write_pixels_to_strip(std::vector<Pixel>& t_pixels);
     	void write_to_output_buffer(int strip_channel, int index, Pixel pixel);
     private:
-        ws2811_t output;
+        ws2811_t output = {0};
         void setup_ouput();
 };
 
