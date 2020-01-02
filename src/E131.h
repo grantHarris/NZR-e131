@@ -1,15 +1,25 @@
 #ifndef __E131_H__
 #define __E131_H__
 #include "yaml-cpp/yaml.h"
+#include <utility>
 #include <e131.h>
 #include <err.h>
 #include <mutex>
+#include <vector>
+#include <functional>
+#include <future>
+#include <thread>
+#include <chrono>
+#include <condition_variable>
+#include <queue>
+
 #include <boost/log/trivial.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
 
-#include "Util.h"
 #include "LEDStrip.h"
+#include "Util.h"
+#include "Stoppable.h"
 
 using namespace boost::log;
 namespace logging = boost::log;
@@ -24,23 +34,28 @@ enum State {
     OUT_OF_SEQUENCE
 };
 
-class E131 {
+class E131 : public Stoppable{
 public:
-    E131(YAML::Node& t_config, LEDStrip& t_led_strip);
-    void receive_data(bool *running);
-    void stats_thread(bool *running);
+    E131(YAML::Node& t_config);
+    void receive_data();
+    void stats_thread();
+    std::condition_variable wait_for_frame;
+    std::vector<Pixel> pixels;
+    mutable std::mutex frame_mutex;
+    void start();
 private:
+    mutable std::mutex log_mutex;
+
     std::map<unsigned int, UniverseStats> universe_stats;
     std::map<unsigned int, unsigned int> sequence_numbers;
     YAML::Node config;
-    LEDStrip& led_strip;
-    std::mutex log_mutex;
-    std::mutex output_mutex;
-    int sockfd;
+    
+    int sockfd = 0;
     e131_packet_t packet;
     e131_error_t error;
     uint8_t last_seq = 0x00;
 
+    void map_to_buffer(e131_packet_t &packet);
     void register_universe_for_stats(unsigned int t_universe);
     void join_universe(int t_universe);
     void log_universe_packet(unsigned int t_universe, State state);

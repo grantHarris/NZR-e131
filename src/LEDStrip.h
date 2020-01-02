@@ -1,44 +1,83 @@
+#define _HAS_ITERATOR_DEBUGGING 0
+
 #ifndef __LEDSTRIP_H__
 #define __LEDSTRIP_H__
-
-#define DMA             10
-#define TARGET_FREQ     WS2811_TARGET_FREQ
-#define STRIP_TYPE      WS2811_STRIP_GRB
-
+#include <queue>
+#include <vector>
+#include <utility>
 #include <stdint.h>
 #include <unistd.h>
-#include <mutex>
 #include <err.h>
 #include <boost/log/trivial.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
-#include "../lib/ws2811.h"
-#include "../lib/clk.h"
-#include "../lib/gpio.h"
-#include "../lib/dma.h"
-#include "../lib/pwm.h"
-#include "../lib/version.h"
+
+#include <condition_variable>
+#include <thread>
+#include <mutex>
+#include <future>
+
 #include "yaml-cpp/yaml.h"
+
+#include "Stoppable.h"
 
 using namespace boost::log;
 namespace logging = boost::log;
 
 struct Pixel {
-	uint32_t r;
-	uint32_t g;
-	uint32_t b;
-};
+     uint32_t r;
+     uint32_t g;
+     uint32_t b;
+ };
 
-class LEDStrip {
+ class LEDStrip : public Stoppable {
+    protected:
+        std::queue<std::vector<Pixel>> frame_queue;
     public:
-    	LEDStrip(YAML::Node& t_config);
-    	void render(bool *running);
-    	void write_to_buffer(int strip_channel, int index, Pixel pixel);
-    private:
-        ws2811_t output;
-        YAML::Node config;
-        std::mutex output_mutex;
-        void setup_ouput();
-};
+        mutable std::mutex frame_mutex;
+        std::condition_variable wait_for_frame;
 
-#endif /* __LEDSTRIP_H__ */
+        /**
+         * @brief Abstract class to be implemented for writing to the strip
+         * @param t_pixels Vector with pixel data to write to strip
+         */
+        virtual void write_pixels_to_strip(std::vector<Pixel>& t_pixels) = 0;
+        
+        /**
+         * @brief Display a new frame on the strip
+         * 
+         * @param t_pixels Vector of pixels
+         */
+        void push_frame(std::vector<Pixel> const& t_pixels){
+            std::lock_guard<std::mutex> lock(frame_mutex);
+            frame_queue.push(t_pixels);
+            wait_for_frame.notify_one();
+        }
+
+        /**
+         * @brief [brief description]
+         * @details [long description]
+         * 
+         * @param lock [description]
+         */
+        void pop_and_display_frame(){
+            std::unique_lock<std::mutex> lock(frame_mutex);
+            BOOST_LOG_TRIVIAL(info) << "Wait and pop";
+            while(stop_requested() == false)
+            {
+                while(frame_queue.empty())
+                {
+                    if(stop_requested() == false){
+                        wait_for_frame.wait(lock);
+                    }else{
+                        break;
+                    }
+                }
+                this->write_pixels_to_strip(frame_queue.front());
+                frame_queue.pop();
+            }
+        }
+ };
+
+ #endif /* __LEDSTRIP_H__ */
+
